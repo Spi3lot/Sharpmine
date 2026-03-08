@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -14,9 +14,15 @@ namespace Sharpmine.Gen
     public class ServerboundPacketRegistryGenerator : IIncrementalGenerator
     {
 
-        private const string AttributeNamespace = "Sharpmine.Server.Packets";
+        private const string TargetNamespace = "Sharpmine.Server.Protocol.Packets.Serverbound";
+
+        private const string TargetClassName = "ServerboundPacketRegistry";
+
+        private const string AttributeNamespace = "Sharpmine.Server.Protocol.Packets";
 
         private const string AttributeClassName = "PacketAttribute";
+
+        private const string ConnectionState = "ConnectionState";
 
         private static readonly DiagnosticDescriptor DuplicateIdError = new DiagnosticDescriptor(
             id: "PKT001",
@@ -80,26 +86,26 @@ namespace Sharpmine.Gen
             sb.AppendLine("using System;");
             sb.AppendLine("using System.Diagnostics.CodeAnalysis;");
             sb.AppendLine();
-            sb.AppendLine($"namespace {AttributeNamespace};");
+            sb.AppendLine($"namespace {TargetNamespace};");
             sb.AppendLine();
-            sb.AppendLine("public static class ServerboundPacketRegistry {");
-            sb.AppendLine("    public static Serverbound.IServerboundPacket CreatePacket(int id, ConnectionState connectionState) => (id, connectionState) switch");
+            sb.AppendLine($"public static class {TargetClassName} {{");
+            sb.AppendLine($"    public static Serverbound.IServerboundPacket CreatePacket(int id, {ConnectionState} connectionState) => (id, connectionState) switch");
             sb.AppendLine("    {");
 
             foreach (var pair in usedIds)
             {
-                sb.AppendLine($"        ({pair.Key.PacketId}, (ConnectionState) {pair.Key.ConnectionState}) => new {pair.Value}(),");
+                sb.AppendLine($"        ({pair.Key.PacketId}, ({ConnectionState}) {pair.Key.ConnectionState}) => new {pair.Value}(),");
             }
 
             sb.AppendLine("        _ => null");
             sb.AppendLine("    };");
             sb.AppendLine();
-            sb.AppendLine("    public static (int Id, ConnectionState ConnectionState) GetPacketCondition(Serverbound.IServerboundPacket packet) => packet switch");
+            sb.AppendLine($"    public static (int Id, {ConnectionState} ConnectionState) GetPacketCondition(Serverbound.IServerboundPacket packet) => packet switch");
             sb.AppendLine("    {");
 
             foreach (var pair in usedIds)
             {
-                sb.AppendLine($"        {pair.Value} => ({pair.Key.PacketId}, (ConnectionState) {pair.Key.ConnectionState}),");
+                sb.AppendLine($"        {pair.Value} => ({pair.Key.PacketId}, ({ConnectionState}) {pair.Key.ConnectionState}),");
             }
 
             sb.AppendLine("        _ => throw new InvalidOperationException(\"You somehow found a packet without a PacketAttribute. Did you forget to annotate it accordingly?\")");

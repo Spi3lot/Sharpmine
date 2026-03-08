@@ -9,11 +9,11 @@ public class StatusResponsePacket : IClientboundPacket
 
     public int Id => 0x00;
 
-    public required JsonObject JsonResponse { get; set; }
+    public JsonObject Status { get; set; } = null!;
 
-    public async Task SerializeAsync(NetworkStream stream, BinaryWriter writer)
+    public Task SerializeAsync(NetworkStream stream, BinaryWriter writer)
     {
-        await JsonSerializer.SerializeAsync(stream, JsonResponse);
+        return JsonSerializer.SerializeAsync(stream, Status);
     }
 
 }

@@ -10,7 +10,7 @@ public class StatusRequestPacket : IServerboundPacket
 
     public Task DeserializeAsync(BinaryReader reader) => Task.CompletedTask;
 
-    public async Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer)
+    public Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer)
     {
         var status = new JsonObject
         {
@@ -57,8 +57,8 @@ public class StatusRequestPacket : IServerboundPacket
             },
         };
 
-        var statusResponsePacket = new StatusResponsePacket { JsonResponse = status };
-        await handler.PacketSender.SendAsync(statusResponsePacket, stream, writer);
+        var response = new StatusResponsePacket { Status = status };
+        return handler.PacketSender.SendAsync(response, stream, writer);
     }
 
 }

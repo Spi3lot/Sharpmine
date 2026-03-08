@@ -11,7 +11,7 @@ namespace Sharpmine.Gen
 {
 
     [Generator]
-    public class PacketRegistryGenerator : IIncrementalGenerator
+    public class ServerboundPacketRegistryGenerator : IIncrementalGenerator
     {
 
         private const string AttributeNamespace = "Sharpmine.Server.Packets";

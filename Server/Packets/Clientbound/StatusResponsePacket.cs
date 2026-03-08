@@ -8,11 +8,11 @@ public class StatusResponsePacket : IClientboundPacket
 
     public int Id => 0x00;
 
-    public JsonObject Response { get; set; }
+    public required JsonObject Response { get; set; }
 
-    public void Serialize(BinaryWriter writer)
+    public async Task Serialize(BinaryWriter writer)
     {
-        writer.Write(JsonSerializer.Serialize(Response));
+        await JsonSerializer.SerializeAsync(writer.BaseStream, Response);
     }
 
 }

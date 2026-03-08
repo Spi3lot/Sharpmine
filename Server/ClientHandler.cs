@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 
+using Sharpmine.Server.Packets;
 using Sharpmine.Server.Packets.Clientbound;
 using Sharpmine.Server.Packets.Serverbound;
 
@@ -21,7 +22,7 @@ public class ClientHandler(TcpClient client)
         {
             while (client.Connected)
             {
-                _ = TryDeserializeAndProcessPacket(reader, writer);
+                _ = await TryDeserializeAndProcessPacket(reader, writer);
             }
         }
         catch (Exception e)
@@ -37,16 +38,18 @@ public class ClientHandler(TcpClient client)
         }
     }
 
-    private bool TryDeserializeAndProcessPacket(BinaryReader reader, BinaryWriter writer)
+    private async Task<bool> TryDeserializeAndProcessPacket(BinaryReader reader, BinaryWriter writer)
     {
-        if (!IServerboundPacket.TryDeserialize(reader, out var packet, out int packetId, out int length))
+        var deserialized = await IServerboundPacket.TryDeserialize(reader);
+        
+        if (deserialized.Packet is null)
         {
-            Console.WriteLine($"Received unknown packet with id 0x{packetId:X2} and length {length}");
+            Console.WriteLine("Received unknown packet");
             return false;
         }
 
-        Console.WriteLine($"Received packet 0x{packetId:X2} with length {length}");
-        packet.Process(this, reader, writer);
+        Console.WriteLine($"Received packet 0x{deserialized.PacketId:X2} with length {deserialized.Length}");
+        await deserialized.Packet.Process(this, reader, writer);
         return true;
     }
 

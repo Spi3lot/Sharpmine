@@ -1,39 +1,27 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace Sharpmine.Server.Packets.Serverbound;
 
 public interface IServerboundPacket
 {
 
-    void Deserialize(BinaryReader reader);
+    Task Deserialize(BinaryReader reader);
 
-    void Process(ClientHandler handler, BinaryReader reader, BinaryWriter writer);
+    Task Process(ClientHandler handler, BinaryReader reader, BinaryWriter writer);
 
-    public static bool TryDeserialize(
-        BinaryReader reader,
-        [NotNullWhen(true)] out IServerboundPacket? packet
-    )
+    static async Task<(IServerboundPacket? Packet, int PacketId, int Length)> TryDeserialize(BinaryReader reader)
     {
-        return TryDeserialize(reader, out packet, out _, out _);
-    }
+        int length = reader.Read7BitEncodedInt();
+        int packetId = reader.Read7BitEncodedInt();
 
-    public static bool TryDeserialize(
-        BinaryReader reader,
-        [NotNullWhen(true)] out IServerboundPacket? packet,
-        out int packetId,
-        out int length
-    )
-    {
-        length = reader.Read7BitEncodedInt();
-        packetId = reader.Read7BitEncodedInt();
-
-        if (!ServerboundPacketRegistry.TryCreatePacketById(packetId, out packet))
+        if (!ServerboundPacketRegistry.TryCreatePacketById(packetId, out var packet))
         {
-            return false;
+            return (null, packetId, length);
         }
-        
-        packet.Deserialize(reader);
-        return true;
+
+        await packet.Deserialize(reader);
+        return (packet, packetId, length);
     }
 
 }

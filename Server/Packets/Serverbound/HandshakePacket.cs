@@ -10,21 +10,22 @@ public class HandshakePacket : IServerboundPacket
 
     public int ProtocolVersion { get; set; }
 
-    public string ServerAddress { get; set; }
+    public string ServerAddress { get; set; } = null!;
 
     public ushort ServerPort { get; set; }
 
     public Intent Intent { get; set; }
 
-    public void Deserialize(BinaryReader reader)
+    public Task Deserialize(BinaryReader reader)
     {
         ProtocolVersion = reader.Read7BitEncodedInt();
         ServerAddress = reader.ReadString();
         ServerPort = reader.ReadUInt16();
         Intent = (Intent) reader.Read7BitEncodedInt();
+        return Task.CompletedTask;
     }
 
-    public void Process(ClientHandler handler, BinaryReader reader, BinaryWriter writer)
+    public Task Process(ClientHandler handler, BinaryReader reader, BinaryWriter writer)
     {
         Console.WriteLine($"{ServerAddress}:{ServerPort} (protocol: {ProtocolVersion}, intent: {Intent})");
         handler.ConnectionState = (Intent == Intent.Status) ? ConnectionState.Status : ConnectionState.Login;
@@ -76,6 +77,7 @@ public class HandshakePacket : IServerboundPacket
 
         var statusResponsePacket = new StatusResponsePacket { Response = status };
         handler.PacketSerializer.Serialize(statusResponsePacket, writer);
+        return Task.CompletedTask;
     }
 
     public override string ToString()

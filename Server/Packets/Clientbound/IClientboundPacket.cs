@@ -5,6 +5,6 @@ public interface IClientboundPacket
     
     int Id { get; }
 
-    void Serialize(BinaryWriter writer);
+    Task Serialize(BinaryWriter writer);
 
 }

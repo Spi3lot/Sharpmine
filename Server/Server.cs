@@ -1,10 +1,12 @@
 ﻿using System.Net.Sockets;
 
+using Sharpmine.Server.Protocol;
+
 namespace Sharpmine.Server;
 
 public class Server(int port)
 {
-    
+
     public Config Config { get; }
 
     public void HandleClientsInBackground()

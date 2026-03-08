@@ -1,4 +1,4 @@
-﻿namespace Sharpmine.Server.Packets;
+﻿namespace Sharpmine.Server.Protocol;
 
 public enum Intent : byte
 {

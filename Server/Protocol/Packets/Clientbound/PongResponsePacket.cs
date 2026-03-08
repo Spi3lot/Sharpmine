@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-namespace Sharpmine.Server.Packets.Clientbound;
+namespace Sharpmine.Server.Protocol.Packets.Clientbound;
 
 public class PongResponsePacket : IClientboundPacket
 {

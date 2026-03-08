@@ -1,13 +1,14 @@
 using System.Net.Sockets;
-using Sharpmine.Server.Packets.Clientbound;
 
-namespace Sharpmine.Server.Packets.Serverbound;
+using Sharpmine.Server.Protocol.Packets.Clientbound;
+
+namespace Sharpmine.Server.Protocol.Packets.Serverbound;
 
 [Packet(0x01, ConnectionState.Status)]
 public class PingRequestPacket : IServerboundPacket
 {
 
-    public required long Timestamp { get; set; }
+    public long Timestamp { get; set; }
 
     public Task DeserializeAsync(BinaryReader reader) => Task.CompletedTask;
 

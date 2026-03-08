@@ -1,7 +1,6 @@
-using Sharpmine.Server;
 using Sharpmine.Server.Gui;
 
-namespace Sharpmine;
+namespace Sharpmine.Server;
 
 static class Program
 {

@@ -1,4 +1,4 @@
-﻿namespace Sharpmine.Server;
+﻿namespace Sharpmine.Server.Packets;
 
 public enum ConnectionState : byte
 {

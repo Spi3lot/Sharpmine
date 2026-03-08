@@ -1,10 +1,12 @@
-﻿namespace Sharpmine.Server.Packets.Clientbound;
+﻿using System.Net.Sockets;
+
+namespace Sharpmine.Server.Packets.Clientbound;
 
 public interface IClientboundPacket
 {
     
     int Id { get; }
 
-    Task Serialize(BinaryWriter writer);
+    Task SerializeAsync(NetworkStream stream, BinaryWriter writer);
 
 }

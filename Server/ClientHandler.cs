@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-
 using Sharpmine.Server.Packets;
 using Sharpmine.Server.Packets.Clientbound;
 using Sharpmine.Server.Packets.Serverbound;
@@ -11,18 +10,19 @@ public class ClientHandler(TcpClient client)
 
     public ConnectionState ConnectionState { get; protected internal set; }
 
-    protected internal PacketSerializer PacketSerializer { get; } = new();
+    protected internal PacketSender PacketSender { get; } = new();
 
     public async Task HandleAsync()
     {
-        var reader = new BinaryReader(client.GetStream());
-        var writer = new BinaryWriter(client.GetStream());
-        
+        var stream = client.GetStream();
+        var reader = new BinaryReader(stream);
+        var writer = new BinaryWriter(stream);
+
         try
         {
             while (client.Connected)
             {
-                _ = await TryDeserializeAndProcessPacket(reader, writer);
+                _ = await TryDeserializeAndProcessPacketAsync(stream, reader, writer);
             }
         }
         catch (Exception e)
@@ -38,10 +38,14 @@ public class ClientHandler(TcpClient client)
         }
     }
 
-    private async Task<bool> TryDeserializeAndProcessPacket(BinaryReader reader, BinaryWriter writer)
+    private async Task<bool> TryDeserializeAndProcessPacketAsync(
+        NetworkStream stream,
+        BinaryReader reader,
+        BinaryWriter writer
+    )
     {
-        var deserialized = await IServerboundPacket.TryDeserialize(reader);
-        
+        var deserialized = await IServerboundPacket.DeserializeAsync(this, reader);
+
         if (deserialized.Packet is null)
         {
             Console.WriteLine("Received unknown packet");
@@ -49,7 +53,7 @@ public class ClientHandler(TcpClient client)
         }
 
         Console.WriteLine($"Received packet 0x{deserialized.PacketId:X2} with length {deserialized.Length}");
-        await deserialized.Packet.Process(this, reader, writer);
+        await deserialized.Packet.ProcessAsync(this, stream, reader, writer);
         return true;
     }
 

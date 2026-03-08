@@ -1,27 +1,29 @@
-﻿namespace Sharpmine.Server.Packets.Clientbound;
+﻿using System.Net.Sockets;
 
-public class PacketSerializer
+namespace Sharpmine.Server.Packets.Clientbound;
+
+public class PacketSender
 {
 
     private readonly MemoryStream _memoryStream;
 
     private readonly BinaryWriter _memoryStreamWriter;
 
-    public PacketSerializer()
+    public PacketSender()
     {
         _memoryStream = new MemoryStream();
         _memoryStreamWriter = new BinaryWriter(_memoryStream);
     }
 
-    public void Serialize(IClientboundPacket packet, BinaryWriter writer)
+    public async Task SendAsync(IClientboundPacket packet, NetworkStream stream, BinaryWriter writer)
     {
         _memoryStream.SetLength(0);
         _memoryStreamWriter.Write7BitEncodedInt(packet.Id);
-        packet.Serialize(writer);
-        
+        await packet.SerializeAsync(stream, writer);
+
         int packetLength = (int) _memoryStream.Length;
         writer.Write7BitEncodedInt(packetLength);
-        writer.Write(_memoryStream.GetBuffer(),  0, packetLength);
+        writer.Write(_memoryStream.GetBuffer(), 0, packetLength);
     }
 
 }

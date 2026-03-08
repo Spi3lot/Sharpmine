@@ -1,0 +1,25 @@
+﻿using System.Net.Sockets;
+
+namespace Sharpmine.Server;
+
+public class Server(int port)
+{
+    
+    public Config Config { get; }
+
+    public void HandleClientsInBackground()
+    {
+        var listener = TcpListener.Create(port);
+        listener.Start();
+
+        Task.Run(async () =>
+        {
+            while (true)
+            {
+                var client = await listener.AcceptTcpClientAsync();
+                _ = new ClientHandler(client).HandleAsync();
+            }
+        });
+    }
+
+}

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Gen/Sharpmine.Gen.csproj" />
+  <Project Path="Server/Sharpmine.Server.csproj" />
+</Solution>

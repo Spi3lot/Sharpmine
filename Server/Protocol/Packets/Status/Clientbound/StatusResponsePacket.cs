@@ -4,10 +4,8 @@ using System.Text.Json.Nodes;
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
-public class StatusResponsePacket : IClientboundPacket
+public partial class StatusResponsePacket : IClientboundPacket
 {
-
-    public int Id => 0x00;
 
     public JsonObject Status { get; set; } = null!;
 

@@ -1,18 +1,19 @@
-﻿using System.Net.Sockets;
+﻿using System.Diagnostics;
+using System.Net.Sockets;
 
 namespace Sharpmine.Server.Protocol.Packets;
 
 public interface IServerboundPacket
 {
 
-    Task DeserializeAsync(BinaryReader reader);
+    Task DeserializeAsync(BinaryReader reader) => throw new NotImplementedException();
 
     Task ProcessAsync(
         ClientHandler handler,
         NetworkStream stream,
         BinaryReader reader,
         BinaryWriter writer
-    );
+    ) => throw new NotImplementedException();
 
     static async Task<(IServerboundPacket? Packet, int PacketId, int Length)> DeserializeAsync(
         ClientHandler handler,

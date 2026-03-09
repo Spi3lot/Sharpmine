@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <UseWindowsForms>true</UseWindowsForms>
         <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,6 +29,23 @@
       <Folder Include="Protocol\Packets\Login\Serverbound\" />
       <Folder Include="Protocol\Packets\Play\Clientbound\" />
       <Folder Include="Protocol\Packets\Play\Serverbound\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Assets\Generated\reports\blocks.json" />
+      <AdditionalFiles Include="Assets\generated\reports\blocks.json" />
+      <None Remove="Assets\Generated\reports\commands.json" />
+      <AdditionalFiles Include="Assets\generated\reports\commands.json" />
+      <None Remove="Assets\Generated\reports\datapack.json" />
+      <AdditionalFiles Include="Assets\generated\reports\datapack.json" />
+      <None Remove="Assets\Generated\reports\items.json" />
+      <AdditionalFiles Include="Assets\generated\reports\items.json" />
+      <None Remove="Assets\Generated\reports\json-rpc-api-schema.json" />
+      <AdditionalFiles Include="Assets\generated\reports\json-rpc-api-schema.json" />
+      <None Remove="Assets\Generated\reports\packets.json" />
+      <AdditionalFiles Include="Assets\generated\reports\packets.json" />
+      <None Remove="Assets\Generated\reports\registries.json" />
+      <AdditionalFiles Include="Assets\generated\reports\registries.json" />
     </ItemGroup>
 
 </Project>

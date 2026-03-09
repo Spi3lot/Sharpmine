@@ -2,10 +2,8 @@
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
-public class PongResponsePacket : IClientboundPacket
+public partial class PongResponsePacket : IClientboundPacket
 {
-
-    public int Id => 0x01;
 
     public long Timestamp { get; set; }
 

@@ -7,8 +7,6 @@ namespace Sharpmine.Server;
 public class Server(int port)
 {
 
-    public Config Config { get; }
-
     public void HandleClientsInBackground()
     {
         var listener = TcpListener.Create(port);

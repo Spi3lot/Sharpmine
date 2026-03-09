@@ -20,4 +20,14 @@
       </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Protocol\Packets\Configuration\Clientbound\" />
+      <Folder Include="Protocol\Packets\Configuration\Serverbound\" />
+      <Folder Include="Protocol\Packets\Handshake\Clientbound\" />
+      <Folder Include="Protocol\Packets\Login\Clientbound\" />
+      <Folder Include="Protocol\Packets\Login\Serverbound\" />
+      <Folder Include="Protocol\Packets\Play\Clientbound\" />
+      <Folder Include="Protocol\Packets\Play\Serverbound\" />
+    </ItemGroup>
+
 </Project>

@@ -1,9 +1,8 @@
 using System.Net.Sockets;
 using System.Text.Json.Nodes;
+using Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
-using Sharpmine.Server.Protocol.Packets.Clientbound;
-
-namespace Sharpmine.Server.Protocol.Packets.Serverbound;
+namespace Sharpmine.Server.Protocol.Packets.Status.Serverbound;
 
 [Packet(0x00, ConnectionState.Status)]
 public class StatusRequestPacket : IServerboundPacket

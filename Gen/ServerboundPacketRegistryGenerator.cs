@@ -14,7 +14,7 @@ namespace Sharpmine.Gen
     public class ServerboundPacketRegistryGenerator : IIncrementalGenerator
     {
 
-        private const string TargetNamespace = "Sharpmine.Server.Protocol.Packets.Serverbound";
+        private const string TargetNamespace = "Sharpmine.Server.Protocol.Packets";
 
         private const string TargetClassName = "ServerboundPacketRegistry";
 
@@ -89,7 +89,7 @@ namespace Sharpmine.Gen
             sb.AppendLine($"namespace {TargetNamespace};");
             sb.AppendLine();
             sb.AppendLine($"public static class {TargetClassName} {{");
-            sb.AppendLine($"    public static Serverbound.IServerboundPacket CreatePacket(int id, {ConnectionState} connectionState) => (id, connectionState) switch");
+            sb.AppendLine($"    public static IServerboundPacket CreatePacket(int id, {ConnectionState} connectionState) => (id, connectionState) switch");
             sb.AppendLine("    {");
 
             foreach (var pair in usedIds)
@@ -100,7 +100,7 @@ namespace Sharpmine.Gen
             sb.AppendLine("        _ => null");
             sb.AppendLine("    };");
             sb.AppendLine();
-            sb.AppendLine($"    public static (int Id, {ConnectionState} ConnectionState) GetPacketCondition(Serverbound.IServerboundPacket packet) => packet switch");
+            sb.AppendLine($"    public static (int Id, {ConnectionState} ConnectionState) GetPacketCondition(IServerboundPacket packet) => packet switch");
             sb.AppendLine("    {");
 
             foreach (var pair in usedIds)

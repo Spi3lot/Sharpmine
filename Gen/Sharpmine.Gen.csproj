@@ -11,4 +11,12 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Folder Include="Assets\Reports" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="Assets\Reports\**\*.*" />
+    </ItemGroup>
+
 </Project>

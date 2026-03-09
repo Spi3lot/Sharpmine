@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace Sharpmine.Server.Protocol.Packets.Clientbound;
+namespace Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
 public class StatusResponsePacket : IClientboundPacket
 {

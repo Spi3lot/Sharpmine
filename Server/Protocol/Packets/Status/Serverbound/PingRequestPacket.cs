@@ -1,8 +1,7 @@
 using System.Net.Sockets;
+using Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
-using Sharpmine.Server.Protocol.Packets.Clientbound;
-
-namespace Sharpmine.Server.Protocol.Packets.Serverbound;
+namespace Sharpmine.Server.Protocol.Packets.Status.Serverbound;
 
 [Packet(0x01, ConnectionState.Status)]
 public class PingRequestPacket : IServerboundPacket

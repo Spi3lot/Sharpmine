@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-namespace Sharpmine.Server.Protocol.Packets.Serverbound;
+namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
 [Packet(0x00, ConnectionState.Handshake)]
 public class HandshakePacket : IServerboundPacket

@@ -1,7 +1,5 @@
 ﻿using System.Net.Sockets;
-
-using Sharpmine.Server.Protocol.Packets.Clientbound;
-using Sharpmine.Server.Protocol.Packets.Serverbound;
+using Sharpmine.Server.Protocol.Packets;
 
 namespace Sharpmine.Server.Protocol;
 

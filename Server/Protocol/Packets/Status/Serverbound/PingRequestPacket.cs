@@ -3,8 +3,7 @@ using Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Serverbound;
 
-[Packet(0x01, ConnectionState.Status)]
-public class PingRequestPacket : IServerboundPacket
+public partial class PingRequestPacket : IServerboundPacket
 {
 
     public long Timestamp { get; set; }

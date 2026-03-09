@@ -15,7 +15,7 @@ public class ClientHandler(TcpClient client)
 
     public TcpClient Client { get; } = client;
 
-    public ConnectionState ConnectionState { get; protected internal set; }
+    public ProtocolState ProtocolState { get; protected internal set; }
 
     protected internal PacketSender PacketSender { get; } = new();
 
@@ -58,7 +58,7 @@ public class ClientHandler(TcpClient client)
     )
     {
         var deserialized = await IServerboundPacket.DeserializeAsync(this, reader);
-        await Console.Out.WriteLineAsync($"Current state is {ConnectionState}");
+        await Console.Out.WriteLineAsync($"Current state is {ProtocolState}");
 
         if (deserialized.Packet is null)
         {

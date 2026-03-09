@@ -2,8 +2,7 @@
 
 namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
-[Packet(0x00, ConnectionState.Handshake)]
-public class HandshakePacket : IServerboundPacket
+public partial class HandshakePacket : IServerboundPacket
 {
 
     public int ProtocolVersion { get; set; }
@@ -31,7 +30,7 @@ public class HandshakePacket : IServerboundPacket
     )
     {
         Console.WriteLine($"{ServerAddress}:{ServerPort} (protocol: {ProtocolVersion}, intent: {Intent})");
-        handler.ConnectionState = (Intent == Intent.Status) ? ConnectionState.Status : ConnectionState.Login;
+        handler.ProtocolState = (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;
         return Task.CompletedTask;
     }
 

@@ -1,0 +1,27 @@
+{
+  "handshake": {
+    "serverbound": {
+      "minecraft:handshake": {
+        "protocol_id": 0
+      }
+    }
+  },
+  "status": {
+    "clientbound": {
+      "minecraft:status_response": {
+        "protocol_id": 0
+      },
+      "minecraft:pong_response": {
+        "protocol_id": 1
+      }
+    },
+    "serverbound": {
+      "minecraft:status_request": {
+        "protocol_id": 0
+      },
+      "minecraft:ping_request": {
+        "protocol_id": 1
+      }
+    }
+  }
+}

@@ -22,7 +22,7 @@ public interface IServerboundPacket
         // TODO: use System.IO.Pipelines for async reads
         int length = reader.Read7BitEncodedInt();
         int packetId = reader.Read7BitEncodedInt();
-        var packet = ServerboundPacketRegistry.CreatePacket(packetId, handler.ConnectionState);
+        var packet = ServerboundPacketRegistry.CreatePacket(packetId, handler.ProtocolState);
 
         if (packet is not null)
         {

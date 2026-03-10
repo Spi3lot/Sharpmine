@@ -15,11 +15,11 @@ public class PacketGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var packetsFile = context.AdditionalTextsProvider
+        var packetProvider = context.AdditionalTextsProvider
             .Where(static file => file.Path.EndsWith("packets.json", StringComparison.OrdinalIgnoreCase))
             .Select(static (text, cancellationToken) => text.GetText(cancellationToken)?.ToString());
 
-        context.RegisterSourceOutput(packetsFile, Execute);
+        context.RegisterSourceOutput(packetProvider, Execute);
     }
 
     private static void Execute(SourceProductionContext context, string? jsonContent)
@@ -33,11 +33,17 @@ public class PacketGenerator : IIncrementalGenerator
         var sb = new StringBuilder();
         StartRegistry(sb);
 
-        foreach (var stateProp in doc.RootElement.EnumerateObject())
+        var orderedStateProperties = doc.RootElement
+            .EnumerateObject()
+            .OrderBy(static prop => prop.Value
+                .GetProperty("serverbound")
+                .GetPropertyCount()
+            );
+
+        foreach (var stateProperty in orderedStateProperties)
         {
-            string stateName = ToPascalCase(stateProp.Name);
-            GenerateProtocolDirection(context, stateProp.Value, stateName, "serverbound", sb);
-            GenerateProtocolDirection(context, stateProp.Value, stateName, "clientbound", null);
+            GenerateProtocolDirection(context, stateProperty, "serverbound", sb);
+            GenerateProtocolDirection(context, stateProperty, "clientbound", null);
         }
 
         EndRegistry(sb);
@@ -46,38 +52,39 @@ public class PacketGenerator : IIncrementalGenerator
 
     private static void GenerateProtocolDirection(
         SourceProductionContext context,
-        JsonElement stateElement,
-        string protocolState,
+        JsonProperty stateProperty,
         string protocolDirection,
         StringBuilder? sb
     )
     {
-        if (!stateElement.TryGetProperty(protocolDirection, out var packetsElement))
+        if (!stateProperty.Value.TryGetProperty(protocolDirection, out var packetsElement))
         {
             return;
         }
 
+        string stateName = ToPascalCase(stateProperty.Name);
         string directionName = ToPascalCase(protocolDirection);
         string interfaceName = $"I{directionName}Packet";
-        string ns = $"{BaseNamespace}.{protocolState}.{directionName}";
 
-        foreach (var packetProp in packetsElement.EnumerateObject())
+        var orderedPackets = packetsElement.EnumerateObject()
+            .Select(static prop => (prop.Name, Id: prop.Value.GetProperty("protocol_id").GetInt32()))
+            .OrderBy(static prop => prop.Id);
+
+        foreach (var packet in orderedPackets)
         {
-            int id = packetProp.Value.GetProperty("protocol_id").GetInt32();
-            string packetName = packetProp.Name.Substring("minecraft:".Length);
+            string packetName = packet.Name.Substring("minecraft:".Length);
             string packetClassName = ToPascalCase(packetName) + "Packet";
-            GeneratePacketPartial(context, ns, packetClassName, interfaceName, protocolState, directionName, id);
-            sb?.AppendLine($"            (ProtocolState.{protocolState}, 0x{id:X2}) => new {ns.Substring(BaseNamespace.Length + 1)}.{packetClassName}(),");
+            GeneratePacketPartial(context, packetClassName, interfaceName, stateName, directionName, packet.Id);
+            sb?.AppendLine($"            (ProtocolState.{stateName}, 0x{packet.Id:X2}) => new {stateName}.{directionName}.{packetClassName}(),");
         }
     }
 
     private static void GeneratePacketPartial(
         SourceProductionContext context,
-        string ns,
         string className,
         string interfaceName,
-        string state,
-        string direction,
+        string stateName,
+        string directionName,
         int id
     )
     {
@@ -86,16 +93,16 @@ public class PacketGenerator : IIncrementalGenerator
 
                           using System;
 
-                          namespace {{ns}};
+                          namespace {{BaseNamespace}}.{{stateName}}.{{directionName}};
 
                           public partial class {{className}} : {{interfaceName}} 
                           {
-                              public ProtocolState State => ProtocolState.{{state}};
+                              public ProtocolState State => ProtocolState.{{stateName}};
                               public int Id => 0x{{id:X2}};
                           }
                           """;
 
-        context.AddSource($"{state}/{direction}/{className}.g.cs", SourceText.From(source, Encoding.UTF8));
+        context.AddSource($"{stateName}.{directionName}/{className}.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 
     private static void StartRegistry(StringBuilder sb)
@@ -134,7 +141,7 @@ public class PacketGenerator : IIncrementalGenerator
     private static string ToPascalCase(string input)
     {
         return string.Join("", input.Split(['_', '/'], StringSplitOptions.RemoveEmptyEntries)
-            .Select(word => char.ToUpper(word[0]) + word.Substring(1))
+            .Select(static word => char.ToUpper(word[0]) + word.Substring(1))
         );
     }
 

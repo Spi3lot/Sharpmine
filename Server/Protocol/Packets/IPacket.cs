@@ -6,4 +6,5 @@ public interface IPacket
     ProtocolState State { get; }
 
     int Id { get; }
+
 }

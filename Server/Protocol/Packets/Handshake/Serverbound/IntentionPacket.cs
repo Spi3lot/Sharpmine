@@ -29,11 +29,6 @@ public partial class IntentionPacket
         return Task.CompletedTask;
     }
 
-    public override string ToString()
-    {
-        return $"{ServerAddress}:{ServerPort} {Intent}, {ProtocolVersion}";
-    }
-
 }
 
 public enum Intent : byte

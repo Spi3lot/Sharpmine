@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-
 using Sharpmine.Server.Protocol;
 
 namespace Sharpmine.Server;

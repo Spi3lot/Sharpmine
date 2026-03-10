@@ -15,9 +15,9 @@ public class ClientHandler(TcpClient client)
 
     public TcpClient Client { get; } = client;
 
-    public ProtocolState ProtocolState { get; protected internal set; }
+    public PacketSender PacketSender { get; } = new();
 
-    protected internal PacketSender PacketSender { get; } = new();
+    public ProtocolState ProtocolState { get; set; }
 
     public async Task HandleAsync()
     {
@@ -30,7 +30,7 @@ public class ClientHandler(TcpClient client)
         {
             while (Client.Connected)
             {
-                _ = await TryDeserializeAndProcessPacketAsync(stream, reader, writer);
+                _ = await TryProcessNextPacketAsync(stream, reader, writer);
             }
         }
         catch (IOException ioe) when (ioe.InnerException is SocketException)
@@ -51,23 +51,17 @@ public class ClientHandler(TcpClient client)
         }
     }
 
-    private async Task<bool> TryDeserializeAndProcessPacketAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer
-    )
+    public async Task<bool> TryProcessNextPacketAsync(NetworkStream stream, BinaryReader reader, BinaryWriter writer)
     {
-        var deserialized = await IServerboundPacket.DeserializeAsync(this, reader);
-        await Console.Out.WriteLineAsync($"Current state is {ProtocolState}");
+        var packet = await IServerboundPacket.DeserializeAsync(this, reader);
 
-        if (deserialized.Packet is null)
+        if (packet is null)
         {
-            await Console.Error.WriteLineAsync($"Huh? Received packet 0x{deserialized.PacketId:X2} with length {deserialized.Length}");
             return false;
         }
 
-        await Console.Out.WriteLineAsync($"Yay! Received packet 0x{deserialized.PacketId:X2} with length {deserialized.Length}");
-        await deserialized.Packet.ProcessAsync(this, stream, reader, writer);
+        await Console.Out.WriteLineAsync($"Yay! Received packet ({packet.State}:0x{packet.Id:X2})");
+        await packet.ProcessAsync(this, stream, reader, writer);
         return true;
     }
 

@@ -4,10 +4,10 @@ using Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Serverbound;
 
-public partial class StatusRequestPacket : IServerboundPacket
+public partial class StatusRequestPacket
 {
 
-    public Task DeserializeAsync(BinaryReader reader) => Task.CompletedTask;
+    public Task DeserializeContentAsync(BinaryReader reader) => Task.CompletedTask;
 
     public Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer)
     {

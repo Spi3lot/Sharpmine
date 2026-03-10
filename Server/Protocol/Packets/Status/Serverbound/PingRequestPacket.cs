@@ -3,12 +3,12 @@ using Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Serverbound;
 
-public partial class PingRequestPacket : IServerboundPacket
+public partial class PingRequestPacket
 {
 
     public long Timestamp { get; set; }
 
-    public Task DeserializeAsync(BinaryReader reader)
+    public Task DeserializeContentAsync(BinaryReader reader)
     {
         // TODO: Maybe catch exceptions and return Task.FromException
         Timestamp = reader.Read7BitEncodedInt64();

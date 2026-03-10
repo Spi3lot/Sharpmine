@@ -1,12 +1,11 @@
-﻿using System.Diagnostics;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 
 namespace Sharpmine.Server.Protocol.Packets;
 
-public interface IServerboundPacket
+public interface IServerboundPacket : IPacket
 {
 
-    Task DeserializeAsync(BinaryReader reader) => throw new NotImplementedException();
+    Task DeserializeContentAsync(BinaryReader reader) => throw new NotImplementedException();
 
     Task ProcessAsync(
         ClientHandler handler,
@@ -15,7 +14,7 @@ public interface IServerboundPacket
         BinaryWriter writer
     ) => throw new NotImplementedException();
 
-    static async Task<(IServerboundPacket? Packet, int PacketId, int Length)> DeserializeAsync(
+    static async Task<IServerboundPacket?> DeserializeAsync(
         ClientHandler handler,
         BinaryReader reader
     )
@@ -23,14 +22,15 @@ public interface IServerboundPacket
         // TODO: use System.IO.Pipelines for async reads
         int length = reader.Read7BitEncodedInt();
         int packetId = reader.Read7BitEncodedInt();
-        var packet = ServerboundPacketRegistry.CreatePacket(packetId, handler.ProtocolState);
 
-        if (packet is not null)
+        if (!ServerboundPacketRegistry.TryCreatePacket(handler.ProtocolState, packetId, out var packet))
         {
-            await packet.DeserializeAsync(reader);
+            await Console.Error.WriteLineAsync($"Huh? Received unknown packet ({handler.ProtocolState}:0x{packetId:X2}) consisting of {length} bytes");
+            return null;
         }
 
-        return (packet, packetId, length);
+        await packet.DeserializeContentAsync(reader);
+        return packet;
     }
 
 }

@@ -19,7 +19,7 @@ public class PacketSender
     {
         _memoryStream.SetLength(0);
         _memoryStreamWriter.Write7BitEncodedInt(packet.Id);
-        await packet.SerializeAsync(stream, writer);
+        await packet.SerializeContentAsync(stream, writer);
 
         int packetLength = (int) _memoryStream.Length;
         writer.Write7BitEncodedInt(packetLength);

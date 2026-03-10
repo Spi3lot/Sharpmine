@@ -2,7 +2,7 @@
 
 namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
-public partial class HandshakePacket : IServerboundPacket
+public partial class IntentionPacket
 {
 
     public int ProtocolVersion { get; set; }
@@ -13,7 +13,7 @@ public partial class HandshakePacket : IServerboundPacket
 
     public Intent Intent { get; set; }
 
-    public Task DeserializeAsync(BinaryReader reader)
+    public Task DeserializeContentAsync(BinaryReader reader)
     {
         ProtocolVersion = reader.Read7BitEncodedInt();
         ServerAddress = reader.ReadString();
@@ -22,12 +22,7 @@ public partial class HandshakePacket : IServerboundPacket
         return Task.CompletedTask;
     }
 
-    public Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer
-    )
+    public Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer)
     {
         Console.WriteLine($"{ServerAddress}:{ServerPort} (protocol: {ProtocolVersion}, intent: {Intent})");
         handler.ProtocolState = (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;
@@ -38,5 +33,16 @@ public partial class HandshakePacket : IServerboundPacket
     {
         return $"{ServerAddress}:{ServerPort} {Intent}, {ProtocolVersion}";
     }
+
+}
+
+public enum Intent : byte
+{
+
+    Status = 1,
+
+    Login = 2,
+
+    Transfer = 3,
 
 }

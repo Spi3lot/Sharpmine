@@ -2,13 +2,9 @@
 
 namespace Sharpmine.Server.Protocol.Packets;
 
-public interface IClientboundPacket
+public interface IClientboundPacket : IPacket
 {
 
-    ProtocolState State { get; }
-
-    int Id { get; }
-
-    Task SerializeAsync(NetworkStream stream, BinaryWriter writer) => throw new NotImplementedException();
+    Task SerializeContentAsync(NetworkStream stream, BinaryWriter writer) => throw new NotImplementedException();
 
 }

@@ -47,7 +47,7 @@ public class PacketGenerator : IIncrementalGenerator
         }
 
         EndRegistry(sb);
-        context.AddSource("ServerboundPacketRegistry.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+        context.AddSource("Registry/ServerboundPacketRegistry.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }
 
     private static void GenerateProtocolDirection(

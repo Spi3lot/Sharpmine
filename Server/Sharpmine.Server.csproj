@@ -26,13 +26,17 @@
       <Folder Include="Protocol\Packets\Configuration\Serverbound\" />
       <Folder Include="Protocol\Packets\Handshake\Clientbound\" />
       <Folder Include="Protocol\Packets\Login\Clientbound\" />
-      <Folder Include="Protocol\Packets\Login\Serverbound\" />
       <Folder Include="Protocol\Packets\Play\Clientbound\" />
       <Folder Include="Protocol\Packets\Play\Serverbound\" />
     </ItemGroup>
 
     <ItemGroup>
       <AdditionalFiles Include="Assets\generated\reports\packets.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.4" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.4" />
     </ItemGroup>
 
 </Project>

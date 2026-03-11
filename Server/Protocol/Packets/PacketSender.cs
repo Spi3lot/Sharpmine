@@ -1,16 +1,21 @@
 ﻿using System.Net.Sockets;
 
+using Microsoft.Extensions.Logging;
+
 namespace Sharpmine.Server.Protocol.Packets;
 
-public class PacketSender
+public partial class PacketSender
 {
+
+    private readonly ILogger<PacketSender> _logger;
 
     private readonly MemoryStream _memoryStream;
 
     private readonly BinaryWriter _memoryStreamWriter;
 
-    public PacketSender()
+    public PacketSender(ILogger<PacketSender> logger)
     {
+        _logger = logger;
         _memoryStream = new MemoryStream();
         _memoryStreamWriter = new BinaryWriter(_memoryStream);
     }
@@ -24,6 +29,10 @@ public class PacketSender
         int packetLength = (int) _memoryStream.Length;
         writer.Write7BitEncodedInt(packetLength);
         writer.Write(_memoryStream.GetBuffer(), 0, packetLength);
+        LogSentPacket(packet, packet.State, packet.Id, packetLength);
     }
+
+    [LoggerMessage(LogLevel.Debug, "Sent {Packet} ({State}0x{Id:X2}, {Length} bytes)")]
+    partial void LogSentPacket(IClientboundPacket packet, ProtocolState state, int id, int length);
 
 }

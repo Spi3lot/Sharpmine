@@ -25,12 +25,20 @@ public interface IServerboundPacket : IPacket
 
         if (!ServerboundPacketRegistry.TryCreatePacket(handler.ProtocolState, packetId, out var packet))
         {
-            await Console.Error.WriteLineAsync($"Huh? Received unknown packet ({handler.ProtocolState}:0x{packetId:X2}) consisting of {length} bytes");
+            handler.LogReceivedUnknownPacket(handler.ProtocolState, packetId, length);
             return null;
         }
 
-        await packet.DeserializeContentAsync(reader);
-        return packet;
+        try
+        {
+            await packet.DeserializeContentAsync(reader);
+            return packet;
+        }
+        catch (NotImplementedException)
+        {
+            handler.LogNoImplementationForDeserialize(packet);
+            return null;
+        }
     }
 
 }

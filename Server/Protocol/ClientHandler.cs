@@ -1,27 +1,30 @@
 ﻿using System.Net.Sockets;
+
+using Microsoft.Extensions.Logging;
+
 using Sharpmine.Server.Protocol.Packets;
 
 namespace Sharpmine.Server.Protocol;
 
-public class ClientHandler(TcpClient client)
+public partial class ClientHandler(
+    TcpClient client,
+    PacketSender packetSender,
+    ILogger<ClientHandler> logger
+)
 {
-
-    /// Not thread-safe.
-    /// Has to be updated whenever the line
-    /// <code>_ = new ClientHandler(client).HandleAsync()</code>
-    /// changes to something like
-    /// <code>_ = Task.Run(() => new ClientHandler(client).HandleAsync());</code>
-    public static IList<ClientHandler> ActiveHandlers { get; } = [];
 
     public TcpClient Client { get; } = client;
 
-    public PacketSender PacketSender { get; } = new();
+    public PacketSender PacketSender { get; } = packetSender;
 
-    public ProtocolState ProtocolState { get; set; }
+    public ProtocolState ProtocolState { get; set; } = ProtocolState.Handshake;
+
+    public List<string> Logs { get; } = [];
+
+    public event Action? ConnectionTerminated;
 
     public async Task HandleAsync()
     {
-        ActiveHandlers.Add(this);
         var stream = Client.GetStream();
         var reader = new BinaryReader(stream);
         var writer = new BinaryWriter(stream);
@@ -30,16 +33,20 @@ public class ClientHandler(TcpClient client)
         {
             while (Client.Connected)
             {
-                _ = await TryProcessNextPacketAsync(stream, reader, writer);
+                if (!await TryProcessNextPacketAsync(stream, reader, writer))
+                {
+                    // TODO: be more lenient
+                    return;
+                }
             }
         }
-        catch (IOException ioe) when (ioe.InnerException is SocketException)
+        catch (IOException)
         {
-            await Console.Error.WriteLineAsync($"{Client.Client.LocalEndPoint} disconnected");
+            LogClientDisconnected(this);
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine(ex);
+            LogException(ex);
             throw;
         }
         finally
@@ -47,7 +54,7 @@ public class ClientHandler(TcpClient client)
             await writer.DisposeAsync();
             reader.Dispose();
             Client.Dispose();
-            ActiveHandlers.Remove(this);
+            ConnectionTerminated?.Invoke();
         }
     }
 
@@ -60,9 +67,26 @@ public class ClientHandler(TcpClient client)
             return false;
         }
 
-        await Console.Out.WriteLineAsync($"Yay! Received packet ({packet.State}:0x{packet.Id:X2})");
+        LogReceivedPacket(packet, packet.State, packet.Id);
         await packet.ProcessAsync(this, stream, reader, writer);
         return true;
     }
+
+    public override string ToString() => Client.Client.RemoteEndPoint!.ToString()!;
+
+    [LoggerMessage(LogLevel.Debug, "Received {Packet} ({State}:0x{Id:X2})")]
+    partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id);
+
+    [LoggerMessage(LogLevel.Information, "{Handler} disconnected")]
+    partial void LogClientDisconnected(ClientHandler handler);
+
+    [LoggerMessage(LogLevel.Error)]
+    partial void LogException(Exception error);
+
+    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for DeserializeContentAsync")]
+    public partial void LogNoImplementationForDeserialize(IServerboundPacket packet);
+
+    [LoggerMessage(LogLevel.Error, "Received unknown packet ({State}:0x{Id:X2}, {Length} bytes)")]
+    public partial void LogReceivedUnknownPacket(ProtocolState state, int id, int length);
 
 }

@@ -4,7 +4,7 @@ using Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Serverbound;
 
-public partial class StatusRequestPacket
+public partial record StatusRequestPacket
 {
 
     public Task DeserializeContentAsync(BinaryReader reader) => Task.CompletedTask;
@@ -56,7 +56,7 @@ public partial class StatusRequestPacket
             },
         };
 
-        var response = new StatusResponsePacket { Status = status };
+        var response = new StatusResponsePacket(status);
         return handler.PacketSender.SendAsync(response, stream, writer);
     }
 

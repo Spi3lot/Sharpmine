@@ -25,9 +25,6 @@
       <Folder Include="Protocol\Packets\Configuration\Clientbound\" />
       <Folder Include="Protocol\Packets\Configuration\Serverbound\" />
       <Folder Include="Protocol\Packets\Handshake\Clientbound\" />
-      <Folder Include="Protocol\Packets\Login\Clientbound\" />
-      <Folder Include="Protocol\Packets\Play\Clientbound\" />
-      <Folder Include="Protocol\Packets\Play\Serverbound\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -35,6 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="fNbt" Version="1.0.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.4" />
       <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.4" />
     </ItemGroup>

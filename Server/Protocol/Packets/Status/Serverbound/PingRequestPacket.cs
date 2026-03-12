@@ -3,7 +3,7 @@ using Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Serverbound;
 
-public partial class PingRequestPacket
+public partial record PingRequestPacket
 {
 
     public long Timestamp { get; set; }
@@ -17,7 +17,7 @@ public partial class PingRequestPacket
 
     public async Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer)
     {
-        var response = new PongResponsePacket { Timestamp = Timestamp };
+        var response = new PongResponsePacket(Timestamp);
         await handler.PacketSender.SendAsync(response, stream, writer);
         handler.Client.Close();
     }

@@ -2,10 +2,8 @@
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
-public partial class PongResponsePacket
+public partial record PongResponsePacket(long Timestamp)
 {
-
-    public long Timestamp { get; set; }
 
     public Task SerializeContentAsync(NetworkStream stream, BinaryWriter writer)
     {

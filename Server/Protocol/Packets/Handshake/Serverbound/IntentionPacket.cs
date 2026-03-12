@@ -2,7 +2,7 @@
 
 namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
-public partial class IntentionPacket
+public partial record IntentionPacket
 {
 
     public int ProtocolVersion { get; set; }
@@ -24,7 +24,6 @@ public partial class IntentionPacket
 
     public Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer)
     {
-        Console.WriteLine($"{ServerAddress}:{ServerPort} (protocol: {ProtocolVersion}, intent: {Intent})");
         handler.ProtocolState = (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;
         return Task.CompletedTask;
     }

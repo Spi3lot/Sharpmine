@@ -1,7 +1,5 @@
 ﻿using System.Net.Sockets;
-
 using Microsoft.Extensions.Logging;
-
 using Sharpmine.Server.Protocol.Packets;
 
 namespace Sharpmine.Server.Protocol;
@@ -60,7 +58,7 @@ public partial class ClientHandler(
 
     public async Task<bool> TryProcessNextPacketAsync(NetworkStream stream, BinaryReader reader, BinaryWriter writer)
     {
-        var packet = await IServerboundPacket.DeserializeAsync(this, reader);
+        var packet = await IServerboundPacket.DeserializeAsync(this, stream, reader);
 
         if (packet is null)
         {
@@ -74,19 +72,19 @@ public partial class ClientHandler(
 
     public override string ToString() => Client.Client.RemoteEndPoint!.ToString()!;
 
-    [LoggerMessage(LogLevel.Debug, "Received {Packet} ({State}:0x{Id:X2})")]
-    partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id);
-
-    [LoggerMessage(LogLevel.Information, "{Handler} disconnected")]
-    partial void LogClientDisconnected(ClientHandler handler);
-
-    [LoggerMessage(LogLevel.Error)]
-    partial void LogException(Exception error);
+    [LoggerMessage(LogLevel.Error, "Received unknown packet ({State}:0x{Id:X2}, {Length} bytes)")]
+    public partial void LogReceivedUnknownPacket(ProtocolState state, int id, int length);
 
     [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for DeserializeContentAsync")]
     public partial void LogNoImplementationForDeserialize(IServerboundPacket packet);
 
-    [LoggerMessage(LogLevel.Error, "Received unknown packet ({State}:0x{Id:X2}, {Length} bytes)")]
-    public partial void LogReceivedUnknownPacket(ProtocolState state, int id, int length);
+    [LoggerMessage(LogLevel.Error)]
+    partial void LogException(Exception error);
+
+    [LoggerMessage(LogLevel.Information, "{Handler} disconnected")]
+    partial void LogClientDisconnected(ClientHandler handler);
+
+    [LoggerMessage(LogLevel.Debug, "Received {Packet} ({State}:0x{Id:X2})")]
+    partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id);
 
 }

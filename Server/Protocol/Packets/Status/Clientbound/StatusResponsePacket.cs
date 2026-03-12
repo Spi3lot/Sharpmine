@@ -4,10 +4,8 @@ using System.Text.Json.Nodes;
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
-public partial class StatusResponsePacket
+public partial record StatusResponsePacket(JsonObject Status)
 {
-
-    public JsonObject Status { get; set; } = null!;
 
     public Task SerializeContentAsync(NetworkStream stream, BinaryWriter writer)
     {

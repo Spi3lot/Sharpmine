@@ -2,7 +2,7 @@
 
 namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
 
-public partial class HelloPacket
+public partial record HelloPacket
 {
 
     public Task DeserializeContentAsync(BinaryReader reader)

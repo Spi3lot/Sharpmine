@@ -42,8 +42,8 @@ public class PacketGenerator : IIncrementalGenerator
 
         foreach (var stateProperty in orderedStateProperties)
         {
-            GenerateProtocolDirection(context, stateProperty, "serverbound", sb);
-            GenerateProtocolDirection(context, stateProperty, "clientbound", null);
+            GenerateProtocolDirection(context, stateProperty, "Serverbound", sb);
+            GenerateProtocolDirection(context, stateProperty, "Clientbound", null);
         }
 
         EndRegistry(sb);
@@ -53,17 +53,16 @@ public class PacketGenerator : IIncrementalGenerator
     private static void GenerateProtocolDirection(
         SourceProductionContext context,
         JsonProperty stateProperty,
-        string protocolDirection,
+        string directionName,
         StringBuilder? sb
     )
     {
-        if (!stateProperty.Value.TryGetProperty(protocolDirection, out var packetsElement))
+        if (!stateProperty.Value.TryGetProperty(directionName.ToLower(), out var packetsElement))
         {
             return;
         }
 
         string stateName = ToPascalCase(stateProperty.Name);
-        string directionName = ToPascalCase(protocolDirection);
         string interfaceName = $"I{directionName}Packet";
 
         var orderedPackets = packetsElement.EnumerateObject()
@@ -95,7 +94,7 @@ public class PacketGenerator : IIncrementalGenerator
 
                           namespace {{BaseNamespace}}.{{stateName}}.{{directionName}};
 
-                          public partial class {{className}} : {{interfaceName}} 
+                          public partial record {{className}} : {{interfaceName}} 
                           {
                               public ProtocolState State => ProtocolState.{{stateName}};
                               public int Id => 0x{{id:X2}};

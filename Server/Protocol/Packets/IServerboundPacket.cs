@@ -5,7 +5,10 @@ namespace Sharpmine.Server.Protocol.Packets;
 public interface IServerboundPacket : IPacket
 {
 
-    Task DeserializeContentAsync(BinaryReader reader) => throw new NotImplementedException();
+    Task DeserializeContentAsync(
+        NetworkStream stream,
+        BinaryReader reader
+    ) => throw new NotImplementedException();
 
     Task ProcessAsync(
         ClientHandler handler,
@@ -16,6 +19,7 @@ public interface IServerboundPacket : IPacket
 
     static async Task<IServerboundPacket?> DeserializeAsync(
         ClientHandler handler,
+        NetworkStream stream,
         BinaryReader reader
     )
     {
@@ -31,7 +35,7 @@ public interface IServerboundPacket : IPacket
 
         try
         {
-            await packet.DeserializeContentAsync(reader);
+            await packet.DeserializeContentAsync(stream, reader);
             return packet;
         }
         catch (NotImplementedException)

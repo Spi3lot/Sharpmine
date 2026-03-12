@@ -78,9 +78,9 @@ public record TextComponent
         // Extra is missing on purpose
     };
 
-    public bool IsLiteral => this is { IsSimple: true, Text: not null, };
+    public bool IsLiteral => this is { IsSimple: true, Text: not null, Extra: null };
 
-    public bool IsList => this is { IsLiteral: true, Extra: not null, };
+    public bool IsList => this is { IsSimple: true, Text: not null, Extra: not null, };
 
     public string AsLiteral() => Text!;
 

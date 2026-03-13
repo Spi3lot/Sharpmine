@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using Sharpmine.Server.Protocol.Models;
 
 namespace Sharpmine.Server.Protocol.Converters;
@@ -9,70 +10,198 @@ public class TextComponentConverter : JsonConverter<TextComponent>
 
     public override TextComponent Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
+        return reader.TokenType switch
+        {
+            JsonTokenType.String => TextComponent.Literal(reader.GetString()!),
+            JsonTokenType.StartArray => ReadArray(ref reader, options),
+            JsonTokenType.StartObject => ReadObject(ref reader, options),
+            _ => throw new JsonException($"Unexpected token {reader.TokenType} for TextComponent.")
+        };
+    }
+
+    private TextComponent ReadObject(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        TextComponent.ContentType? type = null;
+
+        string? text = null,
+            translate = null,
+            fallback = null,
+            color = null,
+            font = null,
+            insertion = null,
+            selector = null,
+            keybind = null,
+            nbt = null;
+
+        bool? bold = null,
+            italic = null,
+            underlined = null,
+            strikethrough = null,
+            obfuscated = null;
+
+        int? shadowColor = null;
+        Score? score = null;
+        ClickEvent? click = null;
+        HoverEvent? hover = null;
+        List<TextComponent>? with = null, extra = null;
+
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonTokenType.EndObject) break;
+            if (reader.TokenType != JsonTokenType.PropertyName) continue;
+
+            string propertyName = reader.GetString()!;
+            reader.Read(); // Move to value
+
+            switch (propertyName)
+            {
+                case "type": type = Enum.Parse<TextComponent.ContentType>(reader.GetString()); break;
+                case "text": text = reader.GetString(); break;
+                case "translate": translate = reader.GetString(); break;
+                case "fallback": fallback = reader.GetString(); break;
+                case "color": color = reader.GetString(); break;
+                case "font": font = reader.GetString(); break;
+                case "insertion": insertion = reader.GetString(); break;
+                case "selector": selector = reader.GetString(); break;
+                case "keybind": keybind = reader.GetString(); break;
+                case "nbt": nbt = reader.GetString(); break;
+                case "bold": bold = reader.GetBoolean(); break;
+                case "italic": italic = reader.GetBoolean(); break;
+                case "underlined": underlined = reader.GetBoolean(); break;
+                case "strikethrough": strikethrough = reader.GetBoolean(); break;
+                case "obfuscated": obfuscated = reader.GetBoolean(); break;
+                case "extra": extra = JsonSerializer.Deserialize<List<TextComponent>>(ref reader, options); break;
+                case "with": with = JsonSerializer.Deserialize<List<TextComponent>>(ref reader, options); break;
+                case "score": score = JsonSerializer.Deserialize<Score>(ref reader, options); break;
+                case "click_event": click = JsonSerializer.Deserialize<ClickEvent>(ref reader, options); break;
+                case "hover_event": hover = JsonSerializer.Deserialize<HoverEvent>(ref reader, options); break;
+                case "shadow_color": shadowColor = ReadShadowColor(ref reader); break;
+                default:
+                    throw new JsonException($"Unexpected property name {propertyName} for ${nameof(TextComponent)}.");
+            }
+        }
+
+        return new TextComponent
+        {
+            Type = type,
+            Text = text,
+            Translate = translate,
+            Fallback = fallback,
+            With = with,
+            Score = score,
+            Selector = selector,
+            Keybind = keybind,
+            Nbt = nbt,
+            Color = color,
+            Font = font,
+            Bold = bold,
+            Italic = italic,
+            Underlined = underlined,
+            Strikethrough = strikethrough,
+            Obfuscated = obfuscated,
+            Insertion = insertion,
+            ShadowColor = shadowColor,
+            ClickEvent = click,
+            HoverEvent = hover,
+            Extra = extra,
+        };
+    }
+
+    private static int? ReadShadowColor(ref Utf8JsonReader reader)
+    {
         switch (reader.TokenType)
         {
-            case JsonTokenType.String:
-                return TextComponent.Literal(reader.GetString()!);
+            case JsonTokenType.Number:
+                return reader.GetInt32();
             case JsonTokenType.StartArray:
             {
-                var list = JsonSerializer.Deserialize<List<TextComponent>>(ref reader, options);
+                int shadowColor = 0;
 
-                if (list is null or { Count: 0 })
+                for (int i = 0; i < sizeof(int); i++)
                 {
-                    return new TextComponent();
+                    shadowColor |= Convert.ToInt32(Math.Clamp(reader.GetSingle(), 0, 1) * 255) << (i << 3);
                 }
 
-                var root = list[0];
-
-                if (list.Count == 1)
-                {
-                    return root;
-                }
-
-                var extra = root.Extra ?? [];
-                return root with { Extra = [..extra, ..list[1..]] };
+                return shadowColor;
             }
-            case JsonTokenType.None:
-            case JsonTokenType.StartObject:
-            case JsonTokenType.EndObject:
-            case JsonTokenType.EndArray:
-            case JsonTokenType.PropertyName:
-            case JsonTokenType.Comment:
-            case JsonTokenType.Number:
-            case JsonTokenType.True:
-            case JsonTokenType.False:
-            case JsonTokenType.Null:
             default:
-                return JsonSerializer.Deserialize<TextComponent>(ref reader, options)!;
+                return null;
         }
+    }
+
+    private static TextComponent ReadArray(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        var list = JsonSerializer.Deserialize<List<TextComponent>>(ref reader, options);
+        if (list is null or { Count: 0 }) return new TextComponent();
+
+        var root = list[0];
+        if (list.Count == 1) return root;
+
+        var rootExtra = root.Extra ?? [];
+        return root with { Extra = [..rootExtra, ..list[1..]] };
     }
 
     public override void Write(Utf8JsonWriter writer, TextComponent value, JsonSerializerOptions options)
     {
-        switch (value)
+        if (value.IsLiteral())
         {
-            case { IsSimple: false }:
-                JsonSerializer.Serialize(writer, value, options);
-                return;
-            case { Extra: not null }:
-            {
-                writer.WriteStartArray();
-                JsonSerializer.Serialize(writer, value with { Extra = null }, options);
-
-                foreach (var extra in value.Extra)
-                {
-                    JsonSerializer.Serialize(writer, extra, options);
-                }
-
-                writer.WriteEndArray();
-                return;
-            }
-            case { Text: not null }:
-                writer.WriteStringValue(value.Text);
-                return;
-            default:
-                throw new InvalidOperationException($"{nameof(value)} seems to have nothing to write: {value}");
+            writer.WriteStringValue(value.AsLiteral());
+            return;
         }
+
+        if (value.IsList())
+        {
+            JsonSerializer.Serialize(writer, value.AsList(), options);
+            return;
+        }
+
+        writer.WriteStartObject();
+
+        // Content
+        if (value.Text is not null) writer.WriteString("text", value.Text);
+        if (value.Translate is not null) writer.WriteString("translate", value.Translate);
+        if (value.Fallback is not null) writer.WriteString("fallback", value.Fallback);
+        if (value.Selector is not null) writer.WriteString("selector", value.Selector);
+        if (value.Keybind is not null) writer.WriteString("keybind", value.Keybind);
+        if (value.Nbt is not null) writer.WriteString("nbt", value.Nbt);
+
+        // Formatting
+        if (value.Color is not null) writer.WriteString("color", value.Color);
+        if (value.Font is not null) writer.WriteString("font", value.Font);
+        if (value.Bold.HasValue) writer.WriteBoolean("bold", value.Bold.Value);
+        if (value.Italic.HasValue) writer.WriteBoolean("italic", value.Italic.Value);
+        if (value.Underlined.HasValue) writer.WriteBoolean("underlined", value.Underlined.Value);
+        if (value.Strikethrough.HasValue) writer.WriteBoolean("strikethrough", value.Strikethrough.Value);
+        if (value.Obfuscated.HasValue) writer.WriteBoolean("obfuscated", value.Obfuscated.Value);
+        if (value.Insertion is not null) writer.WriteString("insertion", value.Insertion);
+        if (value.ShadowColor.HasValue) writer.WriteNumber("shadow_color", value.ShadowColor.Value);
+
+        // Nested
+        if (value.With is not null)
+        {
+            writer.WritePropertyName("with");
+            JsonSerializer.Serialize(writer, value.With, options);
+        }
+
+        if (value.Extra is not null)
+        {
+            writer.WritePropertyName("extra");
+            JsonSerializer.Serialize(writer, value.Extra, options);
+        }
+
+        if (value.ClickEvent is not null)
+        {
+            writer.WritePropertyName("click_event");
+            JsonSerializer.Serialize(writer, value.ClickEvent, options);
+        }
+
+        if (value.HoverEvent is not null)
+        {
+            writer.WritePropertyName("hover_event");
+            JsonSerializer.Serialize(writer, value.HoverEvent, options);
+        }
+
+        writer.WriteEndObject();
     }
 
 }

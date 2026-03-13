@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+
 using Sharpmine.Server.Protocol.Converters;
 
 namespace Sharpmine.Server.Protocol.Models;
@@ -8,28 +9,33 @@ public record TextComponent
 {
 
     #region Content Types
+
     public ContentType? Type { get; init; }
 
     public string? Text { get; init; }
 
     #region Translate
+
     public string? Translate { get; init; }
 
     public string? Fallback { get; init; }
 
     public List<TextComponent>? With { get; init; }
+
     #endregion
 
-    public Dictionary<string, string>? Score { get; init; }
+    public Score? Score { get; init; }
 
     public string? Selector { get; init; }
 
     public string? Keybind { get; init; }
 
     public string? Nbt { get; init; }
+
     #endregion
 
     #region Formatting
+
     public string? Color { get; init; }
 
     public string? Font { get; init; }
@@ -48,23 +54,28 @@ public record TextComponent
 
     [JsonPropertyName("shadow_color")]
     public int? ShadowColor { get; init; }
+
     #endregion
 
     #region Events
+
     [JsonPropertyName("click_event")]
     public ClickEvent? ClickEvent { get; init; }
 
     [JsonPropertyName("hover_event")]
     public HoverEvent? HoverEvent { get; init; }
+
     #endregion
 
     public List<TextComponent>? Extra { get; init; }
 
-    public bool IsSimple => this is
+    public bool IsLiteral() => this is
     {
-        // Text is missing on purpose
+        Text: not null,
         Translate: null,
+        Fallback: null,
         With: null,
+        Score: null,
         Selector: null,
         Keybind: null,
         Color: null,
@@ -75,12 +86,13 @@ public record TextComponent
         Strikethrough: null,
         Obfuscated: null,
         Insertion: null,
-        // Extra is missing on purpose
+        ShadowColor: null,
+        ClickEvent: null,
+        HoverEvent: null,
+        Extra: null
     };
 
-    public bool IsLiteral => this is { IsSimple: true, Text: not null, Extra: null };
-
-    public bool IsList => this is { IsSimple: true, Text: not null, Extra: not null, };
+    public bool IsList() => Extra is not null;
 
     public string AsLiteral() => Text!;
 
@@ -110,4 +122,5 @@ public record TextComponent
 }
 
 public record ClickEvent; // TODO
+
 public record HoverEvent; // TODO

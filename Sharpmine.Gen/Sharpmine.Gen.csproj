@@ -14,4 +14,9 @@
         <PackageReference Include="System.Text.Json" Version="10.0.3" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Remove="AnalyzerReleases.Shipped.md" />
+      <AdditionalFiles Remove="AnalyzerReleases.Unshipped.md" />
+    </ItemGroup>
+
 </Project>

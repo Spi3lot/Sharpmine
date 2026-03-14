@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Gen\Sharpmine.Gen.csproj"
+        <ProjectReference Include="..\Sharpmine.Gen\Sharpmine.Gen.csproj"
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false" />
     </ItemGroup>

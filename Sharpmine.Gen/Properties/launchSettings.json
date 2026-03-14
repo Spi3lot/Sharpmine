@@ -3,7 +3,7 @@
   "profiles": {
     "Generators": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "../Server/Sharpmine.Server.csproj"
+      "targetProject": "../Sharpmine.Server/Sharpmine.Server.csproj"
     }
   }
 }

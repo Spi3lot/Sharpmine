@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Server\Sharpmine.Server.csproj" />
+      <ProjectReference Include="..\Sharpmine.Server\Sharpmine.Server.csproj" />
     </ItemGroup>
 
 </Project>

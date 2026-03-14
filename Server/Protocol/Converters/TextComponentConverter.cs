@@ -15,11 +15,11 @@ public class TextComponentConverter : JsonConverter<TextComponent>
             JsonTokenType.String => TextComponent.Literal(reader.GetString()!),
             JsonTokenType.StartArray => ReadArray(ref reader, options),
             JsonTokenType.StartObject => ReadObject(ref reader, options),
-            _ => throw new JsonException($"Unexpected token {reader.TokenType} for TextComponent.")
+            _ => throw new JsonException($"Unexpected token {reader.TokenType} for {typeToConvert}.")
         };
     }
 
-    private TextComponent ReadObject(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    private static TextComponent ReadObject(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         TextComponent.ContentType? type = null;
 
@@ -55,29 +55,28 @@ public class TextComponentConverter : JsonConverter<TextComponent>
 
             switch (propertyName)
             {
-                case "type": type = Enum.Parse<TextComponent.ContentType>(reader.GetString()); break;
+                case "type": type = Enum.Parse<TextComponent.ContentType>(reader.GetString()!, ignoreCase: true); break;
                 case "text": text = reader.GetString(); break;
                 case "translate": translate = reader.GetString(); break;
                 case "fallback": fallback = reader.GetString(); break;
-                case "color": color = reader.GetString(); break;
-                case "font": font = reader.GetString(); break;
-                case "insertion": insertion = reader.GetString(); break;
                 case "selector": selector = reader.GetString(); break;
                 case "keybind": keybind = reader.GetString(); break;
                 case "nbt": nbt = reader.GetString(); break;
+                case "color": color = reader.GetString(); break;
+                case "font": font = reader.GetString(); break;
                 case "bold": bold = reader.GetBoolean(); break;
                 case "italic": italic = reader.GetBoolean(); break;
                 case "underlined": underlined = reader.GetBoolean(); break;
                 case "strikethrough": strikethrough = reader.GetBoolean(); break;
                 case "obfuscated": obfuscated = reader.GetBoolean(); break;
-                case "extra": extra = JsonSerializer.Deserialize<List<TextComponent>>(ref reader, options); break;
+                case "insertion": insertion = reader.GetString(); break;
+                case "shadow_color": shadowColor = ReadShadowColor(ref reader); break;
                 case "with": with = JsonSerializer.Deserialize<List<TextComponent>>(ref reader, options); break;
                 case "score": score = JsonSerializer.Deserialize<Score>(ref reader, options); break;
                 case "click_event": click = JsonSerializer.Deserialize<ClickEvent>(ref reader, options); break;
                 case "hover_event": hover = JsonSerializer.Deserialize<HoverEvent>(ref reader, options); break;
-                case "shadow_color": shadowColor = ReadShadowColor(ref reader); break;
-                default:
-                    throw new JsonException($"Unexpected property name {propertyName} for ${nameof(TextComponent)}.");
+                case "extra": extra = JsonSerializer.Deserialize<List<TextComponent>>(ref reader, options); break;
+                default: throw new JsonException($"Unexpected property name {propertyName} for ${nameof(TextComponent)}.");
             }
         }
 
@@ -103,45 +102,49 @@ public class TextComponentConverter : JsonConverter<TextComponent>
             ShadowColor = shadowColor,
             ClickEvent = click,
             HoverEvent = hover,
-            Extra = extra,
+            Extra = extra
         };
     }
 
     private static int? ReadShadowColor(ref Utf8JsonReader reader)
     {
-        switch (reader.TokenType)
+        return reader.TokenType switch
         {
-            case JsonTokenType.Number:
-                return reader.GetInt32();
-            case JsonTokenType.StartArray:
-            {
-                int shadowColor = 0;
+            JsonTokenType.Number => reader.GetInt32(),
+            JsonTokenType.StartArray => ReadRgba(ref reader),
+            _ => null
+        };
+    }
 
-                for (int i = 0; i < sizeof(int); i++)
-                {
-                    shadowColor |= Convert.ToInt32(Math.Clamp(reader.GetSingle(), 0, 1) * 255) << (i << 3);
-                }
+    private static int ReadRgba(ref Utf8JsonReader reader)
+    {
+        Span<byte> rgba = stackalloc byte[4];
 
-                return shadowColor;
-            }
-            default:
-                return null;
+        for (int i = 0; i < 4; i++)
+        {
+            reader.Read();
+            rgba[i] = Convert.ToByte(byte.MaxValue * Math.Clamp(reader.GetSingle(), 0, 1));
         }
+
+        if (!reader.Read() || reader.TokenType != JsonTokenType.EndArray)
+        {
+            // If we get here, there are more than 4 elements OR the reader is in a corrupted state.
+            // We THROW to prevent the reader from being/staying in such state.
+            throw new JsonException("Shadow color array is either too long or ended abruptly.");
+        }
+
+        return (rgba[3] << 24) | (rgba[0] << 16) | (rgba[1] << 8) | rgba[2];
     }
 
     private static TextComponent ReadArray(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         var list = JsonSerializer.Deserialize<List<TextComponent>>(ref reader, options);
-        if (list is null or { Count: 0 }) return new TextComponent();
-
-        var root = list[0];
-        if (list.Count == 1) return root;
-
-        var rootExtra = root.Extra ?? [];
-        return root with { Extra = [..rootExtra, ..list[1..]] };
+        return TextComponent.List(list);
     }
 
+#pragma warning disable S3776 // Cognitive Complexity of methods should not be too high
     public override void Write(Utf8JsonWriter writer, TextComponent value, JsonSerializerOptions options)
+#pragma warning restore S3776
     {
         if (value.IsLiteral())
         {
@@ -158,6 +161,7 @@ public class TextComponentConverter : JsonConverter<TextComponent>
         writer.WriteStartObject();
 
         // Content
+        if (value.Type.HasValue) writer.WriteString("type", value.Type.Value.ToString().ToLower());
         if (value.Text is not null) writer.WriteString("text", value.Text);
         if (value.Translate is not null) writer.WriteString("translate", value.Translate);
         if (value.Fallback is not null) writer.WriteString("fallback", value.Fallback);
@@ -177,16 +181,16 @@ public class TextComponentConverter : JsonConverter<TextComponent>
         if (value.ShadowColor.HasValue) writer.WriteNumber("shadow_color", value.ShadowColor.Value);
 
         // Nested
-        if (value.With is not null)
+        if (value.Score is not null)
         {
             writer.WritePropertyName("with");
             JsonSerializer.Serialize(writer, value.With, options);
         }
 
-        if (value.Extra is not null)
+        if (value.With is not null)
         {
-            writer.WritePropertyName("extra");
-            JsonSerializer.Serialize(writer, value.Extra, options);
+            writer.WritePropertyName("with");
+            JsonSerializer.Serialize(writer, value.With, options);
         }
 
         if (value.ClickEvent is not null)
@@ -199,6 +203,12 @@ public class TextComponentConverter : JsonConverter<TextComponent>
         {
             writer.WritePropertyName("hover_event");
             JsonSerializer.Serialize(writer, value.HoverEvent, options);
+        }
+
+        if (value.Extra is not null)
+        {
+            writer.WritePropertyName("extra");
+            JsonSerializer.Serialize(writer, value.Extra, options);
         }
 
         writer.WriteEndObject();

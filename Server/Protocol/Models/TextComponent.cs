@@ -71,6 +71,7 @@ public record TextComponent
 
     public bool IsLiteral() => this is
     {
+        Type: null or ContentType.Text,
         Text: not null,
         Translate: null,
         Fallback: null,
@@ -96,11 +97,13 @@ public record TextComponent
 
     public string AsLiteral() => Text!;
 
-    public List<TextComponent> AsList() => [this, ..Extra!];
+    public List<TextComponent> AsList() => [this with { Extra = null }, .. Extra ?? []];
 
     public static TextComponent Literal(string text) => new() { Text = text };
 
-    public static TextComponent List(List<TextComponent> list) => new() { Text = list[0].Text!, Extra = list[1..] };
+    public static TextComponent List(List<TextComponent>? list) => (list?.Count > 0)
+        ? list[0] with { Extra = [.. list[0].Extra ?? [], .. list[1..]] }
+        : new TextComponent();
 
     public enum ContentType
     {

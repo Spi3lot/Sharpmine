@@ -34,12 +34,13 @@ public partial class ClientHandler(
 
         try
         {
+            // TODO: Check if Client.Connected is immediately false after Closing the Client when encountering a Lecacy Ping
             while (Client.Connected)
             {
                 _ = await TryProcessNextPacketAsync(stream, reader, writer);
             }
         }
-        catch (IOException)
+        catch (Exception ex) when (ex is IOException or SocketException)
         {
             LogClientDisconnected(this);
         }
@@ -81,6 +82,9 @@ public partial class ClientHandler(
 
     [LoggerMessage(LogLevel.Error)]
     partial void LogException(Exception error);
+
+    [LoggerMessage(LogLevel.Warning, "Received legacy ping, closing connection")]
+    public partial void LogReceivedLegacyPing();
 
     [LoggerMessage(LogLevel.Information, "{Handler} disconnected")]
     partial void LogClientDisconnected(ClientHandler handler);

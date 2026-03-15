@@ -24,7 +24,6 @@
     <ItemGroup>
       <Folder Include="Protocol\Packets\Configuration\Clientbound\" />
       <Folder Include="Protocol\Packets\Configuration\Serverbound\" />
-      <Folder Include="Protocol\Packets\Handshake\Clientbound\" />
     </ItemGroup>
 
     <ItemGroup>

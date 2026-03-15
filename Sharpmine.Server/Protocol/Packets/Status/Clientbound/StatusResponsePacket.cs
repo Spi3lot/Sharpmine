@@ -1,10 +1,9 @@
 ﻿using System.Net.Sockets;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
-public partial record StatusResponsePacket(JsonObject Status)
+public partial record StatusResponsePacket(in ServerStatus Status)
 {
 
     public Task SerializeContentAsync(NetworkStream stream, BinaryWriter writer)

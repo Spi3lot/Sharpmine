@@ -13,7 +13,7 @@ public partial record IntentionPacket
 
     public Intent Intent { get; set; }
 
-    public Task DeserializeContentAsync(BinaryReader reader)
+    public Task DeserializeContentAsync(NetworkStream stream, BinaryReader reader)
     {
         ProtocolVersion = reader.Read7BitEncodedInt();
         ServerAddress = reader.ReadString();

@@ -8,7 +8,7 @@ public partial record PingRequestPacket
 
     public long Timestamp { get; set; }
 
-    public Task DeserializeContentAsync(BinaryReader reader)
+    public Task DeserializeContentAsync(NetworkStream stream, BinaryReader reader)
     {
         // TODO: Maybe catch exceptions and return Task.FromException
         Timestamp = reader.Read7BitEncodedInt64();

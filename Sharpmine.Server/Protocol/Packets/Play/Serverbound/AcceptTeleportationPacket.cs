@@ -7,7 +7,7 @@ public partial record AcceptTeleportationPacket
 
     public int TeleportId { get; set; }
 
-    public Task DeserializeContentAsync(BinaryReader reader)
+    public Task DeserializeContentAsync(NetworkStream stream, BinaryReader reader)
     {
         TeleportId = reader.Read7BitEncodedInt();
         return Task.CompletedTask;

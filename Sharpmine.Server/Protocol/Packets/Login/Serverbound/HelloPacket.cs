@@ -5,7 +5,7 @@ namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
 public partial record HelloPacket
 {
 
-    public Task DeserializeContentAsync(BinaryReader reader)
+    public Task DeserializeContentAsync(NetworkStream stream, BinaryReader reader)
     {
         throw new NotImplementedException();
     }

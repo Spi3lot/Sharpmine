@@ -2,7 +2,7 @@
 
 Sharpmine is a custom Minecraft server implementation built from the ground up using C# and .NET 10.
 
-There are many components missing and this project is as WIP as WIP can get.
+There are many components missing and this project is, at least as of right now, just a fun side project.
 
 ## Purpose
 
@@ -10,10 +10,10 @@ The project aims to provide a high-performance, efficient server engine. Instead
 
 ## Project Structure
 
-* **Sharpmine.Server**: Core logic and GUI
-  * The GUI has yet to be made use of - as of right now, it is just blank.
+* **Sharpmine.Server**: Core logic and GUI.
 * **Sharpmine.Gen**: The incremental source generator for the protocol.
+* **Sharpmine.Tests**: Unit tests.
 
 ## Contribute
 
-Any contribution is greatly appreciated! Feel free to fork the repo and submit a pull request whenever you're ready. :D
+Any contribution is greatly appreciated! Feel free to open issues or fork the repo and maybe even submit a pull request. :D

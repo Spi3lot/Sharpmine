@@ -1,5 +1,9 @@
 ﻿using System.Net.Sockets;
+
 using Microsoft.Extensions.Logging;
+
+using Serilog.Context;
+
 using Sharpmine.Server.Protocol.Packets;
 
 namespace Sharpmine.Server.Protocol;
@@ -11,13 +15,13 @@ public partial class ClientHandler(
 )
 {
 
+    public string Id { get; } = Guid.CreateVersion7().ToString();
+
     public TcpClient Client { get; } = client;
 
     public PacketSender PacketSender { get; } = packetSender;
 
     public ProtocolState ProtocolState { get; set; } = ProtocolState.Handshake;
-
-    public List<string> Logs { get; } = [];
 
     public event Action? ConnectionTerminated;
 
@@ -26,16 +30,13 @@ public partial class ClientHandler(
         var stream = Client.GetStream();
         var reader = new BinaryReader(stream);
         var writer = new BinaryWriter(stream);
+        var property = LogContext.PushProperty("ClientHandlerId", Id);
 
         try
         {
             while (Client.Connected)
             {
-                if (!await TryProcessNextPacketAsync(stream, reader, writer))
-                {
-                    // TODO: be more lenient
-                    return;
-                }
+                _ = await TryProcessNextPacketAsync(stream, reader, writer);
             }
         }
         catch (IOException)
@@ -49,6 +50,7 @@ public partial class ClientHandler(
         }
         finally
         {
+            property.Dispose();
             await writer.DisposeAsync();
             reader.Dispose();
             Client.Dispose();
@@ -65,7 +67,6 @@ public partial class ClientHandler(
             return false;
         }
 
-        LogReceivedPacket(packet, packet.State, packet.Id);
         await packet.ProcessAsync(this, stream, reader, writer);
         return true;
     }
@@ -84,7 +85,7 @@ public partial class ClientHandler(
     [LoggerMessage(LogLevel.Information, "{Handler} disconnected")]
     partial void LogClientDisconnected(ClientHandler handler);
 
-    [LoggerMessage(LogLevel.Debug, "Received {Packet} ({State}:0x{Id:X2})")]
-    partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id);
+    [LoggerMessage(LogLevel.Debug, "Received {Packet} ({State}:0x{Id:X2}, {Length} bytes)")]
+    public partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id, int length);
 
 }

@@ -1,5 +1,7 @@
 ﻿using System.Net.Sockets;
 
+using Serilog;
+
 namespace Sharpmine.Server.Protocol.Packets;
 
 public interface IServerboundPacket : IPacket
@@ -36,6 +38,7 @@ public interface IServerboundPacket : IPacket
         try
         {
             await packet.DeserializeContentAsync(stream, reader);
+            handler.LogReceivedPacket(packet, packet.State, packetId, length);
             return packet;
         }
         catch (NotImplementedException)

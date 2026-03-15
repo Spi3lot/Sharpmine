@@ -1,5 +1,7 @@
 ﻿using System.Net.Sockets;
 
+using Serilog;
+
 namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
 public partial record IntentionPacket
@@ -24,7 +26,10 @@ public partial record IntentionPacket
 
     public Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer)
     {
-        handler.ProtocolState = (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;
+        var oldState = handler.ProtocolState;
+        var newState = (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;
+        handler.ProtocolState = newState;
+        Log.Debug("Switched state from {OldState} to {NewState}", oldState, newState);
         return Task.CompletedTask;
     }
 

@@ -124,6 +124,6 @@ public record TextComponent
 
 }
 
-public record ClickEvent; // TODO
+public readonly record struct ClickEvent; // TODO
 
-public record HoverEvent; // TODO
+public readonly record struct HoverEvent; // TODO

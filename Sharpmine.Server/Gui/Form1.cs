@@ -46,7 +46,7 @@ public partial class Form1 : Form
         {
             SafeInvoke(() =>
             {
-                if (!checkBoxShowGlobal.Checked && listBoxClients.SelectedItem as string == id)
+                if (!checkBoxShowGlobal.Checked && listBoxClients.SelectedItem is Guid selectedId && selectedId == id)
                 {
                     RefreshLogs();
                 }
@@ -70,7 +70,7 @@ public partial class Form1 : Form
         {
             listBoxLogs.DataSource = _sink.GlobalLogs;
         }
-        else if (listBoxClients.SelectedItem is string id
+        else if (listBoxClients.SelectedItem is Guid id
                  && _sink.ClientLogs.TryGetValue(id, out var clientLogList))
         {
             listBoxLogs.DataSource = clientLogList;

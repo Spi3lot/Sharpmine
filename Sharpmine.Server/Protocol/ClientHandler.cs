@@ -15,7 +15,7 @@ public partial class ClientHandler(
 )
 {
 
-    public string Id { get; } = Guid.CreateVersion7().ToString();
+    public Guid Id { get; } = Guid.CreateVersion7();
 
     public TcpClient Client { get; } = client;
 

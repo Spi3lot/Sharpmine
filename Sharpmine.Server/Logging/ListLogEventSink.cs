@@ -12,18 +12,18 @@ public class ListLogEventSink(
 
     public List<string> GlobalLogs { get; } = [];
 
-    public Dictionary<string, List<string>> ClientLogs { get; } = new();
+    public Dictionary<Guid, List<string>> ClientLogs { get; } = new();
 
     public event Action<string>? GlobalLogAdded;
 
-    public event Action<string, string>? ClientLogAdded;
+    public event Action<Guid, string>? ClientLogAdded;
 
     public void Emit(LogEvent logEvent)
     {
         string message = $"[{logEvent.Timestamp:HH:mm:ss} {logEvent.Level}] {logEvent.RenderMessage(formatProvider)}";
 
         if (logEvent.Properties.TryGetValue("ClientHandlerId", out var idValue)
-            && idValue is ScalarValue { Value: string id })
+            && idValue is ScalarValue { Value: Guid id })
         {
             if (!ClientLogs.TryGetValue(id, out var clientLogList))
             {

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Net;
 using System.Net.Sockets;
 
 using Microsoft.Extensions.Logging;
@@ -8,10 +7,10 @@ using Sharpmine.Server.Protocol;
 
 namespace Sharpmine.Server;
 
-public partial class Server(int port, IClientHandlerFactory clientHandlerFactory, ILogger<Server> logger)
+public class Server(int port, IClientHandlerFactory clientHandlerFactory, ILogger<Server> logger)
 {
 
-    public ConcurrentDictionary<EndPoint, ClientHandler> ActiveClientHandlers { get; } = [];
+    public ConcurrentDictionary<Guid, ClientHandler> ActiveClientHandlers { get; } = [];
 
     public event Action<ClientHandler>? ClientConnectionEstablished;
 
@@ -28,17 +27,12 @@ public partial class Server(int port, IClientHandlerFactory clientHandlerFactory
             {
                 var client = await listener.AcceptTcpClientAsync();
                 var handler = clientHandlerFactory.Create(client);
-
-                if (!ActiveClientHandlers.TryAdd(client.Client.RemoteEndPoint!, handler))
-                {
-                    LogClientAlreadyConnected(client.Client.RemoteEndPoint);
-                    continue;
-                }
+                ActiveClientHandlers[handler.Id] = handler;
 
                 handler.ConnectionTerminated += () =>
                 {
-                    ActiveClientHandlers!.Remove(client.Client.RemoteEndPoint, out var removedHandler);
-                    ClientConnectionTerminated?.Invoke(removedHandler!);
+                    ActiveClientHandlers.Remove(handler.Id, out _);
+                    ClientConnectionTerminated?.Invoke(handler);
                 };
 
                 ClientConnectionEstablished?.Invoke(handler);
@@ -46,8 +40,5 @@ public partial class Server(int port, IClientHandlerFactory clientHandlerFactory
             }
         });
     }
-
-    [LoggerMessage(LogLevel.Error, "Client {EndPoint} is already connected")]
-    partial void LogClientAlreadyConnected(EndPoint? endPoint);
 
 }

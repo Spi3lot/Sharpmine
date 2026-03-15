@@ -66,7 +66,6 @@ partial class Form1
         checkBoxShowGlobal.TabIndex = 4;
         checkBoxShowGlobal.Text = "Global Logs";
         checkBoxShowGlobal.UseVisualStyleBackColor = true;
-        checkBoxShowGlobal.Visible = false;
 
         // 
         // Form1

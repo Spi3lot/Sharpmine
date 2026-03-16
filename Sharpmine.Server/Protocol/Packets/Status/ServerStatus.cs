@@ -27,7 +27,7 @@ public readonly record struct ServerStatus
 
         public List<Player> Sample { get; init; }
 
-        public readonly record struct Player(string Name, Guid Id);
+        public readonly record struct Player(string Name, Guid Uuid);
 
     }
 

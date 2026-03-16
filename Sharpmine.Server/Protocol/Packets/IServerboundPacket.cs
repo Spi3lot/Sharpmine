@@ -1,7 +1,5 @@
 ﻿using System.Net.Sockets;
 
-using Serilog;
-
 namespace Sharpmine.Server.Protocol.Packets;
 
 public interface IServerboundPacket : IPacket
@@ -58,7 +56,7 @@ public interface IServerboundPacket : IPacket
 
     /*
      * I am aware this check is not perfect and leads to a false positive
-     * when an IntentionPacket with the length of 254 bytes is sent.
+     * when an IntentionPacket with a length of 254 bytes is sent.
      * However for that to occur, the client would need to enter a hostname
      * of exactly 246 characters in length, which is highly unlikely to ever
      * be attempted by anyone, at least not in a serious manner.

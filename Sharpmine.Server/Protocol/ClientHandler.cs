@@ -11,8 +11,7 @@ namespace Sharpmine.Server.Protocol;
 public partial class ClientHandler(
     TcpClient client,
     PacketSender packetSender,
-    ILogger<ClientHandler> logger
-)
+    ILogger<ClientHandler> logger) : IDisposable
 {
 
     public Guid Id { get; } = Guid.CreateVersion7();

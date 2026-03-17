@@ -6,8 +6,7 @@ namespace Sharpmine.Server.Logging;
 public class ListLogEventSink(
     int? maxGlobalLogs = null,
     int? maxClientLogs = null,
-    IFormatProvider? formatProvider = null
-) : ILogEventSink
+    IFormatProvider? formatProvider = null) : ILogEventSink
 {
 
     public List<string> GlobalLogs { get; } = [];

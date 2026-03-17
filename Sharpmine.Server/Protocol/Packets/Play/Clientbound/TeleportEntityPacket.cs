@@ -13,8 +13,7 @@ public partial record TeleportEntityPacket(
     float Yaw,
     float Pitch,
     TeleportRelativeAxes Flags,
-    bool OnGround
-)
+    bool OnGround)
 {
 
     public Task SerializeContentAsync(NetworkStream stream, BinaryWriter writer)

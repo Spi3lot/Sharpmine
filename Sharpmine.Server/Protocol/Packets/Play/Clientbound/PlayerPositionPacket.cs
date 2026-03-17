@@ -12,8 +12,7 @@ public partial record PlayerPositionPacket(
     double VelocityZ,
     float Yaw,
     float Pitch,
-    TeleportRelativeAxes Flags
-)
+    TeleportRelativeAxes Flags)
 {
 
     public Task SerializeContentAsync(NetworkStream stream, BinaryWriter writer)

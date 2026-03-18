@@ -15,7 +15,10 @@ public partial record IntentionPacket
 
     public Intent Intent { get; set; }
 
-    public Task DeserializeContentAsync(NetworkStream stream, BinaryReader reader)
+    public Task DeserializeContentAsync(
+        NetworkStream stream,
+        BinaryReader reader,
+        CancellationToken cancellationToken)
     {
         ProtocolVersion = reader.Read7BitEncodedInt();
         ServerAddress = reader.ReadString();
@@ -24,7 +27,12 @@ public partial record IntentionPacket
         return Task.CompletedTask;
     }
 
-    public Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer)
+    public Task ProcessAsync(
+        ClientHandler handler,
+        NetworkStream stream,
+        BinaryReader reader,
+        BinaryWriter writer,
+        CancellationToken cancellationToken)
     {
         var oldState = handler.ProtocolState;
         var newState = (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;

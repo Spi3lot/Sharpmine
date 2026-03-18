@@ -29,7 +29,7 @@ public interface IServerboundPacket : IPacket
         if (IsLegacyPing(handler.ProtocolState, length))
         {
             handler.LogReceivedLegacyPing();
-            handler.Client.Close();
+            await handler.DisposeAsync();
             return null;
         }
 

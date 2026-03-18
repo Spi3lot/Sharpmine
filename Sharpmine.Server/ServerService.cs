@@ -14,7 +14,14 @@ public partial class ServerService(
     ILogger<ServerService> logger) : IHostedService
 {
 
-    private Task _listenTask;
+    // TODO: Read MaxPlayerCount from properties
+    private readonly SemaphoreSlim _playerLobby = new(2, 2);
+
+    private readonly TcpListener _listener = TcpListener.Create(port);
+
+    private Task? _listenTask;
+
+    private CancellationTokenSource? _cts;
 
     public ConcurrentDictionary<Guid, ClientHandler> ActiveClientHandlers { get; } = [];
 
@@ -26,39 +33,59 @@ public partial class ServerService(
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         logger.Log(LogLevel.Information, "Started server. Listening on port {Port}", port);
-        var listener = TcpListener.Create(port);
-        listener.Start();
 
-        _listenTask = Task.Run(async () =>
-        {
-            while (true)
-            {
-                try
-                {
-                    await AcceptAndHandleTcpClientAsync(listener, cancellationToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    LogStoppedListening();
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    LogErrorWhileAccepting(ex);
-                }
-            }
-        }, cancellationToken);
-
+        _listener.Start();
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _listenTask = AcceptLoopAsync(_cts.Token);
         return Task.CompletedTask;
     }
 
-    private async Task AcceptAndHandleTcpClientAsync(TcpListener listener, CancellationToken cancellationToken)
+    private async Task AcceptLoopAsync(CancellationToken cancellationToken)
     {
-        var client = await listener.AcceptTcpClientAsync(cancellationToken);
-        var handler = clientHandlerFactory.Create(client);
-        SetupHandler(handler);
-        _ = Task.Run(() => handler.HandleAsync(cancellationToken), cancellationToken);
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            bool semaphoreAcquired = false;
+
+            try
+            {
+                await _playerLobby.WaitAsync(cancellationToken);
+                semaphoreAcquired = true;
+                var client = await _listener.AcceptTcpClientAsync(cancellationToken);
+                HandleTcpClientAsync(client, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                if (semaphoreAcquired)
+                {
+                    _playerLobby.Release();
+                }
+
+                LogErrorWhileAccepting(ex);
+            }
+        }
+    }
+
+    private void HandleTcpClientAsync(TcpClient client, CancellationToken cancellationToken)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var handler = clientHandlerFactory.Create(client);
+                SetupHandler(handler);
+                await handler.HandleAsync(cancellationToken);
+            }
+            finally
+            {
+                _playerLobby.Release();
+            }
+        }, cancellationToken);
     }
 
     private void SetupHandler(ClientHandler handler)
@@ -78,13 +105,21 @@ public partial class ServerService(
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         logger.Log(LogLevel.Information, "Stopping server...");
+        _listener.Stop();
 
-        foreach (var handler in ActiveClientHandlers.Values)
+        if (_cts is not null)
         {
-            await handler.DisposeAsync();
+            await _cts.CancelAsync();
         }
 
-        logger.Log(LogLevel.Information, "Stopped server gracefully");
+        if (_listenTask is not null)
+        {
+            await Task.WhenAny(_listenTask, Task.Delay(-1, cancellationToken));
+        }
+
+        string gracefulness = (cancellationToken.IsCancellationRequested) ? "ungraceful" : "graceful";
+        _cts?.Dispose();
+        logger.Log(LogLevel.Information, "Stopped server {Gracefulness}ly", gracefulness);
     }
 
     [LoggerMessage(LogLevel.Information, "Stopped listening")]

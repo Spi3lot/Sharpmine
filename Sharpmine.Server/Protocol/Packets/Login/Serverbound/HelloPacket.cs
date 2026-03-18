@@ -7,18 +7,21 @@ namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
 public partial record HelloPacket
 {
 
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public Guid Uuid { get; set; }
 
-    public Task DeserializeContentAsync(NetworkStream stream, BinaryReader reader)
+    public Task DeserializeContentAsync(
+        NetworkStream stream,
+        BinaryReader reader,
+        CancellationToken cancellationToken)
     {
         Name = reader.ReadString();
         Uuid = new Guid(reader.ReadBytes(16));
         return Task.CompletedTask;
     }
 
-    public Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer)
+    public Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer, CancellationToken cancellationToken)
     {
         var profile = new GameProfile
         {
@@ -33,7 +36,7 @@ public partial record HelloPacket
         };
 
         var packet = new LoginFinishedPacket(in profile);
-        return handler.PacketSender.SendAsync(packet, stream, writer);
+        return handler.PacketSender.SendAsync(packet, stream, writer, cancellationToken);
     }
 
 }

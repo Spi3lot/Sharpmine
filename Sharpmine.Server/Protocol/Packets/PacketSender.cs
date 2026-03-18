@@ -20,15 +20,20 @@ public partial class PacketSender
         _memoryStreamWriter = new BinaryWriter(_memoryStream);
     }
 
-    public async Task SendAsync(IClientboundPacket packet, NetworkStream stream, BinaryWriter writer)
+    public async Task SendAsync(
+        IClientboundPacket packet,
+        NetworkStream stream,
+        BinaryWriter writer,
+        CancellationToken cancellationToken)
     {
         _memoryStream.SetLength(0);
         _memoryStreamWriter.Write7BitEncodedInt(packet.Id);
-        await packet.SerializeContentAsync(stream, writer);
+        await packet.SerializeContentAsync(_memoryStream, _memoryStreamWriter, cancellationToken);
 
         int packetLength = (int) _memoryStream.Length;
         writer.Write7BitEncodedInt(packetLength);
-        writer.Write(_memoryStream.GetBuffer(), 0, packetLength);
+        await stream.WriteAsync(_memoryStream.GetBuffer().AsMemory(0, packetLength), cancellationToken);
+
         LogSentPacket(packet, packet.State, packet.Id, packetLength);
     }
 

@@ -6,14 +6,7 @@ using Sharpmine.Server.Protocol.Packets;
 
 namespace Sharpmine.Server.Protocol;
 
-public interface IClientHandlerFactory
-{
-
-    ClientHandler Create(TcpClient client);
-
-}
-
-public class ClientHandlerFactory(ILoggerFactory loggerFactory) : IClientHandlerFactory
+public class ClientHandlerFactory(ILoggerFactory loggerFactory)
 {
 
     public ClientHandler Create(TcpClient client)

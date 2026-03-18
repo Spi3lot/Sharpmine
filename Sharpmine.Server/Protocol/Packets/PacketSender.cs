@@ -32,7 +32,7 @@ public partial class PacketSender
         LogSentPacket(packet, packet.State, packet.Id, packetLength);
     }
 
-    [LoggerMessage(LogLevel.Debug, "Sent {Packet} ({State}0x{Id:X2}, {Length} bytes)")]
+    [LoggerMessage(LogLevel.Debug, "Sent {State}:0x{Id:X2} with {Length} bytes: {Packet}")]
     partial void LogSentPacket(IClientboundPacket packet, ProtocolState state, int id, int length);
 
 }

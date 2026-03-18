@@ -7,21 +7,21 @@ public interface IServerboundPacket : IPacket
 
     Task DeserializeContentAsync(
         NetworkStream stream,
-        BinaryReader reader
-    ) => throw new NotImplementedException();
+        BinaryReader reader,
+        CancellationToken cancellationToken) => throw new NotImplementedException();
 
     Task ProcessAsync(
         ClientHandler handler,
         NetworkStream stream,
         BinaryReader reader,
-        BinaryWriter writer
-    ) => throw new NotImplementedException();
+        BinaryWriter writer,
+        CancellationToken cancellationToken) => throw new NotImplementedException();
 
     static async Task<IServerboundPacket?> DeserializeAsync(
         ClientHandler handler,
         NetworkStream stream,
-        BinaryReader reader
-    )
+        BinaryReader reader,
+        CancellationToken cancellationToken)
     {
         // TODO: use System.IO.Pipelines for async reads
         int length = reader.Read7BitEncodedInt();
@@ -43,7 +43,7 @@ public interface IServerboundPacket : IPacket
 
         try
         {
-            await packet.DeserializeContentAsync(stream, reader);
+            await packet.DeserializeContentAsync(stream, reader, cancellationToken);
             handler.LogReceivedPacket(packet, packet.State, packetId, length);
             return packet;
         }

@@ -5,26 +5,25 @@ namespace Sharpmine.Server.Gui;
 public partial class Form1 : Form
 {
 
-    private readonly Server _server;
+    private readonly ServerService _serverService;
 
     private readonly ListLogEventSink _sink;
 
-    public Form1(Server server, ListLogEventSink sink)
+    public Form1(ServerService serverService, ListLogEventSink sink)
     {
-        server.HandleClientsInBackground();
-        _server = server;
+        _serverService = serverService;
         _sink = sink;
 
         InitializeComponent();
         checkBoxShowGlobal.CheckedChanged += (_, _) => RefreshLogs();
 
-        _server.ClientConnectionEstablished += _ =>
+        _serverService.ClientConnectionEstablished += _ =>
         {
             SafeInvoke(() =>
             {
                 listBoxClients.DataSource = null;
 
-                listBoxClients.DataSource = _server.ActiveClientHandlers.Keys
+                listBoxClients.DataSource = _serverService.ActiveClientHandlers.Keys
                     .Union(_sink.ClientLogs.Keys)
                     .Order()
                     .ToList();

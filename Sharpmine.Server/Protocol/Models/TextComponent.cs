@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-
 using Sharpmine.Server.Protocol.Converters;
 
 namespace Sharpmine.Server.Protocol.Models;
@@ -105,6 +104,10 @@ public record TextComponent
         ? list[0] with { Extra = [.. list[0].Extra ?? [], .. list[1..]] }
         : new TextComponent();
 
+    public static implicit operator TextComponent(string text) => Literal(text);
+
+    public static explicit operator string(TextComponent textComponent) => textComponent.AsLiteral();
+
     public enum ContentType
     {
 
@@ -125,5 +128,4 @@ public record TextComponent
 }
 
 public readonly record struct ClickEvent; // TODO
-
 public readonly record struct HoverEvent; // TODO

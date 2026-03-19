@@ -17,6 +17,8 @@ public static class Program
     public static async Task Main(params string[] args)
     {
         var builder = Host.CreateApplicationBuilder(args);
+
+        builder.AddServiceDefaults();
         Console.WriteLine($"Current Environment: {builder.Environment.EnvironmentName}");
 
         bool nogui = builder.Configuration.GetValue<bool>("nogui");

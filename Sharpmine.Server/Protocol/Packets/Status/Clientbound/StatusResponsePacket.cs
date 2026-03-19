@@ -1,6 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using Sharpmine.Server.Protocol.Extensions;
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
@@ -12,22 +10,7 @@ public partial record StatusResponsePacket(ServerStatus Status)
         BinaryWriter writer,
         CancellationToken cancellationToken)
     {
-        // TODO: Don't create a new options object for every serialization
-        var options = new JsonSerializerOptions
-        {
-            AllowDuplicateProperties = false,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            WriteIndented = false,
-            UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            AllowTrailingCommas = true,
-            ReadCommentHandling = JsonCommentHandling.Skip,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString
-                             | JsonNumberHandling.AllowNamedFloatingPointLiterals,
-        };
-
-        return JsonSerializer.SerializeAsync(stream, Status, options, cancellationToken);
+        return stream.WriteJsonAsync(Status, cancellationToken);
     }
 
 }

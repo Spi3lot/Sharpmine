@@ -1,5 +1,4 @@
-using System.Text.Json;
-
+using Sharpmine.Server.Protocol.Extensions;
 using Sharpmine.Server.Protocol.Models;
 
 namespace Sharpmine.Server.Protocol.Packets.Login.Clientbound;
@@ -12,7 +11,7 @@ public partial record LoginDisconnectPacket(TextComponent Reason)
         BinaryWriter writer,
         CancellationToken cancellationToken)
     {
-        return JsonSerializer.SerializeAsync(stream, Reason, cancellationToken: cancellationToken);
+        return stream.WriteJsonAsync(Reason, cancellationToken);
     }
 
 }

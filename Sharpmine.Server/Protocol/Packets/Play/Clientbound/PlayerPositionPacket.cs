@@ -1,5 +1,3 @@
-using System.Net.Sockets;
-
 namespace Sharpmine.Server.Protocol.Packets.Play.Clientbound;
 
 public partial record PlayerPositionPacket(
@@ -12,11 +10,13 @@ public partial record PlayerPositionPacket(
     double VelocityZ,
     float Yaw,
     float Pitch,
-    TeleportRelativeAxes Flags
-)
+    TeleportRelativeAxes Flags)
 {
 
-    public Task SerializeContentAsync(NetworkStream stream, BinaryWriter writer)
+    public Task SerializeContentAsync(
+        Stream stream,
+        BinaryWriter writer,
+        CancellationToken cancellationToken)
     {
         writer.Write7BitEncodedInt(TeleportId);
         writer.Write(X);

@@ -1,13 +1,14 @@
-﻿using System.Net.Sockets;
-
-using Sharpmine.Server.Protocol.Extensions;
+﻿using Sharpmine.Server.Protocol.Extensions;
 
 namespace Sharpmine.Server.Protocol.Packets.Login.Clientbound;
 
 public partial record LoginFinishedPacket(in GameProfile Profile)
 {
 
-    public Task SerializeContentAsync(NetworkStream stream, BinaryWriter writer)
+    public Task SerializeContentAsync(
+        Stream stream,
+        BinaryWriter writer,
+        CancellationToken cancellationToken)
     {
         writer.Write(Profile.Uuid.ToByteArray());
         writer.Write(Profile.Username);
@@ -19,6 +20,12 @@ public partial record LoginFinishedPacket(in GameProfile Profile)
 
 }
 
-public readonly record struct GameProfile(Guid Uuid, string Username, in GameProfileProperties Properties);
+public readonly record struct GameProfile(
+    in Guid Uuid,
+    string Username,
+    in GameProfileProperties Properties);
 
-public readonly record struct GameProfileProperties(string Name, in string Value, string? Signature);
+public readonly record struct GameProfileProperties(
+    string Name,
+    string Value,
+    string? Signature);

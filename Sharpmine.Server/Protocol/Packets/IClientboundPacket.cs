@@ -1,10 +1,13 @@
-﻿using System.Net.Sockets;
-
-namespace Sharpmine.Server.Protocol.Packets;
+﻿namespace Sharpmine.Server.Protocol.Packets;
 
 public interface IClientboundPacket : IPacket
 {
 
-    Task SerializeContentAsync(NetworkStream stream, BinaryWriter writer) => throw new NotImplementedException();
+    Task SerializeContentAsync(
+        Stream stream,
+        BinaryWriter writer,
+        CancellationToken cancellationToken) => throw new NotImplementedException();
+
+    string ToString();
 
 }

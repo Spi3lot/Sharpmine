@@ -7,4 +7,6 @@ public interface IPacket
 
     int Id { get; }
 
+    string ToString();
+
 }

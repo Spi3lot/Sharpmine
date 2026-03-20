@@ -12,9 +12,12 @@ public class ClientHandlerFactory(ILoggerFactory loggerFactory)
     public ClientHandler Create(TcpClient client)
     {
         var clientHandlerLogger = loggerFactory.CreateLogger<ClientHandler>();
-        var packetSenderLogger = loggerFactory.CreateLogger<PacketSender>();
-        var packetSender = new PacketSender(packetSenderLogger);
-        return new ClientHandler(client, packetSender, clientHandlerLogger);
+        var packetLogger = loggerFactory.CreateLogger<PacketTransceiver>();
+        var packetTransceiver = new PacketTransceiver(packetLogger);
+        var handler = new ClientHandler(client, clientHandlerLogger);
+        packetTransceiver.Handler = handler;
+        handler.PacketTransceiver = packetTransceiver;
+        return handler;
     }
 
 }

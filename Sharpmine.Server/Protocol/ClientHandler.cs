@@ -10,25 +10,43 @@ namespace Sharpmine.Server.Protocol;
 
 public sealed partial class ClientHandler(
     TcpClient client,
-    PacketSender packetSender,
     ILogger<ClientHandler> logger) : IAsyncDisposable
 {
 
+    private CancellationTokenSource? _cts;
+
     private volatile bool _disposed;
 
-    private CancellationTokenSource? _cts;
+    public event Action? Disposing;
+
+    public event Action? Disposed;
 
     public Guid Id { get; } = Guid.CreateVersion7();
 
     public TcpClient Client { get; } = client;
 
-    public PacketSender PacketSender { get; } = packetSender;
+    public PacketTransceiver PacketTransceiver { get; internal set; } = null!;
 
     public ProtocolState ProtocolState { get; set; } = ProtocolState.Handshake;
 
-    public event Action? Disposing;
+    public async ValueTask DisposeAsync()
+    {
+        if (Interlocked.Exchange(ref _disposed, true))
+        {
+            return;
+        }
 
-    public event Action? Disposed;
+        Disposing?.Invoke();
+
+        if (_cts is not null)
+        {
+            await _cts.CancelAsync();
+            _cts.Dispose();
+        }
+
+        Client.Dispose();
+        Disposed?.Invoke();
+    }
 
     public async Task HandleAsync(CancellationToken cancellationToken)
     {
@@ -75,7 +93,7 @@ public sealed partial class ClientHandler(
         BinaryWriter writer,
         CancellationToken cancellationToken)
     {
-        var packet = await IServerboundPacket.DeserializeAsync(this, stream, reader, cancellationToken);
+        var packet = await PacketTransceiver.ReceiveAsync(stream, reader, cancellationToken);
 
         if (packet is null)
         {
@@ -86,38 +104,13 @@ public sealed partial class ClientHandler(
         return true;
     }
 
-    public override string ToString() => Client.Client.RemoteEndPoint?.ToString() ?? "<NULL>";
-
-    public async ValueTask DisposeAsync()
+    public override string ToString()
     {
-        if (Interlocked.Exchange(ref _disposed, true))
-        {
-            return;
-        }
-
-        Disposing?.Invoke();
-
-        if (_cts is not null)
-        {
-            await _cts.CancelAsync();
-            _cts.Dispose();
-        }
-
-        Client.Dispose();
-        Disposed?.Invoke();
+        return Client.Client.RemoteEndPoint?.ToString() ?? "<NULL>";
     }
-
-    [LoggerMessage(LogLevel.Error, "Received {State}:0x{Id:X2} with {Length} bytes: UNKNOWN PACKET")]
-    public partial void LogReceivedUnknownPacket(ProtocolState state, int id, int length);
-
-    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for DeserializeContentAsync")]
-    public partial void LogNoImplementationForDeserialize(IServerboundPacket packet);
 
     [LoggerMessage(LogLevel.Error, "An error occurred while handling the client")]
     partial void LogErrorWhileHandling(Exception error);
-
-    [LoggerMessage(LogLevel.Warning, "Received legacy ping, closing connection")]
-    public partial void LogReceivedLegacyPing();
 
     [LoggerMessage(LogLevel.Information, "{Handler} connected")]
     partial void LogClientConnected(ClientHandler handler);
@@ -127,8 +120,5 @@ public sealed partial class ClientHandler(
 
     [LoggerMessage(LogLevel.Information, "Connection to {Handler} was closed by server")]
     partial void LogClientWasDisconnected(ClientHandler handler);
-
-    [LoggerMessage(LogLevel.Debug, "Received {State}:0x{Id:X2} with {Length} bytes: {Packet}")]
-    public partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id, int length);
 
 }

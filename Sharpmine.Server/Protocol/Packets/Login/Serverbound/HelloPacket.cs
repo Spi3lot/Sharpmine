@@ -41,7 +41,7 @@ public partial record HelloPacket
         };
 
         var packet = new LoginFinishedPacket(in profile);
-        return handler.PacketSender.SendAsync(packet, stream, writer, cancellationToken);
+        return handler.PacketTransceiver.TransmitAsync(packet, stream, writer, cancellationToken);
     }
 
 }

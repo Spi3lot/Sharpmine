@@ -35,7 +35,7 @@ public partial record StatusRequestPacket
         };
 
         var response = new StatusResponsePacket(status);
-        return handler.PacketSender.SendAsync(response, stream, writer, cancellationToken);
+        return handler.PacketTransceiver.TransmitAsync(response, stream, writer, cancellationToken);
     }
 
 }

@@ -26,7 +26,7 @@ public partial record PingRequestPacket
         CancellationToken cancellationToken)
     {
         var response = new PongResponsePacket(Timestamp);
-        await handler.PacketSender.SendAsync(response, stream, writer, cancellationToken);
+        await handler.PacketTransceiver.TransmitAsync(response, stream, writer, cancellationToken);
         handler.Client.Close();
     }
 

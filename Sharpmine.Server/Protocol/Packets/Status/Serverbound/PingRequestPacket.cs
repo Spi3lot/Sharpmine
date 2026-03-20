@@ -18,7 +18,12 @@ public partial record PingRequestPacket
         return Task.CompletedTask;
     }
 
-    public async Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer, CancellationToken cancellationToken)
+    public async Task ProcessAsync(
+        ClientHandler handler,
+        NetworkStream stream,
+        BinaryReader reader,
+        BinaryWriter writer,
+        CancellationToken cancellationToken)
     {
         var response = new PongResponsePacket(Timestamp);
         await handler.PacketSender.SendAsync(response, stream, writer, cancellationToken);

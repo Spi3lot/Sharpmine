@@ -23,13 +23,13 @@ public partial class ServerService(
 
     private CancellationTokenSource? _cts;
 
-    public ConcurrentDictionary<Guid, ClientHandler> ActiveClientHandlers { get; } = [];
-
     public event Action<ClientHandler>? ClientConnectionEstablished;
 
     public event Action<ClientHandler>? ClientConnectionTerminating;
 
     public event Action<ClientHandler>? ClientConnectionTerminated;
+
+    public ConcurrentDictionary<Guid, ClientHandler> ActiveClientHandlers { get; } = [];
 
     public Task StartAsync(CancellationToken cancellationToken)
     {

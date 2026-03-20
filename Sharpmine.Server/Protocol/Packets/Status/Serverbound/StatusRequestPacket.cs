@@ -12,7 +12,12 @@ public partial record StatusRequestPacket
         BinaryReader reader,
         CancellationToken cancellationToken) => Task.CompletedTask;
 
-    public Task ProcessAsync(ClientHandler handler, NetworkStream stream, BinaryReader reader, BinaryWriter writer, CancellationToken cancellationToken)
+    public Task ProcessAsync(
+        ClientHandler handler,
+        NetworkStream stream,
+        BinaryReader reader,
+        BinaryWriter writer,
+        CancellationToken cancellationToken)
     {
         var status = new ServerStatus
         {

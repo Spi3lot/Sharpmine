@@ -8,4 +8,6 @@ public interface IClientboundPacket : IPacket
         BinaryWriter writer,
         CancellationToken cancellationToken) => throw new NotImplementedException();
 
+    string ToString();
+
 }

@@ -1,5 +1,3 @@
-using System.Net.Sockets;
-
 namespace Sharpmine.Server.Protocol.Packets.Play.Clientbound;
 
 public partial record TeleportEntityPacket(
@@ -16,7 +14,10 @@ public partial record TeleportEntityPacket(
     bool OnGround)
 {
 
-    public Task SerializeContentAsync(NetworkStream stream, BinaryWriter writer)
+    public Task SerializeContentAsync(
+        Stream stream,
+        BinaryWriter writer,
+        CancellationToken cancellationToken)
     {
         writer.Write7BitEncodedInt(EntityId);
         writer.Write(X);

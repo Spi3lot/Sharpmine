@@ -8,44 +8,73 @@ using Sharpmine.Server.Protocol.Packets;
 
 namespace Sharpmine.Server.Protocol;
 
-public partial class ClientHandler(
+public sealed partial class ClientHandler(
     TcpClient client,
-    PacketSender packetSender,
-    ILogger<ClientHandler> logger) : IDisposable
+    ILogger<ClientHandler> logger) : IAsyncDisposable
 {
+
+    private CancellationTokenSource? _cts;
+
+    private volatile bool _disposed;
+
+    public event Action? Disposing;
+
+    public event Action? Disposed;
 
     public Guid Id { get; } = Guid.CreateVersion7();
 
     public TcpClient Client { get; } = client;
 
-    public PacketSender PacketSender { get; } = packetSender;
+    public PacketTransceiver PacketTransceiver { get; internal set; } = null!;
 
     public ProtocolState ProtocolState { get; set; } = ProtocolState.Handshake;
 
-    public event Action? ConnectionTerminated;
+    public async ValueTask DisposeAsync()
+    {
+        if (Interlocked.Exchange(ref _disposed, true))
+        {
+            return;
+        }
 
-    public async Task HandleAsync()
+        Disposing?.Invoke();
+
+        if (_cts is not null)
+        {
+            await _cts.CancelAsync();
+            _cts.Dispose();
+        }
+
+        Client.Dispose();
+        Disposed?.Invoke();
+    }
+
+    public async Task HandleAsync(CancellationToken cancellationToken)
     {
         var stream = Client.GetStream();
         var reader = new BinaryReader(stream);
         var writer = new BinaryWriter(stream);
         var property = LogContext.PushProperty("ClientHandlerId", Id);
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        LogClientConnected(this);
 
         try
         {
-            // TODO: Check if Client.Connected is immediately false after Closing the Client when encountering a Lecacy Ping
-            while (Client.Connected)
+            while (Client.Connected && !_cts.IsCancellationRequested)
             {
-                _ = await TryProcessNextPacketAsync(stream, reader, writer);
+                _ = await TryProcessNextPacketAsync(stream, reader, writer, _cts.Token);
             }
         }
-        catch (Exception ex) when (ex is IOException or SocketException)
+        catch (OperationCanceledException)
+        {
+            LogClientWasDisconnected(this);
+        }
+        catch (Exception ex) when (ex is SocketException or IOException)
         {
             LogClientDisconnected(this);
         }
         catch (Exception ex)
         {
-            LogException(ex);
+            LogErrorWhileHandling(ex);
             throw;
         }
         finally
@@ -53,42 +82,43 @@ public partial class ClientHandler(
             property.Dispose();
             await writer.DisposeAsync();
             reader.Dispose();
-            Client.Dispose();
-            ConnectionTerminated?.Invoke();
+            await DisposeAsync();
         }
     }
 
-    public async Task<bool> TryProcessNextPacketAsync(NetworkStream stream, BinaryReader reader, BinaryWriter writer)
+    // TODO: Test performance of Task vs ValueTask
+    public async Task<bool> TryProcessNextPacketAsync(
+        NetworkStream stream,
+        BinaryReader reader,
+        BinaryWriter writer,
+        CancellationToken cancellationToken)
     {
-        var packet = await IServerboundPacket.DeserializeAsync(this, stream, reader);
+        var packet = await PacketTransceiver.ReceiveAsync(stream, reader, cancellationToken);
 
         if (packet is null)
         {
             return false;
         }
 
-        await packet.ProcessAsync(this, stream, reader, writer);
+        await packet.ProcessAsync(this, stream, reader, writer, cancellationToken);
         return true;
     }
 
-    public override string ToString() => Client.Client.RemoteEndPoint!.ToString()!;
+    public override string ToString()
+    {
+        return Client.Client.RemoteEndPoint?.ToString() ?? "<NULL>";
+    }
 
-    [LoggerMessage(LogLevel.Error, "Received unknown packet ({State}:0x{Id:X2}, {Length} bytes)")]
-    public partial void LogReceivedUnknownPacket(ProtocolState state, int id, int length);
+    [LoggerMessage(LogLevel.Error, "An error occurred while handling the client")]
+    partial void LogErrorWhileHandling(Exception error);
 
-    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for DeserializeContentAsync")]
-    public partial void LogNoImplementationForDeserialize(IServerboundPacket packet);
-
-    [LoggerMessage(LogLevel.Error)]
-    partial void LogException(Exception error);
-
-    [LoggerMessage(LogLevel.Warning, "Received legacy ping, closing connection")]
-    public partial void LogReceivedLegacyPing();
+    [LoggerMessage(LogLevel.Information, "{Handler} connected")]
+    partial void LogClientConnected(ClientHandler handler);
 
     [LoggerMessage(LogLevel.Information, "{Handler} disconnected")]
     partial void LogClientDisconnected(ClientHandler handler);
 
-    [LoggerMessage(LogLevel.Debug, "Received {Packet} ({State}:0x{Id:X2}, {Length} bytes)")]
-    public partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id, int length);
+    [LoggerMessage(LogLevel.Information, "Connection to {Handler} was closed by server")]
+    partial void LogClientWasDisconnected(ClientHandler handler);
 
 }

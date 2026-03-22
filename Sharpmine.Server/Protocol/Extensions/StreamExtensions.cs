@@ -23,9 +23,9 @@ public static class StreamExtensions
     extension<T>(Stream stream) where T : class
     {
 
-        public Task WriteJsonAsync(T obj, CancellationToken cancellationToken)
+        public Task WriteJsonAsync(T value, CancellationToken cancellationToken)
         {
-            return JsonSerializer.SerializeAsync(stream, obj, Options, cancellationToken);
+            return JsonSerializer.SerializeAsync(stream, value, Options, cancellationToken);
         }
 
 

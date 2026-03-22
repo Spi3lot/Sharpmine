@@ -32,9 +32,18 @@ public partial class PacketTransceiver
     {
         _memoryStream.SetLength(0);
         _memoryStreamWriter.Write7BitEncodedInt(packet.Id);
-        await packet.SerializeContentAsync(_memoryStream, _memoryStreamWriter, cancellationToken);
 
-        int packetLength = (int) _memoryStream.Length;
+        try
+        {
+            await packet.SerializeContentAsync(_memoryStream, _memoryStreamWriter, cancellationToken);
+        }
+        catch (NotImplementedException)
+        {
+            LogSerializeNotImplemented(packet);
+            return;
+        }
+
+        int packetLength = checked((int) _memoryStream.Length);
         writer.Write7BitEncodedInt(packetLength);
         await stream.WriteAsync(_memoryStream.GetBuffer().AsMemory(0, packetLength), cancellationToken);
 
@@ -72,7 +81,7 @@ public partial class PacketTransceiver
         }
         catch (NotImplementedException)
         {
-            LogNoImplementationForDeserialize(packet);
+            LogDeserializeNotImplemented(packet);
             return null;
         }
     }
@@ -92,19 +101,22 @@ public partial class PacketTransceiver
         return state == ProtocolState.Handshake && length == 254;
     }
 
-    [LoggerMessage(LogLevel.Debug, "Transmitted {State}:0x{Id:X2} with {Length} bytes: {Packet}")]
-    partial void LogTransmittedPacket(IClientboundPacket packet, ProtocolState state, int id, int length);
+    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for serialization")]
+    partial void LogSerializeNotImplemented(IClientboundPacket packet);
 
-    [LoggerMessage(LogLevel.Warning, "Received legacy ping, closing connection")]
-    partial void LogReceivedLegacyPing();
-
-    [LoggerMessage(LogLevel.Debug, "Received {State}:0x{Id:X2} with {Length} bytes: {Packet}")]
-    partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id, int length);
+    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for deserialization")]
+    partial void LogDeserializeNotImplemented(IServerboundPacket packet);
 
     [LoggerMessage(LogLevel.Error, "Received {State}:0x{Id:X2} with {Length} bytes: UNKNOWN PACKET")]
     partial void LogReceivedUnknownPacket(ProtocolState state, int id, int length);
 
-    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for DeserializeContentAsync")]
-    partial void LogNoImplementationForDeserialize(IServerboundPacket packet);
+    [LoggerMessage(LogLevel.Warning, "Received legacy ping, closing connection")]
+    partial void LogReceivedLegacyPing();
+
+    [LoggerMessage(LogLevel.Debug, "Transmitted {State}:0x{Id:X2} with {Length} bytes: {Packet}")]
+    partial void LogTransmittedPacket(IClientboundPacket packet, ProtocolState state, int id, int length);
+
+    [LoggerMessage(LogLevel.Debug, "Received {State}:0x{Id:X2} with {Length} bytes: {Packet}")]
+    partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id, int length);
 
 }

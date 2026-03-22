@@ -1,7 +1,5 @@
 ﻿using System.Net.Sockets;
 
-using Serilog;
-
 namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
 public partial record IntentionPacket
@@ -34,10 +32,7 @@ public partial record IntentionPacket
         BinaryWriter writer,
         CancellationToken cancellationToken)
     {
-        var oldState = handler.ProtocolState;
-        var newState = (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;
-        handler.ProtocolState = newState;
-        Log.Debug("Switched state from {OldState} to {NewState}", oldState, newState);
+        handler.SwitchProtocolState((Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login);
         return Task.CompletedTask;
     }
 

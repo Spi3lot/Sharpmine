@@ -23,11 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Protocol\Packets\Configuration\Clientbound\" />
-      <Folder Include="Protocol\Packets\Configuration\Serverbound\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <AdditionalFiles Include="Assets\generated\reports\packets.json" />
     </ItemGroup>
 

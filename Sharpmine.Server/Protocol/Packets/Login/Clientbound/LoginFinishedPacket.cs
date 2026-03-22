@@ -2,7 +2,7 @@
 
 namespace Sharpmine.Server.Protocol.Packets.Login.Clientbound;
 
-public partial record LoginFinishedPacket(in GameProfile Profile)
+public partial record LoginFinishedPacket(GameProfile Profile)
 {
 
     public Task SerializeContentAsync(
@@ -12,20 +12,25 @@ public partial record LoginFinishedPacket(in GameProfile Profile)
     {
         writer.Write(Profile.Uuid.ToByteArray());
         writer.Write(Profile.Username);
-        writer.Write(Profile.Properties.Name);
-        writer.Write(Profile.Properties.Value);
-        writer.WritePrefixedOptional(Profile.Properties.Signature);
+
+        writer.WritePrefixedArray(Profile.Properties, properties =>
+        {
+            writer.Write(properties.Name);
+            writer.Write(properties.Value);
+            writer.WritePrefixedOptional(properties.Signature, writer.Write);
+        });
+
         return Task.CompletedTask;
     }
 
 }
 
-public readonly record struct GameProfile(
+public record GameProfile(
     in Guid Uuid,
     string Username,
-    in GameProfileProperties Properties);
+    GameProfileProperty[] Properties);
 
-public readonly record struct GameProfileProperties(
+public record GameProfileProperty(
     string Name,
     string Value,
     string? Signature);

@@ -27,25 +27,12 @@ public sealed partial class ClientHandler(
 
     public PacketTransceiver PacketTransceiver { get; internal set; } = null!;
 
-    public ProtocolState ProtocolState { get; set; } = ProtocolState.Handshake;
+    public ProtocolState ProtocolState { get; private set; } = ProtocolState.Handshake;
 
-    public async ValueTask DisposeAsync()
+    public void SwitchProtocolState(ProtocolState newState)
     {
-        if (Interlocked.Exchange(ref _disposed, true))
-        {
-            return;
-        }
-
-        Disposing?.Invoke();
-
-        if (_cts is not null)
-        {
-            await _cts.CancelAsync();
-            _cts.Dispose();
-        }
-
-        Client.Dispose();
-        Disposed?.Invoke();
+        LogSwitchingState(ProtocolState, newState);
+        ProtocolState = newState;
     }
 
     public async Task HandleAsync(CancellationToken cancellationToken)
@@ -100,14 +87,44 @@ public sealed partial class ClientHandler(
             return false;
         }
 
-        await packet.ProcessAsync(this, stream, reader, writer, cancellationToken);
-        return true;
+        try
+        {
+            await packet.ProcessAsync(this, stream, reader, writer, cancellationToken);
+            return true;
+        }
+        catch (NotImplementedException)
+        {
+            LogProcessNotImplemented(packet);
+            return false;
+        }
     }
 
     public override string ToString()
     {
         return Client.Client.RemoteEndPoint?.ToString() ?? "<NULL>";
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (Interlocked.Exchange(ref _disposed, true))
+        {
+            return;
+        }
+
+        Disposing?.Invoke();
+
+        if (_cts is not null)
+        {
+            await _cts.CancelAsync();
+            _cts.Dispose();
+        }
+
+        Client.Dispose();
+        Disposed?.Invoke();
+    }
+
+    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for processing")]
+    partial void LogProcessNotImplemented(IServerboundPacket packet);
 
     [LoggerMessage(LogLevel.Error, "An error occurred while handling the client")]
     partial void LogErrorWhileHandling(Exception error);
@@ -120,5 +137,8 @@ public sealed partial class ClientHandler(
 
     [LoggerMessage(LogLevel.Information, "Connection to {Handler} was closed by server")]
     partial void LogClientWasDisconnected(ClientHandler handler);
+
+    [LoggerMessage(LogLevel.Debug, "Switching state from {OldState} to {NewState}")]
+    partial void LogSwitchingState(ProtocolState oldState, ProtocolState newState);
 
 }

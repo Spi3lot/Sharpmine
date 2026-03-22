@@ -28,19 +28,12 @@ public partial record HelloPacket
         BinaryWriter writer,
         CancellationToken cancellationToken)
     {
-        var profile = new GameProfile
-        {
-            Username = Name,
-            Uuid = Uuid,
-            Properties = new GameProfileProperties
-            {
-                Name = Name,
-                Value = "1337",
-                Signature = "Singapore",
-            }
-        };
+        var profile = new GameProfile(
+            Uuid,
+            Name,
+            [new GameProfileProperty("textures", "1337", "Singapore")]);
 
-        var packet = new LoginFinishedPacket(in profile);
+        var packet = new LoginFinishedPacket(profile);
         return handler.PacketTransceiver.TransmitAsync(packet, stream, writer, cancellationToken);
     }
 

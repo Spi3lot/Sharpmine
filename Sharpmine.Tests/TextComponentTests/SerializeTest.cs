@@ -1,7 +1,5 @@
 ﻿using System.Text.Json;
-
-using Sharpmine.Server.Protocol.Models;
-
+using Sharpmine.Server.Protocol.DataTypes;
 using static Sharpmine.Tests.TextComponentTests.ITextComponentTest;
 
 namespace Sharpmine.Tests.TextComponentTests;

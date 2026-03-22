@@ -1,4 +1,5 @@
-﻿using Sharpmine.Server.Protocol.Extensions;
+﻿using Optional;
+using Sharpmine.Server.Protocol.Extensions;
 
 namespace Sharpmine.Server.Protocol.Packets.Login.Clientbound;
 
@@ -33,4 +34,4 @@ public record GameProfile(
 public record GameProfileProperty(
     string Name,
     string Value,
-    string? Signature);
+    Option<string> Signature);

@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
-using Sharpmine.Server.Protocol.Models;
+using Sharpmine.Server.Protocol.DataTypes;
 
 namespace Sharpmine.Server.Protocol.Converters;
 

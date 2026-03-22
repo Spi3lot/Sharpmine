@@ -27,7 +27,7 @@ public partial record PingRequestPacket
     {
         var response = new PongResponsePacket(Timestamp);
         await handler.PacketTransceiver.TransmitAsync(response, stream, writer, cancellationToken);
-        handler.Client.Close();
+        await handler.DisposeAsync();
     }
 
 }

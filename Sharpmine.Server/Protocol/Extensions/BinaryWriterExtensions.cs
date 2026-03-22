@@ -1,4 +1,8 @@
-﻿namespace Sharpmine.Server.Protocol.Extensions;
+﻿using Optional;
+using Optional.Unsafe;
+using Sharpmine.Server.Protocol.DataTypes;
+
+namespace Sharpmine.Server.Protocol.Extensions;
 
 public static class BinaryWriterExtensions
 {
@@ -6,25 +10,31 @@ public static class BinaryWriterExtensions
     extension(BinaryWriter writer)
     {
 
-        public void WritePrefixedOptional<T>(T? value, Action<T> writeAction)
+        public void Write<T>(T value) where T : IProtocolDataType<T>
         {
-            bool isPresent = value is not null;
-            writer.Write(isPresent);
-
-            if (isPresent)
-            {
-                writeAction(value!);
-            }
+            value.Serialize(writer);
         }
 
-        public void WritePrefixedArray<T>(ReadOnlySpan<T> value, Action<T> writeElementAction)
+        public void WritePrefixedOptional<T>(Option<T> value, Action<T> writeAction)
+        {
+            writer.Write(value.HasValue);
+            writer.WriteOptional(value, writeAction);
+        }
+
+        public void WriteOptional<T>(Option<T> value, Action<T> writeAction)
+        {
+            value.MatchSome(writeAction);
+        }
+
+        public void WritePrefixedArray<T>(T[] value, Action<T> writeElementAction)
         {
             writer.Write7BitEncodedInt(value.Length);
+            writer.WriteArray(value, writeElementAction);
+        }
 
-            foreach (T element in value)
-            {
-                writeElementAction(element);
-            }
+        public void WriteArray<T>(T[] value, Action<T> writeElementAction)
+        {
+            Array.ForEach(value, writeElementAction);
         }
 
     }

@@ -1,5 +1,5 @@
 ﻿using System.Net.Sockets;
-
+using Optional;
 using Sharpmine.Server.Protocol.Packets.Login.Clientbound;
 
 namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
@@ -31,7 +31,7 @@ public partial record HelloPacket
         var profile = new GameProfile(
             Uuid,
             Name,
-            [new GameProfileProperty("textures", "1337", "Singapore")]);
+            [new GameProfileProperty("textures", "1337", Option.Some("Singapore"))]);
 
         var packet = new LoginFinishedPacket(profile);
         return handler.PacketTransceiver.TransmitAsync(packet, stream, writer, cancellationToken);

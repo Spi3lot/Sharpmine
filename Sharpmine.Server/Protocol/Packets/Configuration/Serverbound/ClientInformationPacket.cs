@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-using Sharpmine.Server.Protocol.Extensions;
 
 namespace Sharpmine.Server.Protocol.Packets.Configuration.Serverbound;
 

@@ -1,4 +1,5 @@
 ﻿using Optional;
+
 using Sharpmine.Server.Protocol.DataTypes;
 
 namespace Sharpmine.Server.Protocol.Extensions;
@@ -9,7 +10,7 @@ public static class BinaryReaderExtensions
     extension(BinaryReader reader)
     {
 
-        public T Read<T>() where T : IProtocolDataType<T>
+        public T Read<T>() where T : IServerboundDataType<T>
         {
             return T.Deserialize(reader);
         }

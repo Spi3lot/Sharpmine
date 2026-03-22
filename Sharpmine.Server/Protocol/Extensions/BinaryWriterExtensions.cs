@@ -1,5 +1,5 @@
 ﻿using Optional;
-using Optional.Unsafe;
+
 using Sharpmine.Server.Protocol.DataTypes;
 
 namespace Sharpmine.Server.Protocol.Extensions;
@@ -10,7 +10,7 @@ public static class BinaryWriterExtensions
     extension(BinaryWriter writer)
     {
 
-        public void Write<T>(T value) where T : IProtocolDataType<T>
+        public void Write<T>(T value) where T : IClientboundDataType
         {
             value.Serialize(writer);
         }

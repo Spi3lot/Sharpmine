@@ -1,6 +1,6 @@
 namespace Sharpmine.Server.Protocol.DataTypes;
 
-public readonly record struct Position(int X, short Y, int Z) : IProtocolDataType<Position>
+public readonly record struct Position(int X, short Y, int Z) : IBidirectionalDataType<Position>
 {
 
     public static Position Deserialize(BinaryReader reader)

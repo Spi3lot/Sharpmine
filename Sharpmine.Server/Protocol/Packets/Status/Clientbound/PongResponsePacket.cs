@@ -8,7 +8,7 @@ public partial record PongResponsePacket(long Timestamp)
         BinaryWriter writer,
         CancellationToken cancellationToken)
     {
-        writer.Write7BitEncodedInt64(Timestamp);
+        writer.Write(Timestamp);
         return Task.CompletedTask;
     }
 

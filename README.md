@@ -1,3 +1,5 @@
+[![.NET](https://github.com/Spi3lot/Sharpmine/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Spi3lot/Sharpmine/actions/workflows/dotnet.yml)
+
 # Sharpmine
 
 Sharpmine is a custom Minecraft server implementation built from the ground up using C# and .NET 10.

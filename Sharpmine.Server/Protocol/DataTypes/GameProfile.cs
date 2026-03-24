@@ -1,7 +1,6 @@
-﻿using Sharpmine.Server.Protocol.DataTypes;
-using Sharpmine.Server.Protocol.Extensions;
+﻿using Sharpmine.Server.Protocol.Extensions;
 
-namespace Sharpmine.Server.Protocol.Packets.Login.Clientbound;
+namespace Sharpmine.Server.Protocol.DataTypes;
 
 public record GameProfile(Guid Uuid, string Username, GameProfileProperty[] Properties) : IClientboundDataType
 {

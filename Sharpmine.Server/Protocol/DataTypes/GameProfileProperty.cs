@@ -1,9 +1,7 @@
 ﻿using Optional;
-
-using Sharpmine.Server.Protocol.DataTypes;
 using Sharpmine.Server.Protocol.Extensions;
 
-namespace Sharpmine.Server.Protocol.Packets.Login.Clientbound;
+namespace Sharpmine.Server.Protocol.DataTypes;
 
 public record GameProfileProperty(string Name, string Value, Option<string> Signature) : IClientboundDataType
 {

@@ -10,17 +10,8 @@ namespace Sharpmine.Server;
 public partial class ServerService(
     int port,
     ClientHandlerFactory clientHandlerFactory,
-    ILogger<ServerService> logger) : IHostedService
+    ILogger<ServerService> logger) : BackgroundService
 {
-
-    // TODO: Read MaxPlayerCount from properties
-    private readonly SemaphoreSlim _playerLobby = new(2, 2);
-
-    private readonly TcpListener _listener = TcpListener.Create(port);
-
-    private Task? _listenTask;
-
-    private CancellationTokenSource? _cts;
 
     public event Action<ClientHandler>? ClientConnectionEstablished;
 
@@ -30,29 +21,23 @@ public partial class ServerService(
 
     public ConcurrentDictionary<Guid, ClientHandler> ActiveClientHandlers { get; } = [];
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        logger.Log(LogLevel.Information, "Started server. Listening on port {Port}", port);
+        using var lobby = new SemaphoreSlim(2, 2); // TODO: Use MaxPlayerCount from properties
+        using var listener = TcpListener.Create(port);
+        listener.Start();
+        LogStartedServer(port);
 
-        _listener.Start();
-        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        _listenTask = AcceptLoopAsync(_cts.Token);
-        return Task.CompletedTask;
-    }
-
-    private async Task AcceptLoopAsync(CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             bool semaphoreAcquired = false;
 
             try
             {
-                await _playerLobby.WaitAsync(cancellationToken);
+                await lobby.WaitAsync(stoppingToken);
                 semaphoreAcquired = true;
-                var client = await _listener.AcceptTcpClientAsync(cancellationToken);
-                HandleTcpClientAsync(client, cancellationToken);
+                var client = await listener.AcceptTcpClientAsync(stoppingToken);
+                HandleTcpClientAsync(client, lobby, stoppingToken);
             }
             catch (OperationCanceledException)
             {
@@ -62,15 +47,17 @@ public partial class ServerService(
             {
                 if (semaphoreAcquired)
                 {
-                    _playerLobby.Release();
+                    lobby.Release();
                 }
 
                 LogErrorWhileAccepting(ex);
             }
         }
+
+        LogStoppingServer();
     }
 
-    private void HandleTcpClientAsync(TcpClient client, CancellationToken cancellationToken)
+    private void HandleTcpClientAsync(TcpClient client, SemaphoreSlim lobby, CancellationToken stoppingToken)
     {
         _ = Task.Run(async () =>
         {
@@ -78,13 +65,13 @@ public partial class ServerService(
             {
                 var handler = clientHandlerFactory.Create(client);
                 SetupHandler(handler);
-                await handler.HandleAsync(cancellationToken);
+                await handler.HandleAsync(stoppingToken);
             }
             finally
             {
-                _playerLobby.Release();
+                lobby.Release();
             }
-        }, cancellationToken);
+        }, stoppingToken);
     }
 
     private void SetupHandler(ClientHandler handler)
@@ -101,28 +88,11 @@ public partial class ServerService(
         ClientConnectionEstablished?.Invoke(handler);
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken)
-    {
-        logger.Log(LogLevel.Information, "Stopping server...");
-        _listener.Stop();
+    [LoggerMessage(LogLevel.Information, "Started server, listening on port {Port}")]
+    partial void LogStartedServer(int port);
 
-        if (_cts is not null)
-        {
-            await _cts.CancelAsync();
-        }
-
-        if (_listenTask is not null)
-        {
-            await Task.WhenAny(_listenTask, Task.Delay(-1, cancellationToken));
-        }
-
-        string gracefulness = (cancellationToken.IsCancellationRequested) ? "ungraceful" : "graceful";
-        _cts?.Dispose();
-        logger.Log(LogLevel.Information, "Stopped server {Gracefulness}ly", gracefulness);
-    }
-
-    [LoggerMessage(LogLevel.Information, "Stopped listening")]
-    partial void LogStoppedListening();
+    [LoggerMessage(LogLevel.Information, "Stopping server...")]
+    partial void LogStoppingServer();
 
     [LoggerMessage(LogLevel.Error, "An error occurred while trying to accept a client")]
     partial void LogErrorWhileAccepting(Exception ex);

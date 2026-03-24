@@ -1,6 +1,4 @@
-﻿using System.Net.Sockets;
-
-namespace Sharpmine.Server.Protocol.Packets.Configuration.Serverbound;
+﻿namespace Sharpmine.Server.Protocol.Packets.Configuration.Serverbound;
 
 public partial record FinishConfigurationPacket
 {

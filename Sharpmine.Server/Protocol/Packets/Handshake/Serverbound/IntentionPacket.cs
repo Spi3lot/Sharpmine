@@ -1,6 +1,4 @@
-﻿using System.Net.Sockets;
-
-namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
+﻿namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
 public partial record IntentionPacket
 {

@@ -1,5 +1,6 @@
-﻿using System.Net.Sockets;
-using Optional;
+﻿using Optional;
+
+using Sharpmine.Server.Protocol.DataTypes;
 using Sharpmine.Server.Protocol.Packets.Login.Clientbound;
 
 namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;

@@ -1,6 +1,4 @@
-﻿using System.Net.Sockets;
-
-namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
+﻿namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
 
 public partial record LoginAcknowledgedPacket
 {

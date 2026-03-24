@@ -1,12 +1,10 @@
-﻿using System.Net.Sockets;
-
-namespace Sharpmine.Server.Protocol.Packets.Configuration.Serverbound;
+﻿namespace Sharpmine.Server.Protocol.Packets.Configuration.Serverbound;
 
 public partial record CustomPayloadPacket
 {
 
     public string Channel { get; set; } = null!;
-    
+
     // TODO: Data
 
     public Task DeserializeContentAsync(

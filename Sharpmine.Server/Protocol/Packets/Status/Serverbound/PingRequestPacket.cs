@@ -1,4 +1,3 @@
-using System.Net.Sockets;
 using Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 
 namespace Sharpmine.Server.Protocol.Packets.Status.Serverbound;

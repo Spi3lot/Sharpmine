@@ -3,6 +3,7 @@
 public interface IClientboundPacket : IPacket
 {
 
+    // TODO: Consider ValueTask
     Task SerializeContentAsync(
         Stream stream,
         BinaryWriter writer,

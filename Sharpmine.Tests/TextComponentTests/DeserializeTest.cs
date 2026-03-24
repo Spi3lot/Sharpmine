@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
+
 using Sharpmine.Server.Protocol.DataTypes;
+
 using static Sharpmine.Tests.TextComponentTests.ITextComponentTest;
 
 namespace Sharpmine.Tests.TextComponentTests;
@@ -8,49 +10,47 @@ public class DeserializeTest : ITextComponentTest
 {
 
     [Test]
-    public void Empty()
+    public async Task Empty()
     {
-        Assert.That(
-            JsonSerializer.Deserialize<TextComponent>("{}"),
-            Is.EqualTo(new TextComponent())
-        );
+        await Assert.That(JsonSerializer.Deserialize<TextComponent>("{}"))
+            .IsEqualTo(new TextComponent());
     }
 
     [Test]
-    public void Literal()
+    public async Task Literal()
     {
         var actual = JsonSerializer.Deserialize<TextComponent>(SerializedLiteral);
 
-        Assert.Multiple(() =>
+        using (Assert.Multiple())
         {
-            Assert.That(actual, Is.Not.Null);
-            Assert.That(actual!.IsLiteral(), Is.True);
-            Assert.That(actual.IsList(), Is.False);
-            Assert.That(actual.AsLiteral(), Is.EqualTo("Hello!"));
-        });
+            await Assert.That(actual).IsNotNull();
+            await Assert.That(actual!.IsLiteral()).IsTrue();
+            await Assert.That(actual.IsList()).IsFalse();
+            await Assert.That(actual.AsLiteral()).IsEqualTo("Hello!");
+        }
     }
 
     [Test]
-    public void List()
+    public async Task List()
     {
         var actual = JsonSerializer.Deserialize<TextComponent>(SerializedList);
 
-        Assert.Multiple(() =>
+        using (Assert.Multiple())
         {
-            Assert.That(actual, Is.Not.Null);
-            Assert.That(actual!.IsLiteral(), Is.False);
-            Assert.That(actual.IsList(), Is.True);
-            Assert.That(actual.Text, Is.EqualTo("Root"));
+            await Assert.That(actual).IsNotNull();
+            await Assert.That(actual!.IsLiteral()).IsFalse();
+            await Assert.That(actual.IsList()).IsTrue();
+            await Assert.That(actual.Text).IsEqualTo("Root");
 
-            Assert.That(actual.Extra, Is.EqualTo([
+            await Assert.That(actual.Extra).IsEquivalentTo([
                 TextComponent.Literal("Extra1"),
                 TextComponent.Literal("Extra2")
-            ]));
-        });
+            ]);
+        }
     }
 
     [Test]
-    public void Complex()
+    public async Task Complex()
     {
         var actual = JsonSerializer.Deserialize<TextComponent>(SerializedComplexAsObject);
 
@@ -65,53 +65,41 @@ public class DeserializeTest : ITextComponentTest
 
         expected.Extra.Add(expected with { Extra = null });
 
-        Assert.Multiple(() =>
+        using (Assert.Multiple())
         {
-            Assert.That(actual, Is.Not.Null);
-            Assert.That(actual!.IsLiteral(), Is.False);
-            Assert.That(actual.IsList(), Is.True);
-            Assert.That(actual with { Extra = null }, Is.EqualTo(expected with { Extra = null }));
-            Assert.That(actual.Extra, Is.EqualTo(expected.Extra));
-        });
+            await Assert.That(actual).IsNotNull();
+            await Assert.That(actual!.IsLiteral()).IsFalse();
+            await Assert.That(actual.IsList()).IsTrue();
+            await Assert.That(actual with { Extra = null }).IsEqualTo(expected with { Extra = null });
+            await Assert.That(actual.Extra).IsEquivalentTo(expected.Extra);
+        }
     }
 
     [Test]
-    public void ShadowColor()
+    public async Task ShadowColor()
     {
         var expected = new TextComponent { ShadowColor = 0x72786125 };
 
-        Assert.Multiple(() =>
+        using (Assert.Multiple())
         {
-            Assert.That(
-                JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":1920491813}"""),
-                Is.EqualTo(expected)
-            );
+            await Assert.That(JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":1920491813}"""))
+                .IsEqualTo(expected);
 
-            Assert.That(
-                JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0.470,0.380,0.145,0.447]}"""),
-                Is.EqualTo(expected)
-            );
+            await Assert.That(JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0.470,0.380,0.145,0.447]}"""))
+                .IsEqualTo(expected);
 
-            Assert.That(
-                () => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0.12652, 0.6981, 1]}"""),
-                Throws.TypeOf<JsonException>()
-            );
+            await Assert.That(() => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0.12652, 0.6981, 1]}"""))
+                .ThrowsAsync<TextComponent, JsonException>();
 
-            Assert.That(
-                () => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0, 0.6981, 1, 5, 6]}"""),
-                Throws.TypeOf<JsonException>()
-            );
+            await Assert.That(() => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0, 0.6981, 1, 5, 6]}"""))
+                .ThrowsAsync<TextComponent, JsonException>();
 
-            Assert.That(
-                () => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0, 0.6981, 1, 4}"""),
-                Throws.TypeOf<JsonException>()
-            );
+            await Assert.That(() => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0, 0.6981, 1, 4}"""))
+                .ThrowsAsync<TextComponent, JsonException>();
 
-            Assert.That(
-                () => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0, 0.6981, 1, 4,"""),
-                Throws.TypeOf<JsonException>()
-            );
-        });
+            await Assert.That(() => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0, 0.6981, 1, 4,"""))
+                .ThrowsAsync<TextComponent, JsonException>();
+        }
     }
 
 }

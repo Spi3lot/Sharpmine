@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
+
 using Sharpmine.Server.Protocol.DataTypes;
+
 using static Sharpmine.Tests.TextComponentTests.ITextComponentTest;
 
 namespace Sharpmine.Tests.TextComponentTests;
@@ -8,23 +10,25 @@ public class SerializeTest : ITextComponentTest
 {
 
     [Test]
-    public void Empty()
+    public async Task Empty()
     {
-        Assert.That(
-            JsonSerializer.Serialize(new TextComponent()),
-            Is.EqualTo("{}")
-        );
+        var textComponent = new TextComponent();
+
+        await Assert.That(JsonSerializer.Serialize(textComponent))
+            .IsEqualTo("{}");
     }
 
     [Test]
-    public void Literal()
+    public async Task Literal()
     {
         var textComponent = TextComponent.Literal("Hello!");
-        Assert.That(JsonSerializer.Serialize(textComponent), Is.EqualTo(SerializedLiteral));
+
+        await Assert.That(JsonSerializer.Serialize(textComponent))
+            .IsEqualTo(SerializedLiteral);
     }
 
     [Test]
-    public void List()
+    public async Task List()
     {
         List<TextComponent> componentList =
         [
@@ -35,22 +39,18 @@ public class SerializeTest : ITextComponentTest
 
         var listComponent = TextComponent.List(componentList);
 
-        Assert.Multiple(() =>
+        using (Assert.Multiple())
         {
-            Assert.That(
-                JsonSerializer.Serialize(listComponent),
-                Is.EqualTo(SerializedList)
-            );
+            await Assert.That(JsonSerializer.Serialize(listComponent))
+                .IsEqualTo(SerializedList);
 
-            Assert.That(
-                JsonSerializer.Serialize(componentList),
-                Is.EqualTo(SerializedList)
-            );
-        });
+            await Assert.That(JsonSerializer.Serialize(componentList))
+                .IsEqualTo(SerializedList);
+        }
     }
 
     [Test]
-    public void Complex()
+    public async Task Complex()
     {
         var textComponent = new TextComponent
         {
@@ -63,21 +63,17 @@ public class SerializeTest : ITextComponentTest
 
         textComponent.Extra.Add(textComponent with { Extra = null });
 
-        Assert.That(
-            JsonSerializer.Serialize(textComponent),
-            Is.EqualTo(SerializedComplexAsList)
-        );
+        await Assert.That(JsonSerializer.Serialize(textComponent))
+            .IsEqualTo(SerializedComplexAsList);
     }
 
     [Test]
-    public void ShadowColor()
+    public async Task ShadowColor()
     {
         var textComponent = new TextComponent { ShadowColor = 0x72786125 };
 
-        Assert.That(
-            JsonSerializer.Serialize(textComponent),
-            Is.EqualTo("""{"shadow_color":1920491813}""")
-        );
+        await Assert.That(JsonSerializer.Serialize(textComponent))
+            .IsEqualTo("""{"shadow_color":1920491813}""");
     }
 
 }

@@ -11,14 +11,14 @@ public interface ITextComponentTest
     
     public const string SerializedComplexAsList = """[{"type":"text","text":"Complex","bold":true,"italic":true},"Literal",{"type":"text","text":"Complex","bold":true,"italic":true}]""";
 
-    public void Empty();
+    public Task Empty();
 
-    public void Literal();
+    public Task Literal();
 
-    public void List();
+    public Task List();
 
-    public void Complex();
+    public Task Complex();
 
-    public void ShadowColor();
+    public Task ShadowColor();
 
 }

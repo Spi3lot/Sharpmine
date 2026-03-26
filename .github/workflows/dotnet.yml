@@ -25,4 +25,4 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet run --project Sharpmine.Tests/Sharpmine.Tests.csproj --no-build
+      run: dotnet run --project Sharpmine.Tests/Sharpmine.Tests.csproj --no-build -- --console-output-level detailed

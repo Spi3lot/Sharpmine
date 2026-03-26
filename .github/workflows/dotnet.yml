@@ -26,5 +26,3 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet run --project Sharpmine.Tests/Sharpmine.Tests.csproj --no-build
-      env:
-        DOTNET_TEST_USE_MTP: true

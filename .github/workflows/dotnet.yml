@@ -25,6 +25,6 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test Sharpmine.Tests/Sharpmine.Tests.csproj --no-build --verbosity normal
+      run: dotnet run --project Sharpmine.Tests/Sharpmine.Tests.csproj --no-build
       env:
         DOTNET_TEST_USE_MTP: true

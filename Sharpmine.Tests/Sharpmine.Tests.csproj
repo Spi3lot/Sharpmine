@@ -6,7 +6,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-        <TestingPlatformDotNetTestSupport>true</TestingPlatformDotNetTestSupport>
+        <OutputType>Exe</OutputType>
+        <EnableMSTestRunner>true</EnableMSTestRunner>
+        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+        <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
     </PropertyGroup>
 
     <ItemGroup>

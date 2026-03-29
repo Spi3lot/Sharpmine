@@ -16,6 +16,7 @@ The project aims to provide a high-performance, efficient server engine. Instead
 * **Sharpmine.Server**: Core logic and GUI.
 * **Sharpmine.Gen**: The incremental source generator for the protocol.
 * **Sharpmine.Tests**: Unit tests.
+* **Sharpmine.AppHost** and **Sharpmine.ServiceDefaults**: Aspire orchestration. Not yet made proper use of, but maybe in the future.
 
 ## Contribute
 

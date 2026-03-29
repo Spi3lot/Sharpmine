@@ -29,6 +29,7 @@ public partial record HelloPacket
         BinaryWriter writer,
         CancellationToken cancellationToken)
     {
+        // TODO
         var profile = new GameProfile(
             Uuid,
             Name,

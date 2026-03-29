@@ -1,29 +1,28 @@
-﻿namespace Sharpmine.Server.Protocol.Packets.Status;
+﻿using System.Text;
 
-public record ServerStatus
+namespace Sharpmine.Server.Protocol.Packets.Status;
+
+public record ServerStatus(
+    StatusVersion Version,
+    StatusPlayers? Players = null,
+    StatusDescription? Description = null,
+    string? Favicon = null,
+    bool EnforcesSecureChat = false)
 {
 
-    public required StatusVersion Version { get; init; }
-
-    public StatusPlayers? Players { get; init; }
-
-    public StatusDescription? Description { get; init; }
-
-    public string? Favicon { get; init; }
-
-    public bool EnforcesSecureChat { get; init; }
-
-    public record StatusVersion(string Name, int Protocol);
-
-    public record StatusPlayers(int Max, int Online)
+    public override string ToString()
     {
-
-        public List<Player> Sample { get; init; } = [];
-
-        public record Player(string Name, Guid Id);
-
+        var builder = new StringBuilder();
+        (this with { Favicon = null }).PrintMembers(builder);
+        return builder.ToString();
     }
 
-    public record StatusDescription(string Text);
-
 }
+
+public record StatusVersion(string Name, int? Protocol = null);
+
+public record StatusPlayers(int Max, int Online, List<StatusPlayer>? Sample = null);
+
+public record StatusPlayer(string Name, Guid Id);
+
+public record StatusDescription(string Text);

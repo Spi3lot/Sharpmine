@@ -8,6 +8,7 @@ namespace Sharpmine.Server.Protocol;
 
 public sealed partial class ClientHandler(
     TcpClient client,
+    ServerService server,
     ILogger<ClientHandler> logger) : IAsyncDisposable
 {
 
@@ -22,6 +23,8 @@ public sealed partial class ClientHandler(
     public Guid Id { get; } = Guid.CreateVersion7();
 
     public TcpClient Client { get; } = client;
+
+    public ServerService Server { get; } = server;
 
     public PacketTransceiver PacketTransceiver { get; internal set; } = null!;
 

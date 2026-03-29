@@ -3,6 +3,7 @@
 using Serilog.Context;
 
 using Sharpmine.Server.Protocol.Packets;
+using Sharpmine.Server.Protocol.Packets.Configuration.Serverbound;
 
 namespace Sharpmine.Server.Protocol;
 
@@ -27,6 +28,8 @@ public sealed partial class ClientHandler(
     public ServerService Server { get; } = server;
 
     public PacketTransceiver PacketTransceiver { get; internal set; } = null!;
+
+    public ClientInformationPacket? Information { get; set; }
 
     public ProtocolState ProtocolState { get; private set; } = ProtocolState.Handshake;
 

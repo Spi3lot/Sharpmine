@@ -96,8 +96,8 @@ public class PacketGenerator : IIncrementalGenerator
 
                           public partial record {{className}} : {{interfaceName}} 
                           {
-                              public ProtocolState State => ProtocolState.{{stateName}};
-                              public int Id => 0x{{id:X2}};
+                              public new ProtocolState State => ProtocolState.{{stateName}};
+                              public new int Id => 0x{{id:X2}};
                           }
                           """;
 
@@ -118,7 +118,10 @@ public class PacketGenerator : IIncrementalGenerator
 
                         public static class ServerboundPacketRegistry 
                         {
-                            public static bool TryCreatePacket(ProtocolState state, int id, [NotNullWhen(true)] out IServerboundPacket? packet)
+                            public static bool TryCreatePacket(
+                                ProtocolState state,
+                                int id,
+                                [NotNullWhen(true)] out IServerboundPacket? packet)
                             {
                                 packet = (state, id) switch
                                 {

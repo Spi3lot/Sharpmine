@@ -45,7 +45,8 @@ public partial record ClientInformationPacket
         BinaryWriter writer,
         CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        handler.Information = this;
+        return Task.CompletedTask;
     }
 
 }

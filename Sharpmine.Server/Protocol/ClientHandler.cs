@@ -3,7 +3,7 @@
 using Serilog.Context;
 
 using Sharpmine.Server.Protocol.Packets;
-using Sharpmine.Server.Protocol.Packets.Configuration.Serverbound;
+using Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
 namespace Sharpmine.Server.Protocol;
 

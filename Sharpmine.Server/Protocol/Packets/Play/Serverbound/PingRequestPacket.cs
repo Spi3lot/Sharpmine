@@ -1,6 +1,6 @@
-using Sharpmine.Server.Protocol.Packets.Abstract.Clientbound;
+﻿using Sharpmine.Server.Protocol.Packets.Abstract.Clientbound;
 
-namespace Sharpmine.Server.Protocol.Packets.Status.Serverbound;
+namespace Sharpmine.Server.Protocol.Packets.Play.Serverbound;
 
 public partial record PingRequestPacket : Abstract.Serverbound.PingRequestPacket
 {

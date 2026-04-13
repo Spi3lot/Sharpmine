@@ -3,7 +3,7 @@
 public partial record LoginAcknowledgedPacket
 {
 
-    public Task DeserializeContentAsync(
+    public static Task DeserializeAsync(
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken) => Task.CompletedTask;

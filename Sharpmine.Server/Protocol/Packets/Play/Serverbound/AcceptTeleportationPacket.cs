@@ -5,7 +5,7 @@ public partial record AcceptTeleportationPacket
 
     public int TeleportId { get; set; }
 
-    public Task DeserializeContentAsync(
+    public static Task DeserializeAsync(
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken)

@@ -11,7 +11,7 @@ public abstract record PingRequestPacket : IServerboundPacket
 
     public long Timestamp { get; set; }
 
-    public Task DeserializeContentAsync(
+    public static Task DeserializeAsync(
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken)

@@ -25,7 +25,7 @@ public abstract record ClientInformationPacket : IServerboundPacket
 
     public ParticleStatus ParticleStatus { get; set; }
 
-    public Task DeserializeContentAsync(
+    public static Task DeserializeAsync(
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken)

@@ -11,7 +11,7 @@ public abstract record CustomPayloadPacket : IServerboundPacket
 
     // TODO: Data
 
-    public Task DeserializeContentAsync(
+    public static Task DeserializeAsync(
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken)

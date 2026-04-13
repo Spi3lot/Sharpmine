@@ -5,7 +5,7 @@ namespace Sharpmine.Server.Protocol.Packets.Status.Serverbound;
 public partial record StatusRequestPacket
 {
 
-    public Task DeserializeContentAsync(
+    public static Task DeserializeAsync(
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken) => Task.CompletedTask;

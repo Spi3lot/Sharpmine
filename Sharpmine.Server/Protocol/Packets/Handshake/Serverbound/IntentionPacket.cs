@@ -11,7 +11,7 @@ public partial record IntentionPacket
 
     public Intent Intent { get; set; }
 
-    public Task DeserializeContentAsync(
+    public static Task DeserializeAsync(
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken)

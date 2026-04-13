@@ -12,7 +12,7 @@ public partial record HelloPacket
 
     public Guid Uuid { get; set; }
 
-    public Task DeserializeContentAsync(
+    public static Task DeserializeAsync(
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken)

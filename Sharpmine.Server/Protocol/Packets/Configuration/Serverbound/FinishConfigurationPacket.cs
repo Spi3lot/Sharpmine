@@ -3,7 +3,7 @@
 public partial record FinishConfigurationPacket
 {
 
-    public Task DeserializeContentAsync(
+    public static Task DeserializeAsync(
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken) => Task.CompletedTask;

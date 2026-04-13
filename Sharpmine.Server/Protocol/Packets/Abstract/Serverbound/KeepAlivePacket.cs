@@ -9,7 +9,7 @@ public abstract record KeepAlivePacket : IServerboundPacket
 
     public long KeepAliveId { get; set; }
 
-    public Task DeserializeContentAsync(
+    public static Task DeserializeAsync(
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken)

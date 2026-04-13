@@ -74,7 +74,7 @@ public class PacketGenerator : IIncrementalGenerator
             string packetName = packet.Name.Substring("minecraft:".Length);
             string packetClassName = ToPascalCase(packetName) + "Packet";
             GeneratePacketPartial(context, packetClassName, interfaceName, stateName, directionName, packet.Id);
-            sb?.AppendLine($"            (ProtocolState.{stateName}, 0x{packet.Id:X2}) => new {stateName}.{directionName}.{packetClassName}(),");
+            sb?.AppendLine($"            (ProtocolState.{stateName}, 0x{packet.Id:X2}) => {stateName}.{directionName}.{packetClassName}.DeserializeAsync(stream, reader, cancellationToken),");
         }
     }
 
@@ -118,12 +118,14 @@ public class PacketGenerator : IIncrementalGenerator
 
                         public static class ServerboundPacketRegistry 
                         {
-                            public static bool TryCreatePacket(
+                            public static Task<IServerboundPacket?> TryDeserializePacket(
                                 ProtocolState state,
                                 int id,
-                                [NotNullWhen(true)] out IServerboundPacket? packet)
+                                NetworkStream stream,
+                                BinaryReader reader,
+                                CancellationToken cancellationToken)
                             {
-                                packet = (state, id) switch
+                                return (state, id) switch
                                 {
                         """);
     }
@@ -131,7 +133,7 @@ public class PacketGenerator : IIncrementalGenerator
     private static void EndRegistry(StringBuilder sb)
     {
         sb.Append("""
-                              _ => null
+                              _ => Task.FromResult(null)
                           };
                       
                           return packet is not null;

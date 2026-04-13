@@ -4,10 +4,10 @@ public interface IServerboundPacket : IPacket
 {
 
     // TODO: Consider ValueTask
-    Task DeserializeContentAsync(
+    static abstract Task DeserializeAsync(
         NetworkStream stream,
         BinaryReader reader,
-        CancellationToken cancellationToken) => throw new NotImplementedException();
+        CancellationToken cancellationToken);
 
     // TODO: Consider ValueTask
     Task ProcessAsync(

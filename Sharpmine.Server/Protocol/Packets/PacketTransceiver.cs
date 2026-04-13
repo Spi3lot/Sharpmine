@@ -64,22 +64,24 @@ public partial class PacketTransceiver
         }
 
         int packetId = reader.Read7BitEncodedInt();
-
-        if (!ServerboundPacketRegistry.TryCreatePacket(state, packetId, out var packet))
-        {
-            LogReceivedUnknownPacket(state, packetId, length);
-            return null;
-        }
+        IServerboundPacket? packet;
 
         try
         {
-            await packet.DeserializeContentAsync(stream, reader, cancellationToken);
+            packet = await ServerboundPacketRegistry.TryDeserializePacket(state, packetId, stream, reader, cancellationToken);
+
+            if (packet is null)
+            {
+                LogReceivedUnknownPacket(state, packetId, length);
+                return null;
+            }
+
             LogReceivedPacket(packet, state, packetId, length);
             return packet;
         }
-        catch (NotImplementedException)
+        catch (NotImplementedException ex)
         {
-            LogDeserializeNotImplemented(packet);
+            LogDeserializeNotImplemented(ex);
             return null;
         }
     }
@@ -102,8 +104,8 @@ public partial class PacketTransceiver
     [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for serialization")]
     partial void LogSerializeNotImplemented(IClientboundPacket packet);
 
-    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for deserialization")]
-    partial void LogDeserializeNotImplemented(IServerboundPacket packet);
+    [LoggerMessage(LogLevel.Error, "Received packet has no implementation for deserialization")]
+    partial void LogDeserializeNotImplemented(NotImplementedException exception);
 
     [LoggerMessage(LogLevel.Error, "Received {State}:0x{Id:X2} with {Length} bytes: UNKNOWN PACKET")]
     partial void LogReceivedUnknownPacket(ProtocolState state, int id, int length);

@@ -18,11 +18,7 @@ public abstract record KeepAlivePacket : IServerboundPacket
         return Task.CompletedTask;
     }
 
-    public Task ProcessAsync(ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         throw new NotImplementedException("Check whether the client responded with the same packet");
     }

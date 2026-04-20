@@ -42,15 +42,10 @@ public abstract record ClientInformationPacket : IServerboundPacket
         return Task.CompletedTask;
     }
 
-    public Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         handler.Information = this;
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
 }

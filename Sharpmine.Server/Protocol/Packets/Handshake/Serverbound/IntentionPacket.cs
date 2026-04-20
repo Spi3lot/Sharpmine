@@ -23,15 +23,10 @@ public partial record IntentionPacket
         return Task.CompletedTask;
     }
 
-    public Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         handler.SwitchProtocolState((Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login);
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
 }

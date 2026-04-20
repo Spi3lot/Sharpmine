@@ -12,9 +12,8 @@ public class ClientHandlerFactory(ILoggerFactory loggerFactory)
         var clientHandlerLogger = loggerFactory.CreateLogger<ClientHandler>();
         var packetLogger = loggerFactory.CreateLogger<PacketTransceiver>();
         var packetTransceiver = new PacketTransceiver(packetLogger);
-        var handler = new ClientHandler(client, server, clientHandlerLogger);
+        var handler = new ClientHandler(client, server, packetTransceiver, clientHandlerLogger);
         packetTransceiver.Handler = handler;
-        handler.PacketTransceiver = packetTransceiver;
         return handler;
     }
 

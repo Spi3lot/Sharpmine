@@ -8,15 +8,12 @@ public partial record LoginAcknowledgedPacket
         BinaryReader reader,
         CancellationToken cancellationToken) => Task.CompletedTask;
 
-    public Task ProcessAsync(
+    public ValueTask ProcessAsync(
         ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
         CancellationToken cancellationToken)
     {
         handler.SwitchProtocolState(ProtocolState.Configuration);
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
 }

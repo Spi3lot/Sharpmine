@@ -20,11 +20,6 @@ public abstract record CustomPayloadPacket : IServerboundPacket
         return Task.CompletedTask;
     }
 
-    public Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken) => Task.CompletedTask;
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken) => ValueTask.CompletedTask;
 
 }

@@ -22,21 +22,18 @@ public partial record HelloPacket
         return Task.CompletedTask;
     }
 
-    public Task ProcessAsync(
+    public ValueTask ProcessAsync(
         ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
         CancellationToken cancellationToken)
     {
-        // TODO
+        // TODO: Replace dummy with actual GameProfile
         var profile = new GameProfile(
             Uuid,
             Name,
             [new GameProfileProperty("textures", "1337", Option.Some("Singapore"))]);
 
-        var packet = new LoginFinishedPacket(profile);
-        return handler.PacketTransceiver.TransmitAsync(packet, stream, writer, cancellationToken);
+        handler.EnqueueClientboundPacket(new LoginFinishedPacket(profile));
+        return ValueTask.CompletedTask;
     }
 
 }

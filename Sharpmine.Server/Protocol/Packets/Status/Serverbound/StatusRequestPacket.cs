@@ -10,12 +10,7 @@ public partial record StatusRequestPacket
         BinaryReader reader,
         CancellationToken cancellationToken) => Task.CompletedTask;
 
-    public Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         var status = handler.Server.Status with
         {
@@ -30,7 +25,8 @@ public partial record StatusRequestPacket
         };
 
         var response = new StatusResponsePacket(status);
-        return handler.PacketTransceiver.TransmitAsync(response, stream, writer, cancellationToken);
+        handler.EnqueueClientboundPacket(response);
+        return ValueTask.CompletedTask;
     }
 
 }

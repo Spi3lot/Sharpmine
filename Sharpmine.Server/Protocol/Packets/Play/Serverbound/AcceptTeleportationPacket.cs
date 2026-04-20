@@ -14,12 +14,7 @@ public partial record AcceptTeleportationPacket
         return Task.CompletedTask;
     }
 
-    public Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

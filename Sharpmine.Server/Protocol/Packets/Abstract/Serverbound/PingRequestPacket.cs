@@ -21,14 +21,14 @@ public abstract record PingRequestPacket : IServerboundPacket
         return Task.CompletedTask;
     }
 
-    public async Task ProcessAsync(
+    public async ValueTask ProcessAsync(
         ClientHandler handler,
         NetworkStream stream,
         BinaryReader reader,
         BinaryWriter writer,
         CancellationToken cancellationToken)
     {
-        await handler.PacketTransceiver.TransmitAsync(CreatePongResponsePacket(), stream, writer, cancellationToken);
+        handler.EnqueueClientboundPacket(CreatePongResponsePacket());
         await handler.DisposeAsync();
     }
 

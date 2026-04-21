@@ -10,7 +10,7 @@ public partial record FinishConfigurationPacket
 
     public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        handler.SwitchProtocolState(ProtocolState.Play);
+        handler.TransitionTo(ProtocolState.Play);
         return ValueTask.CompletedTask;
     }
 

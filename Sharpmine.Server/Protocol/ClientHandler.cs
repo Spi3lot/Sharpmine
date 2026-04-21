@@ -37,12 +37,12 @@ public sealed partial class ClientHandler(
 
     public ClientInformationPacket? Information { get; set; }
 
-    public ProtocolState ProtocolState { get; private set; } = ProtocolState.Handshake;
+    public ProtocolState State { get; private set; } = ProtocolState.Handshake;
 
-    public void SwitchProtocolState(ProtocolState newState)
+    public void TransitionTo(ProtocolState newState)
     {
-        LogSwitchingState(ProtocolState, newState);
-        ProtocolState = newState;
+        LogStateTransition(State, newState);
+        State = newState;
     }
 
     public async Task HandleAsync(CancellationToken cancellationToken)
@@ -93,7 +93,7 @@ public sealed partial class ClientHandler(
         BinaryReader reader,
         CancellationToken cancellationToken)
     {
-        var packet = await packetTransceiver.ReceiveAsync(ProtocolState, stream, reader, cancellationToken);
+        var packet = await packetTransceiver.ReceiveAsync(State, stream, reader, cancellationToken);
         return packet is not null && _serverboundChannel.Writer.TryWrite(packet);
     }
 

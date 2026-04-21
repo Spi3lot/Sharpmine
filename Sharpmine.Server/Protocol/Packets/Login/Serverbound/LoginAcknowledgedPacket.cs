@@ -12,7 +12,7 @@ public partial record LoginAcknowledgedPacket
         ClientHandler handler,
         CancellationToken cancellationToken)
     {
-        handler.SwitchProtocolState(ProtocolState.Configuration);
+        handler.TransitionTo(ProtocolState.Configuration);
         return ValueTask.CompletedTask;
     }
 

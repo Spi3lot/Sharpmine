@@ -25,7 +25,7 @@ public partial record IntentionPacket
 
     public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        handler.SwitchProtocolState((Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login);
+        handler.TransitionTo((Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login);
         return ValueTask.CompletedTask;
     }
 

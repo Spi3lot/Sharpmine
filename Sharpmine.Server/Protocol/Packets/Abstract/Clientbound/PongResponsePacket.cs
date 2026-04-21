@@ -3,9 +3,9 @@
 public abstract record PongResponsePacket : IClientboundPacket
 {
 
-    public abstract ProtocolState State { get; }
+    ProtocolState IPacket.State => default;
 
-    public abstract int Id { get; }
+    int IPacket.Id => 0;
 
     public long Timestamp { get; init; }
 

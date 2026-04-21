@@ -8,9 +8,7 @@ public partial record LoginAcknowledgedPacket
         BinaryReader reader,
         CancellationToken cancellationToken) => Task.CompletedTask;
 
-    public ValueTask ProcessAsync(
-        ClientHandler handler,
-        CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         handler.TransitionTo(ProtocolState.Configuration);
         return ValueTask.CompletedTask;

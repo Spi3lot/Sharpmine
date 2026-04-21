@@ -99,13 +99,12 @@ public sealed partial class ClientHandler(
 
     public void EnqueueClientboundPacket(IClientboundPacket packet)
     {
-        if (_clientboundChannel.Writer.TryWrite(packet))
+        // ReSharper disable once InvertIf
+        if (!_clientboundChannel.Writer.TryWrite(packet))
         {
-            return;
+            logger.LogWarning("Disconnecting {Handler}: Too many clientbound packets queued.", this);
+            Disconnect();
         }
-
-        logger.LogWarning("Disconnecting {Handler}: Too many clientbound packets queued.", this);
-        Disconnect();
     }
 
     // TODO: outsource

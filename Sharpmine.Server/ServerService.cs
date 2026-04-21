@@ -16,8 +16,6 @@ public partial class ServerService(
 
     public event Action<ClientHandler>? ClientConnectionEstablished;
 
-    public event Action<ClientHandler>? ClientConnectionTerminating;
-
     public event Action<ClientHandler>? ClientConnectionTerminated;
 
     public ConcurrentDictionary<Guid, ClientHandler> ActiveClientHandlers { get; } = [];
@@ -88,7 +86,6 @@ public partial class ServerService(
     private void SetupHandler(ClientHandler handler)
     {
         ActiveClientHandlers[handler.Id] = handler;
-        handler.Disposing += () => ClientConnectionTerminating?.Invoke(handler);
 
         handler.Disposed += () =>
         {

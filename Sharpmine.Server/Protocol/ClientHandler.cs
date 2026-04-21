@@ -25,8 +25,6 @@ public sealed partial class ClientHandler(
 
     private volatile bool _disposed;
 
-    public event Action? Disposing;
-
     public event Action? Disposed;
 
     public Guid Id { get; } = Guid.CreateVersion7();
@@ -186,7 +184,6 @@ public sealed partial class ClientHandler(
             return;
         }
 
-        Disposing?.Invoke();
         Client.Dispose();
         _cts?.Dispose();
         _cts = null;

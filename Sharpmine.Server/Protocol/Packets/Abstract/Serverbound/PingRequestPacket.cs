@@ -16,7 +16,6 @@ public abstract record PingRequestPacket : IServerboundPacket
         BinaryReader reader,
         CancellationToken cancellationToken)
     {
-        // TODO: Maybe catch exceptions and return Task.FromException
         Timestamp = reader.Read7BitEncodedInt64();
         return Task.CompletedTask;
     }

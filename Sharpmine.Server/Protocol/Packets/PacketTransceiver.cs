@@ -2,7 +2,6 @@
 
 namespace Sharpmine.Server.Protocol.Packets;
 
-// TODO: use System.IO.Pipelines for async IO
 public partial class PacketTransceiver
 {
 
@@ -22,7 +21,6 @@ public partial class PacketTransceiver
 
     public ClientHandler Handler { get; internal set; } = null!;
 
-    // TODO: use System.IO.Pipelines for async reads
     public async Task TransmitAsync(
         IClientboundPacket packet,
         NetworkStream stream,

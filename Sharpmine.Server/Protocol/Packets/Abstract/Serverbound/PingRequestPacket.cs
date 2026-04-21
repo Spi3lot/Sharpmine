@@ -16,14 +16,14 @@ public abstract record PingRequestPacket : IServerboundPacket
         BinaryReader reader,
         CancellationToken cancellationToken)
     {
-        Timestamp = reader.Read7BitEncodedInt64();
+        Timestamp = reader.ReadInt64();
         return Task.CompletedTask;
     }
 
-    public async ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         handler.EnqueueClientboundPacket(CreatePongResponsePacket());
-        await handler.DisposeAsync();
+        return ValueTask.CompletedTask;
     }
 
     protected abstract PongResponsePacket CreatePongResponsePacket();

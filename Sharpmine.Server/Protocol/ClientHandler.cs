@@ -14,7 +14,7 @@ public sealed partial class ClientHandler(
     TcpClient client,
     ServerService server,
     PacketTransceiver packetTransceiver,
-    ILogger<ClientHandler> logger) : IAsyncDisposable
+    ILogger<ClientHandler> logger) : IDisposable
 {
 
     private readonly Channel<IClientboundPacket> _clientboundChannel = Channel.CreateClientbound();
@@ -84,7 +84,7 @@ public sealed partial class ClientHandler(
             property.Dispose();
             await writer.DisposeAsync();
             reader.Dispose();
-            await DisposeAsync();
+            Dispose();
         }
     }
 
@@ -105,11 +105,7 @@ public sealed partial class ClientHandler(
         }
 
         logger.LogWarning("Disconnecting {Handler}: Too many clientbound packets queued.", this);
-
-        if (_cts is { IsCancellationRequested: false })
-        {
-            _cts.Cancel();
-        }
+        Disconnect();
     }
 
     // TODO: outsource
@@ -132,11 +128,7 @@ public sealed partial class ClientHandler(
         catch (Exception ex)
         {
             LogErrorWhileHandling(ex);
-
-            if (_cts is { IsCancellationRequested: false })
-            {
-                await _cts.CancelAsync();
-            }
+            await DisconnectAsync();
         }
     }
 
@@ -164,11 +156,7 @@ public sealed partial class ClientHandler(
         catch (Exception ex)
         {
             LogErrorWhileHandling(ex);
-
-            if (_cts is { IsCancellationRequested: false })
-            {
-                await _cts.CancelAsync();
-            }
+            await DisconnectAsync();
         }
     }
 
@@ -177,7 +165,22 @@ public sealed partial class ClientHandler(
         return Client.Client.RemoteEndPoint?.ToString() ?? "<NULL>";
     }
 
-    public async ValueTask DisposeAsync()
+    public void Disconnect()
+    {
+        if (_cts is { IsCancellationRequested: false })
+        {
+            _cts.Cancel();
+        }
+    }
+
+    public Task DisconnectAsync()
+    {
+        return (_cts is { IsCancellationRequested: false })
+            ? _cts.CancelAsync()
+            : Task.CompletedTask;
+    }
+
+    public void Dispose()
     {
         if (Interlocked.Exchange(ref _disposed, true))
         {
@@ -185,14 +188,9 @@ public sealed partial class ClientHandler(
         }
 
         Disposing?.Invoke();
-
-        if (_cts is not null)
-        {
-            await _cts.CancelAsync();
-            _cts.Dispose();
-        }
-
         Client.Dispose();
+        _cts?.Dispose();
+        _cts = null;
         Disposed?.Invoke();
     }
 

@@ -93,7 +93,7 @@ public sealed partial class ClientHandler(
         BinaryReader reader,
         CancellationToken cancellationToken)
     {
-        var packet = await packetTransceiver.ReceiveAsync(stream, reader, cancellationToken);
+        var packet = await packetTransceiver.ReceiveAsync(ProtocolState, stream, reader, cancellationToken);
         return packet is not null && _serverboundChannel.Writer.TryWrite(packet);
     }
 

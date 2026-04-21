@@ -48,17 +48,16 @@ public partial class PacketTransceiver
     }
 
     public async Task<IServerboundPacket?> ReceiveAsync(
+        ProtocolState state,
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken)
     {
-        var state = Handler.ProtocolState;
         int length = reader.Read7BitEncodedInt();
 
         if (IsLegacyPing(state, length))
         {
             LogReceivedLegacyPing();
-            await Handler.DisposeAsync();
             return null;
         }
 

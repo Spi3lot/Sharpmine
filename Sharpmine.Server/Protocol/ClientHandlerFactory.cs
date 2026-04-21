@@ -13,7 +13,6 @@ public class ClientHandlerFactory(ILoggerFactory loggerFactory)
         var packetLogger = loggerFactory.CreateLogger<PacketTransceiver>();
         var packetTransceiver = new PacketTransceiver(packetLogger);
         var handler = new ClientHandler(client, server, packetTransceiver, clientHandlerLogger);
-        packetTransceiver.Handler = handler;
         return handler;
     }
 

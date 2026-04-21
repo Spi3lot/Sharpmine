@@ -3,7 +3,7 @@
 public interface IClientboundPacket : IPacket
 {
 
-    // TODO: Consider ValueTask
+    // TODO: make synchronous when using System.IO.Pipelines
     Task SerializeContentAsync(
         Stream stream,
         BinaryWriter writer,

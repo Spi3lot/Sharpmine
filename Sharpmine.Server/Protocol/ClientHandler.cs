@@ -37,12 +37,6 @@ public sealed partial class ClientHandler(
 
     public ProtocolState State { get; private set; } = ProtocolState.Handshake;
 
-    public void TransitionTo(ProtocolState newState)
-    {
-        LogStateTransition(State, newState);
-        State = newState;
-    }
-
     public async Task HandleAsync(CancellationToken cancellationToken)
     {
         var stream = Client.GetStream();
@@ -92,12 +86,18 @@ public sealed partial class ClientHandler(
         CancellationToken cancellationToken)
     {
         var packet = await packetTransceiver.ReceiveAsync(State, stream, reader, cancellationToken);
+
+        if (packet is IStateTransition transition)
+        {
+            LogStateTransition(State, transition.NextState);
+            State = transition.NextState;
+        }
+
         return packet is not null && _serverboundChannel.Writer.TryWrite(packet);
     }
 
     public void EnqueueClientboundPacket(IClientboundPacket packet)
     {
-        // ReSharper disable once InvertIf
         if (!_clientboundChannel.Writer.TryWrite(packet))
         {
             logger.LogWarning("Disconnecting {Handler}: Too many clientbound packets queued.", this);

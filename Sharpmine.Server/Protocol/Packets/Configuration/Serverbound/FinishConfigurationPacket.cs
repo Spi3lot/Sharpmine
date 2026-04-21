@@ -1,7 +1,9 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets.Configuration.Serverbound;
 
-public partial record FinishConfigurationPacket
+public partial record FinishConfigurationPacket : IStateTransition
 {
+
+    public ProtocolState NextState => ProtocolState.Play;
 
     public Task DeserializeContentAsync(
         NetworkStream stream,
@@ -10,7 +12,6 @@ public partial record FinishConfigurationPacket
 
     public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        handler.TransitionTo(ProtocolState.Play);
         return ValueTask.CompletedTask;
     }
 

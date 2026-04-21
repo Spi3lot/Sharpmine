@@ -1,7 +1,9 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
-public partial record IntentionPacket
+public partial record IntentionPacket : IStateTransition
 {
+
+    public ProtocolState NextState => (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;
 
     public int ProtocolVersion { get; set; }
 
@@ -25,7 +27,6 @@ public partial record IntentionPacket
 
     public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        handler.TransitionTo((Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login);
         return ValueTask.CompletedTask;
     }
 

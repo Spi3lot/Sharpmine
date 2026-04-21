@@ -22,9 +22,7 @@ public partial record HelloPacket
         return Task.CompletedTask;
     }
 
-    public ValueTask ProcessAsync(
-        ClientHandler handler,
-        CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         // TODO: Replace dummy with actual GameProfile
         var profile = new GameProfile(

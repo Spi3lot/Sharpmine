@@ -20,12 +20,7 @@ public abstract record PingRequestPacket : IServerboundPacket
         return Task.CompletedTask;
     }
 
-    public async ValueTask ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public async ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         handler.EnqueueClientboundPacket(CreatePongResponsePacket());
         await handler.DisposeAsync();

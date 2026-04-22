@@ -9,11 +9,10 @@ public abstract record CustomPayloadPacket : IServerboundPacket
 
     public string Channel { get; set; } = null!;
 
-    // TODO: Data
-
     public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         Channel = reader.ReadString();
+        throw new NotImplementedException("Data");
         return true;
     }
 

@@ -54,7 +54,7 @@ public sealed partial class ClientHandler(
             while (!_cts.IsCancellationRequested
                    && await TryEnqueueNextServerboundPacketAsync(stream, reader, _cts.Token)) ;
 
-            await _cts.CancelAsync();
+            await DisconnectAsync();
             await Task.WhenAll(writeTask, processTask);
         }
         catch (OperationCanceledException)

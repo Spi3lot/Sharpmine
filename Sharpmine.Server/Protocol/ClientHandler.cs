@@ -83,13 +83,24 @@ public sealed partial class ClientHandler(
     {
         var (keepAlive, packet) = await packetTransceiver.ReceiveAsync(State, stream, reader, cancellationToken);
 
+        if (!keepAlive)
+        {
+            return false;
+        }
+
         if (packet is IStateTransition transition)
         {
             LogStateTransition(State, transition.NextState);
             State = transition.NextState;
         }
 
-        return keepAlive && (packet is null || _serverboundChannel.Writer.TryWrite(packet));
+        if (packet is not null && !_serverboundChannel.Writer.TryWrite(packet))
+        {
+            LogDisconnectingClient(this, "Too many serverbound packets queued");
+            return false;
+        }
+
+        return true;
     }
 
     public void EnqueueClientboundPacket(IClientboundPacket packet)

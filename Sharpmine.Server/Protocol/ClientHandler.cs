@@ -51,8 +51,7 @@ public sealed partial class ClientHandler(
             var writeTask = TransmitClientboundPacketsAsync(stream, writer, _cts.Token);
             var processTask = ProcessServerboundPacketsAsync(_cts.Token);
 
-            while (Client.Connected
-                   && !_cts.IsCancellationRequested
+            while (!_cts.IsCancellationRequested
                    && await TryEnqueueNextServerboundPacketAsync(stream, reader, _cts.Token)) ;
 
             await _cts.CancelAsync();

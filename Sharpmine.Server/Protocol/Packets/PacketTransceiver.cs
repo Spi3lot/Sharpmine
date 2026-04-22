@@ -32,7 +32,7 @@ public partial class PacketTransceiver
 
         try
         {
-            await packet.SerializeContentAsync(_memoryStream, _memoryStreamWriter, cancellationToken);
+            packet.SerializeContent(_memoryStream, _memoryStreamWriter);
         }
         catch (NotImplementedException)
         {
@@ -61,30 +61,42 @@ public partial class PacketTransceiver
             return (false, null);
         }
 
+        if (length == 0)
+        {
+            LogReceivedEmptyPacket(state);
+            return (false, null);
+        }
+
         int packetId = reader.Read7BitEncodedInt();
 
         if (!ServerboundPacketRegistry.TryCreatePacket(state, packetId, out var packet))
         {
             LogReceivedUnknownPacket(state, packetId, length);
+            return (false, null); // TODO: Until Pipelines are implemented to safely advance the buffer, we MUST drop the connection.
+        }
+
+        bool success;
+
+        try
+        {
+            success = packet.DeserializeContent(stream, reader);
+        }
+        catch (NotImplementedException)
+        {
+            // TODO: 'KeepAlive=packet is not IStateTransition' when using Pipelines
+            //       Because we didn't read the payload bytes, the TCP stream is desynced.
+            LogDeserializeNotImplemented(packet);
             return (false, null);
         }
 
-        var result = packet.DeserializeContent(stream, reader);
-
-        switch (result)
+        if (!success)
         {
-            case ProtocolResult.Success:
-                LogReceivedPacket(packet, state, packetId, length);
-                return (true, packet);
-            case ProtocolResult.Violation:
-                LogDeserializeViolation(packet);
-                return (false, packet); // TODO: Check if KeepAlive=false is the correct thing to do here
-            case ProtocolResult.NotImplemented:
-                LogDeserializeNotImplemented(packet);
-                return (true, packet);
-            default:
-                throw ProtocolException.InvalidResult(result);
+            LogDeserializeViolation(packet);
+            return (false, null);
         }
+
+        LogReceivedPacket(packet, state, packetId, length);
+        return (true, packet);
     }
 
     /*

@@ -3,11 +3,11 @@
 public interface IServerboundPacket : IPacket
 {
 
-    ProtocolResult DeserializeContent(NetworkStream stream, BinaryReader reader)
-        => ProtocolResult.NotImplemented;
+    bool DeserializeContent(NetworkStream stream, BinaryReader reader)
+        => throw new NotImplementedException();
 
-    ValueTask<ProtocolResult> ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
-        => ValueTask.FromResult(ProtocolResult.NotImplemented);
+    ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+        => throw new NotImplementedException();
 
     string ToString();
 

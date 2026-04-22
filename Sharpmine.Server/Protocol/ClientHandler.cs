@@ -135,20 +135,13 @@ public sealed partial class ClientHandler(
         {
             await foreach (var packet in _serverboundChannel.Reader.ReadAllAsync(cancellationToken))
             {
-                var result = await packet.ProcessAsync(this, cancellationToken);
-
-                switch (result)
+                try
                 {
-                    case ProtocolResult.Success:
-                        break;
-                    case ProtocolResult.Violation: // TODO: Take action
-                        LogProcessViolation(packet);
-                        break;
-                    case ProtocolResult.NotImplemented:
-                        LogProcessNotImplemented(packet);
-                        break;
-                    default:
-                        throw ProtocolException.InvalidResult(result);
+                    await packet.ProcessAsync(this, cancellationToken);
+                }
+                catch (NotImplementedException)
+                {
+                    LogProcessNotImplemented(packet);
                 }
             }
         }

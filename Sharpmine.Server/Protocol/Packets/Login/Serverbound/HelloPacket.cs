@@ -12,14 +12,14 @@ public partial record HelloPacket
 
     public Guid Uuid { get; set; }
 
-    public ProtocolResult DeserializeContent(NetworkStream stream, BinaryReader reader)
+    public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         Name = reader.ReadString();
         Uuid = new Guid(reader.ReadBytes(16));
-        return ProtocolResult.Success;
+        return true;
     }
 
-    public ValueTask<ProtocolResult> ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         // TODO: Replace dummy with actual GameProfile
         var profile = new GameProfile(
@@ -28,7 +28,7 @@ public partial record HelloPacket
             [new GameProfileProperty("textures", "1337", Option.Some("Singapore"))]);
 
         handler.EnqueueClientboundPacket(new LoginFinishedPacket(profile));
-        return ValueTask.FromResult(ProtocolResult.Success);
+        return ValueTask.CompletedTask;
     }
 
 }

@@ -6,13 +6,9 @@ namespace Sharpmine.Server.Protocol.Packets.Login.Clientbound;
 public partial record LoginFinishedPacket(GameProfile Profile)
 {
 
-    public Task SerializeContentAsync(
-        Stream stream,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public void SerializeContent(Stream stream, BinaryWriter writer)
     {
         writer.Write(Profile);
-        return Task.CompletedTask;
     }
 
 }

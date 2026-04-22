@@ -3,11 +3,8 @@
 public interface IClientboundPacket : IPacket
 {
 
-    // TODO: make synchronous when using System.IO.Pipelines
-    Task SerializeContentAsync(
-        Stream stream,
-        BinaryWriter writer,
-        CancellationToken cancellationToken) => throw new NotImplementedException();
+    void SerializeContent(Stream stream, BinaryWriter writer)
+        => throw new NotImplementedException();
 
     string ToString();
 

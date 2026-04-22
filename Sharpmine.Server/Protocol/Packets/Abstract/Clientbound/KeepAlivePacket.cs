@@ -9,13 +9,9 @@ public abstract record KeepAlivePacket : IClientboundPacket
 
     public long KeepAliveId { get; init; }
 
-    public Task SerializeContentAsync(
-        Stream stream,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public void SerializeContent(Stream stream, BinaryWriter writer)
     {
         writer.Write(KeepAliveId);
-        return Task.CompletedTask;
     }
 
 }

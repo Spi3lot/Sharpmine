@@ -9,13 +9,9 @@ public abstract record PongResponsePacket : IClientboundPacket
 
     public long Timestamp { get; init; }
 
-    public Task SerializeContentAsync(
-        Stream stream,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public void SerializeContent(Stream stream, BinaryWriter writer)
     {
         writer.Write(Timestamp);
-        return Task.CompletedTask;
     }
 
 }

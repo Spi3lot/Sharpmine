@@ -5,11 +5,11 @@ public partial record FinishConfigurationPacket : IStateTransition
 
     public ProtocolState NextState => ProtocolState.Play;
 
-    public ProtocolResult DeserializeContent(NetworkStream stream, BinaryReader reader) => ProtocolResult.Success;
+    public bool DeserializeContent(NetworkStream stream, BinaryReader reader) => true;
 
-    public ValueTask<ProtocolResult> ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        return ValueTask.FromResult(ProtocolResult.Success);
+        return ValueTask.CompletedTask;
     }
 
 }

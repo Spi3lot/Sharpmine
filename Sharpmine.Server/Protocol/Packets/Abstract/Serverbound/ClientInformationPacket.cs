@@ -25,7 +25,7 @@ public abstract record ClientInformationPacket : IServerboundPacket
 
     public ParticleStatus ParticleStatus { get; set; }
 
-    public ProtocolResult DeserializeContent(NetworkStream stream, BinaryReader reader)
+    public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         Locale = reader.ReadString();
         ViewDistance = reader.ReadSByte();
@@ -36,13 +36,13 @@ public abstract record ClientInformationPacket : IServerboundPacket
         EnableTextFiltering = reader.ReadBoolean();
         AllowServerListings = reader.ReadBoolean();
         ParticleStatus = (ParticleStatus) reader.Read7BitEncodedInt();
-        return ProtocolResult.Success;
+        return true;
     }
 
-    public ValueTask<ProtocolResult> ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         handler.Information = this;
-        return ValueTask.FromResult(ProtocolResult.Success);
+        return ValueTask.CompletedTask;
     }
 
 }

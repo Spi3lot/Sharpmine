@@ -47,7 +47,7 @@ public partial class PacketTransceiver
         LogTransmittedPacket(packet, packet.State, packet.Id, packetLength);
     }
 
-    public async Task<IServerboundPacket?> ReceiveAsync(
+    public async Task<(bool KeepAlive, IServerboundPacket? Packet)> ReceiveAsync(
         ProtocolState state,
         NetworkStream stream,
         BinaryReader reader,
@@ -58,7 +58,7 @@ public partial class PacketTransceiver
         if (IsLegacyPing(state, length))
         {
             LogReceivedLegacyPing();
-            return null;
+            return (false, null);
         }
 
         int packetId = reader.Read7BitEncodedInt();
@@ -66,19 +66,24 @@ public partial class PacketTransceiver
         if (!ServerboundPacketRegistry.TryCreatePacket(state, packetId, out var packet))
         {
             LogReceivedUnknownPacket(state, packetId, length);
-            return null;
+            return (false, null);
         }
 
-        try
+        var result = packet.DeserializeContent(stream, reader);
+
+        switch (result)
         {
-            await packet.DeserializeContentAsync(stream, reader, cancellationToken);
-            LogReceivedPacket(packet, state, packetId, length);
-            return packet;
-        }
-        catch (NotImplementedException)
-        {
-            LogDeserializeNotImplemented(packet);
-            return null;
+            case ProtocolResult.Success:
+                LogReceivedPacket(packet, state, packetId, length);
+                return (true, packet);
+            case ProtocolResult.Violation:
+                LogDeserializeViolation(packet);
+                return (false, packet); // TODO: Check if KeepAlive=false is the correct thing to do here
+            case ProtocolResult.NotImplemented:
+                LogDeserializeNotImplemented(packet);
+                return (true, packet);
+            default:
+                throw ProtocolException.InvalidResult(result);
         }
     }
 

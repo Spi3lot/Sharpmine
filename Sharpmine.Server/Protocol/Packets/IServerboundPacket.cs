@@ -3,13 +3,11 @@
 public interface IServerboundPacket : IPacket
 {
 
-    // TODO: make synchronous when using System.IO.Pipelines
-    Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken) => throw new NotImplementedException();
+    ProtocolResult DeserializeContent(NetworkStream stream, BinaryReader reader)
+        => ProtocolResult.NotImplemented;
 
-    ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken) => throw new NotImplementedException();
+    ValueTask<ProtocolResult> ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+        => ValueTask.FromResult(ProtocolResult.NotImplemented);
 
     string ToString();
 

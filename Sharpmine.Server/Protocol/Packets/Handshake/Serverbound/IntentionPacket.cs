@@ -13,21 +13,18 @@ public partial record IntentionPacket : IStateTransition
 
     public Intent Intent { get; set; }
 
-    public Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken)
+    public ProtocolResult DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         ProtocolVersion = reader.Read7BitEncodedInt();
         ServerAddress = reader.ReadString();
         ServerPort = reader.ReadUInt16();
         Intent = (Intent) reader.Read7BitEncodedInt();
-        return Task.CompletedTask;
+        return ProtocolResult.Success;
     }
 
-    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+    public ValueTask<ProtocolResult> ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        return ValueTask.CompletedTask;
+        return ValueTask.FromResult(ProtocolResult.Success);
     }
 
 }

@@ -85,7 +85,7 @@ public sealed partial class ClientHandler(
         BinaryReader reader,
         CancellationToken cancellationToken)
     {
-        var packet = await packetTransceiver.ReceiveAsync(State, stream, reader, cancellationToken);
+        var (keepAlive, packet) = await packetTransceiver.ReceiveAsync(State, stream, reader, cancellationToken);
 
         if (packet is IStateTransition transition)
         {
@@ -93,7 +93,7 @@ public sealed partial class ClientHandler(
             State = transition.NextState;
         }
 
-        return packet is not null && _serverboundChannel.Writer.TryWrite(packet);
+        return keepAlive && (packet is null || _serverboundChannel.Writer.TryWrite(packet));
     }
 
     public void EnqueueClientboundPacket(IClientboundPacket packet)
@@ -136,13 +136,20 @@ public sealed partial class ClientHandler(
         {
             await foreach (var packet in _serverboundChannel.Reader.ReadAllAsync(cancellationToken))
             {
-                try
+                var result = await packet.ProcessAsync(this, cancellationToken);
+
+                switch (result)
                 {
-                    await packet.ProcessAsync(this, cancellationToken);
-                }
-                catch (NotImplementedException)
-                {
-                    LogProcessNotImplemented(packet);
+                    case ProtocolResult.Success:
+                        break;
+                    case ProtocolResult.Violation: // TODO: Take action
+                        LogProcessViolation(packet);
+                        break;
+                    case ProtocolResult.NotImplemented:
+                        LogProcessNotImplemented(packet);
+                        break;
+                    default:
+                        throw ProtocolException.InvalidResult(result);
                 }
             }
         }

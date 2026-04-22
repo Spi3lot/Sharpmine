@@ -7,6 +7,9 @@ namespace Sharpmine.Server.Protocol;
 public partial class ClientHandler
 {
 
+    [LoggerMessage(LogLevel.Error, "Processing {Packet} caused a violation")]
+    partial void LogProcessViolation(IServerboundPacket packet);
+
     [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for processing")]
     partial void LogProcessNotImplemented(IServerboundPacket packet);
 

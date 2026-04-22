@@ -11,15 +11,15 @@ public abstract record CustomPayloadPacket : IServerboundPacket
 
     // TODO: Data
 
-    public Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken)
+    public ProtocolResult DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         Channel = reader.ReadString();
-        return Task.CompletedTask;
+        return ProtocolResult.Success;
     }
 
-    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken) => ValueTask.CompletedTask;
+    public ValueTask<ProtocolResult> ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+    {
+        return ValueTask.FromResult(ProtocolResult.Success);
+    }
 
 }

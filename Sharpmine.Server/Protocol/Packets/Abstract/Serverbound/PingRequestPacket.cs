@@ -11,19 +11,16 @@ public abstract record PingRequestPacket : IServerboundPacket
 
     public long Timestamp { get; set; }
 
-    public Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken)
+    public ProtocolResult DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         Timestamp = reader.ReadInt64();
-        return Task.CompletedTask;
+        return ProtocolResult.Success;
     }
 
-    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+    public ValueTask<ProtocolResult> ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         handler.EnqueueClientboundPacket(CreatePongResponsePacket());
-        return ValueTask.CompletedTask;
+        return ValueTask.FromResult(ProtocolResult.Success);
     }
 
     protected abstract PongResponsePacket CreatePongResponsePacket();

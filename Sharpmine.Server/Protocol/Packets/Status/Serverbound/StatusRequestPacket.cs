@@ -5,12 +5,9 @@ namespace Sharpmine.Server.Protocol.Packets.Status.Serverbound;
 public partial record StatusRequestPacket
 {
 
-    public Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken) => Task.CompletedTask;
+    public ProtocolResult DeserializeContent(NetworkStream stream, BinaryReader reader) => ProtocolResult.Success;
 
-    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+    public ValueTask<ProtocolResult> ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
         var status = handler.Server.Status with
         {
@@ -26,7 +23,7 @@ public partial record StatusRequestPacket
 
         var response = new StatusResponsePacket(status);
         handler.EnqueueClientboundPacket(response);
-        return ValueTask.CompletedTask;
+        return ValueTask.FromResult(ProtocolResult.Success);
     }
 
 }

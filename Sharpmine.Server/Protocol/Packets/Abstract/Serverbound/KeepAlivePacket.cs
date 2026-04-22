@@ -9,18 +9,16 @@ public abstract record KeepAlivePacket : IServerboundPacket
 
     public long KeepAliveId { get; set; }
 
-    public Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken)
+    public ProtocolResult DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         KeepAliveId = reader.ReadInt64();
-        return Task.CompletedTask;
+        return ProtocolResult.Success;
     }
 
-    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+    public ValueTask<ProtocolResult> ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException("Check whether the client responded with the same packet");
+        // TODO: Check whether the client responded with the same packet
+        return ValueTask.FromResult(ProtocolResult.NotImplemented);
     }
 
 }

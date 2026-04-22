@@ -8,6 +8,9 @@ public partial class PacketTransceiver
     [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for serialization")]
     partial void LogSerializeNotImplemented(IClientboundPacket packet);
 
+    [LoggerMessage(LogLevel.Error, "Deserializing {Packet} caused a violation")]
+    partial void LogDeserializeViolation(IServerboundPacket packet);
+
     [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for deserialization")]
     partial void LogDeserializeNotImplemented(IServerboundPacket packet);
 

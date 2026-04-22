@@ -1,4 +1,5 @@
-﻿using System.Threading.Channels;
+﻿using System.Text;
+using System.Threading.Channels;
 
 using Microsoft.Extensions.Logging;
 
@@ -39,23 +40,20 @@ public sealed partial class ClientHandler(
 
     public async Task HandleAsync(CancellationToken cancellationToken)
     {
-        var stream = Client.GetStream();
-        var reader = new BinaryReader(stream);
-        var writer = new BinaryWriter(stream);
-        var property = LogContext.PushProperty("ClientHandlerId", Id);
-        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        await using var stream = Client.GetStream();
+        await using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+        using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+        using var _ = LogContext.PushProperty("ClientHandlerId", Id);
         LogClientConnected(this);
+
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var writeTask = TransmitClientboundPacketsAsync(stream, writer, _cts.Token);
+        var processTask = ProcessServerboundPacketsAsync(_cts.Token);
 
         try
         {
-            var writeTask = TransmitClientboundPacketsAsync(stream, writer, _cts.Token);
-            var processTask = ProcessServerboundPacketsAsync(_cts.Token);
-
             while (!_cts.IsCancellationRequested
                    && await TryEnqueueNextServerboundPacketAsync(stream, reader, _cts.Token)) ;
-
-            await DisconnectAsync();
-            await Task.WhenAll(writeTask, processTask);
         }
         catch (OperationCanceledException)
         {
@@ -72,9 +70,8 @@ public sealed partial class ClientHandler(
         }
         finally
         {
-            property.Dispose();
-            await writer.DisposeAsync();
-            reader.Dispose();
+            await DisconnectAsync();
+            await Task.WhenAll(writeTask, processTask);
             Dispose();
         }
     }

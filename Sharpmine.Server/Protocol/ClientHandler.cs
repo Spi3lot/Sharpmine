@@ -59,7 +59,7 @@ public sealed partial class ClientHandler(
         }
         catch (OperationCanceledException)
         {
-            LogClientWasDisconnected(this);
+            LogClientWasDisconnected(this, "Operation canceled");
         }
         catch (Exception ex) when (ex is SocketException or IOException)
         {
@@ -99,7 +99,7 @@ public sealed partial class ClientHandler(
     {
         if (!_clientboundChannel.Writer.TryWrite(packet))
         {
-            logger.LogWarning("Disconnecting {Handler}: Too many clientbound packets queued.", this);
+            LogClientWasDisconnected(this, "Too many clientbound packets queued");
             Disconnect();
         }
     }

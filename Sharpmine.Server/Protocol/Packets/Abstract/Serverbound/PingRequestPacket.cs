@@ -5,31 +5,22 @@ namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 public abstract record PingRequestPacket : IServerboundPacket
 {
 
-    public abstract ProtocolState State { get; }
+    ProtocolState IPacket.State => default;
 
-    public abstract int Id { get; }
+    int IPacket.Id => 0;
 
     public long Timestamp { get; set; }
 
-    public Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken)
+    public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
-        // TODO: Maybe catch exceptions and return Task.FromException
-        Timestamp = reader.Read7BitEncodedInt64();
-        return Task.CompletedTask;
+        Timestamp = reader.ReadInt64();
+        return true;
     }
 
-    public async Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        await handler.PacketTransceiver.TransmitAsync(CreatePongResponsePacket(), stream, writer, cancellationToken);
-        await handler.DisposeAsync();
+        handler.EnqueueClientboundPacket(CreatePongResponsePacket());
+        return ValueTask.CompletedTask;
     }
 
     protected abstract PongResponsePacket CreatePongResponsePacket();

@@ -3,19 +3,11 @@
 public interface IServerboundPacket : IPacket
 {
 
-    // TODO: Consider ValueTask
-    Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken) => throw new NotImplementedException();
+    bool DeserializeContent(NetworkStream stream, BinaryReader reader)
+        => throw new NotImplementedException();
 
-    // TODO: Consider ValueTask
-    Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken) => throw new NotImplementedException();
+    ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+        => throw new NotImplementedException();
 
     string ToString();
 

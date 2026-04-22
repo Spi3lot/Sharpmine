@@ -1,22 +1,15 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
 
-public partial record LoginAcknowledgedPacket
+public partial record LoginAcknowledgedPacket : IStateTransition
 {
 
-    public Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken) => Task.CompletedTask;
+    public ProtocolState NextState => ProtocolState.Configuration;
 
-    public Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public bool DeserializeContent(NetworkStream stream, BinaryReader reader) => true;
+
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        handler.SwitchProtocolState(ProtocolState.Configuration);
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
 }

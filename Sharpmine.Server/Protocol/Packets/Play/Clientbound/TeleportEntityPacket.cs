@@ -14,10 +14,7 @@ public partial record TeleportEntityPacket(
     bool OnGround)
 {
 
-    public Task SerializeContentAsync(
-        Stream stream,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public void SerializeContent(Stream stream, BinaryWriter writer)
     {
         writer.Write7BitEncodedInt(EntityId);
         writer.Write(X);
@@ -30,7 +27,6 @@ public partial record TeleportEntityPacket(
         writer.Write(Pitch);
         writer.Write((int) Flags);
         writer.Write(OnGround);
-        return Task.CompletedTask;
     }
 
 }

@@ -1,7 +1,9 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
-public partial record IntentionPacket
+public partial record IntentionPacket : IStateTransition
 {
+
+    public ProtocolState NextState => (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;
 
     public int ProtocolVersion { get; set; }
 
@@ -11,27 +13,18 @@ public partial record IntentionPacket
 
     public Intent Intent { get; set; }
 
-    public Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken)
+    public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         ProtocolVersion = reader.Read7BitEncodedInt();
         ServerAddress = reader.ReadString();
         ServerPort = reader.ReadUInt16();
         Intent = (Intent) reader.Read7BitEncodedInt();
-        return Task.CompletedTask;
+        return true;
     }
 
-    public Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        handler.SwitchProtocolState((Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login);
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
 }

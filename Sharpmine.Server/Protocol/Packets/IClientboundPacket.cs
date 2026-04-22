@@ -3,11 +3,8 @@
 public interface IClientboundPacket : IPacket
 {
 
-    // TODO: Consider ValueTask
-    Task SerializeContentAsync(
-        Stream stream,
-        BinaryWriter writer,
-        CancellationToken cancellationToken) => throw new NotImplementedException();
+    void SerializeContent(Stream stream, BinaryWriter writer)
+        => throw new NotImplementedException();
 
     string ToString();
 

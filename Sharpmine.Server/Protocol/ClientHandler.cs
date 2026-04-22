@@ -1,7 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text;
+using System.Threading.Channels;
+
+using Microsoft.Extensions.Logging;
 
 using Serilog.Context;
 
+using Sharpmine.Server.Protocol.Extensions;
 using Sharpmine.Server.Protocol.Packets;
 using Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
@@ -10,14 +14,17 @@ namespace Sharpmine.Server.Protocol;
 public sealed partial class ClientHandler(
     TcpClient client,
     ServerService server,
-    ILogger<ClientHandler> logger) : IAsyncDisposable
+    PacketTransceiver packetTransceiver,
+    ILogger<ClientHandler> logger) : IDisposable
 {
+
+    private readonly Channel<IClientboundPacket> _clientboundChannel = Channel.CreateClientbound();
+
+    private readonly Channel<IServerboundPacket> _serverboundChannel = Channel.CreateServerbound();
 
     private CancellationTokenSource? _cts;
 
     private volatile bool _disposed;
-
-    public event Action? Disposing;
 
     public event Action? Disposed;
 
@@ -27,37 +34,30 @@ public sealed partial class ClientHandler(
 
     public ServerService Server { get; } = server;
 
-    public PacketTransceiver PacketTransceiver { get; internal set; } = null!;
-
     public ClientInformationPacket? Information { get; set; }
 
-    public ProtocolState ProtocolState { get; private set; } = ProtocolState.Handshake;
-
-    public void SwitchProtocolState(ProtocolState newState)
-    {
-        LogSwitchingState(ProtocolState, newState);
-        ProtocolState = newState;
-    }
+    public ProtocolState State { get; private set; } = ProtocolState.Handshake;
 
     public async Task HandleAsync(CancellationToken cancellationToken)
     {
-        var stream = Client.GetStream();
-        var reader = new BinaryReader(stream);
-        var writer = new BinaryWriter(stream);
-        var property = LogContext.PushProperty("ClientHandlerId", Id);
-        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        await using var stream = Client.GetStream();
+        await using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+        using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+        using var _ = LogContext.PushProperty("ClientHandlerId", Id);
         LogClientConnected(this);
+
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var writeTask = TransmitClientboundPacketsAsync(stream, writer, _cts.Token);
+        var processTask = ProcessServerboundPacketsAsync(_cts.Token);
 
         try
         {
-            while (Client.Connected && !_cts.IsCancellationRequested)
-            {
-                _ = await TryProcessNextPacketAsync(stream, reader, writer, _cts.Token);
-            }
+            while (!_cts.IsCancellationRequested
+                   && await TryEnqueueNextServerboundPacketAsync(stream, reader, _cts.Token)) ;
         }
         catch (OperationCanceledException)
         {
-            LogClientWasDisconnected(this);
+            LogDisconnectingClient(this, "Operation canceled");
         }
         catch (Exception ex) when (ex is SocketException or IOException)
         {
@@ -70,36 +70,97 @@ public sealed partial class ClientHandler(
         }
         finally
         {
-            property.Dispose();
-            await writer.DisposeAsync();
-            reader.Dispose();
-            await DisposeAsync();
+            await DisconnectAsync();
+            await Task.WhenAll(writeTask, processTask);
+            Dispose();
         }
     }
 
-    // TODO: Test performance of Task vs ValueTask
-    public async Task<bool> TryProcessNextPacketAsync(
+    private async Task<bool> TryEnqueueNextServerboundPacketAsync(
         NetworkStream stream,
         BinaryReader reader,
+        CancellationToken cancellationToken)
+    {
+        var (keepAlive, packet) = await packetTransceiver.ReceiveAsync(State, stream, reader, cancellationToken);
+
+        if (!keepAlive)
+        {
+            return false;
+        }
+
+        if (packet is IStateTransition transition)
+        {
+            LogStateTransition(State, transition.NextState);
+            State = transition.NextState;
+        }
+
+        if (packet is not null && !_serverboundChannel.Writer.TryWrite(packet))
+        {
+            LogDisconnectingClient(this, "Too many serverbound packets queued");
+            return false;
+        }
+
+        return true;
+    }
+
+    public void EnqueueClientboundPacket(IClientboundPacket packet)
+    {
+        if (!_clientboundChannel.Writer.TryWrite(packet))
+        {
+            LogDisconnectingClient(this, "Too many clientbound packets queued");
+            Disconnect();
+        }
+    }
+
+    // TODO: outsource
+    private async Task TransmitClientboundPacketsAsync(
+        NetworkStream stream,
         BinaryWriter writer,
         CancellationToken cancellationToken)
     {
-        var packet = await PacketTransceiver.ReceiveAsync(stream, reader, cancellationToken);
-
-        if (packet is null)
-        {
-            return false;
-        }
-
         try
         {
-            await packet.ProcessAsync(this, stream, reader, writer, cancellationToken);
-            return true;
+            await foreach (var packet in _clientboundChannel.Reader.ReadAllAsync(cancellationToken))
+            {
+                await packetTransceiver.TransmitAsync(packet, stream, writer, cancellationToken);
+            }
         }
-        catch (NotImplementedException)
+        catch (OperationCanceledException)
         {
-            LogProcessNotImplemented(packet);
-            return false;
+            // Shutting down
+        }
+        catch (Exception ex)
+        {
+            LogErrorWhileHandling(ex);
+            await DisconnectAsync();
+        }
+    }
+
+    // TODO: outsource
+    private async Task ProcessServerboundPacketsAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await foreach (var packet in _serverboundChannel.Reader.ReadAllAsync(cancellationToken))
+            {
+                try
+                {
+                    await packet.ProcessAsync(this, cancellationToken);
+                }
+                catch (NotImplementedException)
+                {
+                    LogProcessNotImplemented(packet);
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Shutting down
+        }
+        catch (Exception ex)
+        {
+            LogErrorWhileHandling(ex);
+            await DisconnectAsync();
         }
     }
 
@@ -108,41 +169,32 @@ public sealed partial class ClientHandler(
         return Client.Client.RemoteEndPoint?.ToString() ?? "<NULL>";
     }
 
-    public async ValueTask DisposeAsync()
+    public void Disconnect()
+    {
+        if (_cts is { IsCancellationRequested: false })
+        {
+            _cts.Cancel();
+        }
+    }
+
+    public Task DisconnectAsync()
+    {
+        return (_cts is { IsCancellationRequested: false })
+            ? _cts.CancelAsync()
+            : Task.CompletedTask;
+    }
+
+    public void Dispose()
     {
         if (Interlocked.Exchange(ref _disposed, true))
         {
             return;
         }
 
-        Disposing?.Invoke();
-
-        if (_cts is not null)
-        {
-            await _cts.CancelAsync();
-            _cts.Dispose();
-        }
-
         Client.Dispose();
+        _cts?.Dispose();
+        _cts = null;
         Disposed?.Invoke();
     }
-
-    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for processing")]
-    partial void LogProcessNotImplemented(IServerboundPacket packet);
-
-    [LoggerMessage(LogLevel.Error, "An error occurred while handling the client")]
-    partial void LogErrorWhileHandling(Exception error);
-
-    [LoggerMessage(LogLevel.Information, "{Handler} connected")]
-    partial void LogClientConnected(ClientHandler handler);
-
-    [LoggerMessage(LogLevel.Information, "{Handler} disconnected")]
-    partial void LogClientDisconnected(ClientHandler handler);
-
-    [LoggerMessage(LogLevel.Information, "Connection to {Handler} was closed by server")]
-    partial void LogClientWasDisconnected(ClientHandler handler);
-
-    [LoggerMessage(LogLevel.Debug, "Switching state from {OldState} to {NewState}")]
-    partial void LogSwitchingState(ProtocolState oldState, ProtocolState newState);
 
 }

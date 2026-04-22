@@ -96,8 +96,8 @@ public class PacketGenerator : IIncrementalGenerator
 
                           public partial record {{className}} : {{interfaceName}} 
                           {
-                              public new ProtocolState State => ProtocolState.{{stateName}};
-                              public new int Id => 0x{{id:X2}};
+                              public ProtocolState State => ProtocolState.{{stateName}};
+                              public int Id => 0x{{id:X2}};
                           }
                           """;
 

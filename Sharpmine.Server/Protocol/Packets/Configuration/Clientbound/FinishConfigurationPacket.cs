@@ -3,9 +3,8 @@
 public partial record FinishConfigurationPacket
 {
 
-    public Task SerializeContentAsync(
-        Stream stream,
-        BinaryWriter writer,
-        CancellationToken cancellationToken) => Task.CompletedTask;
+    public void SerializeContent(Stream stream, BinaryWriter writer)
+    {
+    }
 
 }

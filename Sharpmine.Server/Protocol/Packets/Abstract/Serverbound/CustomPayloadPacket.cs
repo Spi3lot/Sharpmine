@@ -3,28 +3,22 @@
 public abstract record CustomPayloadPacket : IServerboundPacket
 {
 
-    public abstract ProtocolState State { get; }
+    ProtocolState IPacket.State => default;
 
-    public abstract int Id { get; }
+    int IPacket.Id => 0;
 
     public string Channel { get; set; } = null!;
 
-    // TODO: Data
-
-    public Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken)
+    public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         Channel = reader.ReadString();
-        return Task.CompletedTask;
+        throw new NotImplementedException("Data");
+        return true;
     }
 
-    public Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken) => Task.CompletedTask;
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+    {
+        return ValueTask.CompletedTask;
+    }
 
 }

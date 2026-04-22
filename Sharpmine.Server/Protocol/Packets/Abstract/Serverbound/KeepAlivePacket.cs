@@ -3,28 +3,22 @@
 public abstract record KeepAlivePacket : IServerboundPacket
 {
 
-    public abstract ProtocolState State { get; }
+    ProtocolState IPacket.State => default;
 
-    public abstract int Id { get; }
+    int IPacket.Id => 0;
 
     public long KeepAliveId { get; set; }
 
-    public Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken)
+    public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         KeepAliveId = reader.ReadInt64();
-        return Task.CompletedTask;
+        return true;
     }
 
-    public Task ProcessAsync(ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException("Check whether the client responded with the same packet");
+        // TODO: Check whether the client responded with the same packet
+        return ValueTask.CompletedTask;
     }
 
 }

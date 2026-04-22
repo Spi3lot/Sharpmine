@@ -13,10 +13,7 @@ public partial record PlayerPositionPacket(
     TeleportRelativeAxes Flags)
 {
 
-    public Task SerializeContentAsync(
-        Stream stream,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public void SerializeContent(Stream stream, BinaryWriter writer)
     {
         writer.Write7BitEncodedInt(TeleportId);
         writer.Write(X);
@@ -28,7 +25,6 @@ public partial record PlayerPositionPacket(
         writer.Write(Yaw);
         writer.Write(Pitch);
         writer.Write((int) Flags);
-        return Task.CompletedTask;
     }
 
 }

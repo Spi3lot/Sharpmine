@@ -5,16 +5,13 @@ namespace Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 public partial record StatusResponsePacket(ServerStatus Status)
 {
 
-    public async Task SerializeContentAsync(
-        Stream stream,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public void SerializeContent(Stream stream, BinaryWriter writer)
     {
         var memoryStream = new MemoryStream();
-        await memoryStream.WriteJsonAsync(Status, cancellationToken);
+        memoryStream.WriteJson(Status);
         short length = checked((short) memoryStream.Length);
         writer.Write7BitEncodedInt(length);
-        await stream.WriteAsync(memoryStream.GetBuffer().AsMemory(0, length), cancellationToken);
+        stream.Write(memoryStream.GetBuffer(), 0, length);
     }
 
 }

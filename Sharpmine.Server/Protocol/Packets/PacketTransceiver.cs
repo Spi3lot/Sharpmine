@@ -2,10 +2,10 @@
 
 namespace Sharpmine.Server.Protocol.Packets;
 
-// TODO: use System.IO.Pipelines for async IO
 public partial class PacketTransceiver
 {
 
+#pragma warning disable once S4487
     private readonly ILogger<PacketTransceiver> _logger;
 
     private readonly MemoryStream _memoryStream;
@@ -21,7 +21,6 @@ public partial class PacketTransceiver
 
     public ClientHandler Handler { get; internal set; } = null!;
 
-    // TODO: use System.IO.Pipelines for async reads
     public async Task TransmitAsync(
         IClientboundPacket packet,
         NetworkStream stream,
@@ -33,7 +32,7 @@ public partial class PacketTransceiver
 
         try
         {
-            await packet.SerializeContentAsync(_memoryStream, _memoryStreamWriter, cancellationToken);
+            packet.SerializeContent(_memoryStream, _memoryStreamWriter);
         }
         catch (NotImplementedException)
         {
@@ -48,19 +47,24 @@ public partial class PacketTransceiver
         LogTransmittedPacket(packet, packet.State, packet.Id, packetLength);
     }
 
-    public async Task<IServerboundPacket?> ReceiveAsync(
+    public async Task<(bool KeepAlive, IServerboundPacket? Packet)> ReceiveAsync(
+        ProtocolState state,
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken)
     {
-        var state = Handler.ProtocolState;
         int length = reader.Read7BitEncodedInt();
 
         if (IsLegacyPing(state, length))
         {
             LogReceivedLegacyPing();
-            await Handler.DisposeAsync();
-            return null;
+            return (false, null);
+        }
+
+        if (length == 0)
+        {
+            LogReceivedEmptyPacket(state);
+            return (false, null);
         }
 
         int packetId = reader.Read7BitEncodedInt();
@@ -68,20 +72,31 @@ public partial class PacketTransceiver
         if (!ServerboundPacketRegistry.TryCreatePacket(state, packetId, out var packet))
         {
             LogReceivedUnknownPacket(state, packetId, length);
-            return null;
+            return (false, null); // TODO: Until Pipelines are implemented to safely advance the buffer, we MUST drop the connection.
         }
+
+        bool success;
 
         try
         {
-            await packet.DeserializeContentAsync(stream, reader, cancellationToken);
-            LogReceivedPacket(packet, state, packetId, length);
-            return packet;
+            success = packet.DeserializeContent(stream, reader);
         }
         catch (NotImplementedException)
         {
+            // TODO: 'KeepAlive=packet is not IStateTransition' when using Pipelines
+            //       Because we didn't read the payload bytes, the TCP stream is desynced.
             LogDeserializeNotImplemented(packet);
-            return null;
+            return (false, null);
         }
+
+        if (!success)
+        {
+            LogDeserializeViolation(packet);
+            return (false, null);
+        }
+
+        LogReceivedPacket(packet, state, packetId, length);
+        return (true, packet);
     }
 
     /*
@@ -98,23 +113,5 @@ public partial class PacketTransceiver
         // [0xFE, 0x01] => [0b_1111_1110, 0b_0000_0001] => 7BitEncodedInt => 0b1111_1110 => 0xFE => 254
         return state == ProtocolState.Handshake && length == 254;
     }
-
-    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for serialization")]
-    partial void LogSerializeNotImplemented(IClientboundPacket packet);
-
-    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for deserialization")]
-    partial void LogDeserializeNotImplemented(IServerboundPacket packet);
-
-    [LoggerMessage(LogLevel.Error, "Received {State}:0x{Id:X2} with {Length} bytes: UNKNOWN PACKET")]
-    partial void LogReceivedUnknownPacket(ProtocolState state, int id, int length);
-
-    [LoggerMessage(LogLevel.Warning, "Received legacy ping, closing connection")]
-    partial void LogReceivedLegacyPing();
-
-    [LoggerMessage(LogLevel.Debug, "Transmitted {State}:0x{Id:X2} with {Length} bytes: {Packet}")]
-    partial void LogTransmittedPacket(IClientboundPacket packet, ProtocolState state, int id, int length);
-
-    [LoggerMessage(LogLevel.Debug, "Received {State}:0x{Id:X2} with {Length} bytes: {Packet}")]
-    partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id, int length);
 
 }

@@ -16,8 +16,6 @@ public partial class ServerService(
 
     public event Action<ClientHandler>? ClientConnectionEstablished;
 
-    public event Action<ClientHandler>? ClientConnectionTerminating;
-
     public event Action<ClientHandler>? ClientConnectionTerminated;
 
     public ConcurrentDictionary<Guid, ClientHandler> ActiveClientHandlers { get; } = [];
@@ -44,6 +42,10 @@ public partial class ServerService(
                 await lobby.WaitAsync(stoppingToken);
                 semaphoreAcquired = true;
                 var client = await listener.AcceptTcpClientAsync(stoppingToken);
+
+                // TODO: Consider "hostile" ban check before even calling HandleAsync
+                //       A "hostile" ban is even "stronger" than an IP ban.
+
                 HandleTcpClientAsync(client, lobby, stoppingToken);
             }
             catch (OperationCanceledException)
@@ -84,7 +86,6 @@ public partial class ServerService(
     private void SetupHandler(ClientHandler handler)
     {
         ActiveClientHandlers[handler.Id] = handler;
-        handler.Disposing += () => ClientConnectionTerminating?.Invoke(handler);
 
         handler.Disposed += () =>
         {

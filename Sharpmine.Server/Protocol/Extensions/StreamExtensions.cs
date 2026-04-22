@@ -23,15 +23,15 @@ public static class StreamExtensions
     extension<T>(Stream stream) where T : class
     {
 
-        public Task WriteJsonAsync(T value, CancellationToken cancellationToken)
+        public Task WriteJson(T value)
         {
-            return JsonSerializer.SerializeAsync(stream, value, Options, cancellationToken);
+            return JsonSerializer.SerializeAsync(stream, value, Options);
         }
 
 
-        public ValueTask<T?> ReadJsonAsync(CancellationToken cancellationToken)
+        public T? ReadJson()
         {
-            return JsonSerializer.DeserializeAsync<T>(stream, Options, cancellationToken);
+            return JsonSerializer.Deserialize<T>(stream, Options);
         }
 
     }

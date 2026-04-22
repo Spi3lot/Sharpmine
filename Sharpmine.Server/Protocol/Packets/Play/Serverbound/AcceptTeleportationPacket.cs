@@ -5,23 +5,15 @@ public partial record AcceptTeleportationPacket
 
     public int TeleportId { get; set; }
 
-    public Task DeserializeContentAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken)
+    public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         TeleportId = reader.Read7BitEncodedInt();
-        return Task.CompletedTask;
+        return true;
     }
 
-    public Task ProcessAsync(
-        ClientHandler handler,
-        NetworkStream stream,
-        BinaryReader reader,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
+    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return ValueTask.CompletedTask;
     }
 
 }

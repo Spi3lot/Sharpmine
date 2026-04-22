@@ -20,7 +20,7 @@ public partial class ClientHandler
     partial void LogClientDisconnected(ClientHandler handler);
 
     [LoggerMessage(LogLevel.Information, "Connection to {Handler} was closed by server: {Reason}")]
-    partial void LogClientWasDisconnected(ClientHandler handler, string reason);
+    partial void LogDisconnectingClient(ClientHandler handler, string reason);
 
     [LoggerMessage(LogLevel.Debug, "Transitioning from state {OldState} to {NewState}")]
     partial void LogStateTransition(ProtocolState oldState, ProtocolState newState);

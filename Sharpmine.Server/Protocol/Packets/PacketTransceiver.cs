@@ -5,7 +5,6 @@ namespace Sharpmine.Server.Protocol.Packets;
 public partial class PacketTransceiver
 {
 
-#pragma warning disable once S4487
     private readonly ILogger<PacketTransceiver> _logger;
 
     private readonly MemoryStream _memoryStream;

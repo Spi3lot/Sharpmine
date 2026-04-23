@@ -19,8 +19,6 @@ public partial class PacketTransceiver
         _memoryStreamWriter = new BinaryWriter(_memoryStream);
     }
 
-    public ClientHandler Handler { get; internal set; } = null!;
-
     public async Task TransmitAsync(
         IClientboundPacket packet,
         NetworkStream stream,

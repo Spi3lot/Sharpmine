@@ -38,13 +38,8 @@ public class PacketPropertyGenerator : IIncrementalGenerator
             ? (char.ToUpper(fieldName[1]) + fieldName.Substring(2))
             : (char.ToUpper(fieldName[0]) + fieldName.Substring(1));
 
-        string direction = classSymbol.ContainingNamespace.Name;
-        string state = classSymbol.ContainingNamespace.ContainingNamespace.Name;
-
         return new FieldInfo(
             Namespace: classSymbol.ContainingNamespace.ToDisplayString(),
-            State: state,
-            Direction: direction,
             ClassName: classSymbol.Name,
             FieldType: fieldSymbol.Type.ToDisplayString(),
             FieldName: fieldName,
@@ -81,13 +76,11 @@ public class PacketPropertyGenerator : IIncrementalGenerator
 
         sb.AppendLine("}");
 
-        context.AddSource($"{nameof(PacketPropertyGenerator)}_{first.State}.{first.Direction}/{first.ClassName}_Properties.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+        context.AddSource($"{first.Namespace}/{first.ClassName}.Properties.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }
 
     private readonly record struct FieldInfo(
         string Namespace, 
-        string State,
-        string Direction, 
         string ClassName, 
         string FieldType, 
         string FieldName, 

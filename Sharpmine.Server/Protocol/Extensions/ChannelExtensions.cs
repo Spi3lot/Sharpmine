@@ -14,7 +14,7 @@ public static class ChannelExtensions
         {
             return Channel.CreateBounded<IClientboundPacket>(new BoundedChannelOptions(10000)
             {
-                FullMode = BoundedChannelFullMode.DropWrite,
+                FullMode = BoundedChannelFullMode.Wait,
                 SingleWriter = true,
                 SingleReader = true,
                 AllowSynchronousContinuations = false
@@ -25,7 +25,7 @@ public static class ChannelExtensions
         {
             return Channel.CreateBounded<IServerboundPacket>(new BoundedChannelOptions(100)
             {
-                FullMode = BoundedChannelFullMode.DropWrite,
+                FullMode = BoundedChannelFullMode.Wait,
                 SingleWriter = true,
                 SingleReader = true,
                 AllowSynchronousContinuations = false

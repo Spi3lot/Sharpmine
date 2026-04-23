@@ -56,15 +56,15 @@ public partial class PacketTransceiver
         cancellationToken.ThrowIfCancellationRequested(); // TODO: Remove once Pipelines are implemented
         int length = reader.Read7BitEncodedInt();
 
-        if (IsLegacyPing(state, length))
-        {
-            LogReceivedLegacyPing();
-            return (false, null);
-        }
-
         if (length == 0)
         {
             LogReceivedEmptyPacket(state);
+            return (false, null);
+        }
+
+        if (IsLegacyPing(state, length))
+        {
+            LogReceivedLegacyPing();
             return (false, null);
         }
 

@@ -27,7 +27,7 @@ public partial record HelloPacket
             Name,
             [new GameProfileProperty("textures", "1337", Option.Some("Singapore"))]);
 
-        handler.EnqueueClientboundPacket(new LoginFinishedPacket(profile));
+        handler.SendPacket(new LoginFinishedPacket(profile));
         return ValueTask.CompletedTask;
     }
 

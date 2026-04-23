@@ -22,7 +22,7 @@ public partial record StatusRequestPacket
         };
 
         var response = new StatusResponsePacket(status);
-        handler.EnqueueClientboundPacket(response);
+        handler.SendPacket(response);
         return ValueTask.CompletedTask;
     }
 

@@ -19,7 +19,7 @@ public abstract record PingRequestPacket : IServerboundPacket
 
     public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        handler.EnqueueClientboundPacket(CreatePongResponsePacket());
+        handler.SendPacket(CreatePongResponsePacket());
         return ValueTask.CompletedTask;
     }
 

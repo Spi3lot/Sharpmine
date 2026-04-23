@@ -103,7 +103,7 @@ public sealed partial class ClientHandler(
         return true;
     }
 
-    public void EnqueueClientboundPacket(IClientboundPacket packet)
+    public void SendPacket(IClientboundPacket packet)
     {
         if (!_clientboundChannel.Writer.TryWrite(packet))
         {

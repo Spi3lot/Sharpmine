@@ -53,6 +53,7 @@ public partial class PacketTransceiver
         BinaryReader reader,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested(); // TODO: Remove once Pipelines are implemented
         int length = reader.Read7BitEncodedInt();
 
         if (IsLegacyPing(state, length))

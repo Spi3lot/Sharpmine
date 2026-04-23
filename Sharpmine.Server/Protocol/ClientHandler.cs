@@ -52,8 +52,7 @@ public sealed partial class ClientHandler(
 
         try
         {
-            while (!_cts.IsCancellationRequested
-                   && await TryEnqueueNextServerboundPacketAsync(stream, reader, _cts.Token)) ;
+            while (await TryReceivePacketAsync(stream, reader, _cts.Token)) ;
         }
         catch (OperationCanceledException)
         {
@@ -76,7 +75,7 @@ public sealed partial class ClientHandler(
         }
     }
 
-    private async Task<bool> TryEnqueueNextServerboundPacketAsync(
+    private async Task<bool> TryReceivePacketAsync(
         NetworkStream stream,
         BinaryReader reader,
         CancellationToken cancellationToken)

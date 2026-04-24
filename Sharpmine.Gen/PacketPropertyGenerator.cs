@@ -39,8 +39,13 @@ public class PacketPropertyGenerator : IIncrementalGenerator
             ? (char.ToUpper(fieldName[1]) + fieldName.Substring(2))
             : (char.ToUpper(fieldName[0]) + fieldName.Substring(1));
 
-        string typeKeyword = (classSymbol.IsValueType) ? "struct" : "class";
-        if (classSymbol.IsRecord) typeKeyword = "record " + typeKeyword;
+        string typeKeyword = (classSymbol.IsRecord, classSymbol.IsValueType) switch
+        {
+            (true, true) => "record struct",
+            (true, false) => "record",
+            (false, true) => "struct",
+            (false, false) => "class",
+        };
 
         return new FieldInfo(
             Namespace: classSymbol.ContainingNamespace.ToDisplayString(),

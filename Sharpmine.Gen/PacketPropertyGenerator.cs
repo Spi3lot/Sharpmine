@@ -38,8 +38,12 @@ public class PacketPropertyGenerator : IIncrementalGenerator
             ? (char.ToUpper(fieldName[1]) + fieldName.Substring(2))
             : (char.ToUpper(fieldName[0]) + fieldName.Substring(1));
 
+        string typeKeyword = (classSymbol.IsValueType) ? "struct" : "class";
+        if (classSymbol.IsRecord) typeKeyword = "record " + typeKeyword;
+
         return new FieldInfo(
             Namespace: classSymbol.ContainingNamespace.ToDisplayString(),
+            TypeKeyword: typeKeyword,
             ClassName: classSymbol.Name,
             FieldType: fieldSymbol.Type.ToDisplayString(),
             FieldName: fieldName,
@@ -65,7 +69,7 @@ public class PacketPropertyGenerator : IIncrementalGenerator
 
                         namespace {{first.Namespace}};
 
-                        public partial record {{first.ClassName}}
+                        public partial {{first.TypeKeyword}} {{first.ClassName}}
                         {
                         """);
 
@@ -81,6 +85,7 @@ public class PacketPropertyGenerator : IIncrementalGenerator
 
     private readonly record struct FieldInfo(
         string Namespace, 
+        string TypeKeyword, 
         string ClassName, 
         string FieldType, 
         string FieldName, 

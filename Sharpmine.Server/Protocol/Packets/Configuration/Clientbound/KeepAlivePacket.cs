@@ -1,3 +1,0 @@
-﻿namespace Sharpmine.Server.Protocol.Packets.Configuration.Clientbound;
-
-public partial record KeepAlivePacket : Abstract.Clientbound.KeepAlivePacket;

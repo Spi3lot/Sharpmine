@@ -1,13 +1,14 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets.Abstract.Clientbound;
 
-public abstract partial record KeepAlivePacket
+public abstract partial record DisconnectPacket
 {
 
-    public long KeepAliveId { get; init; }
+    public string Reason { get; init; } = null!;
 
     public void SerializeContent(Stream stream, BinaryWriter writer)
     {
-        writer.Write(KeepAliveId);
+        
+        throw new NotImplementedException();
     }
 
 }

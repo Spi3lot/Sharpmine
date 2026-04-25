@@ -1,11 +1,7 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
-public abstract record CustomPayloadPacket : IServerboundPacket
+public abstract partial record CustomPayloadPacket
 {
-
-    ProtocolState IPacket.State => default;
-
-    int IPacket.Id => 0;
 
     public string Channel { get; set; } = null!;
 

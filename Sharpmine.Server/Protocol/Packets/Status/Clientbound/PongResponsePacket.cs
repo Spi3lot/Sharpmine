@@ -1,3 +1,0 @@
-﻿namespace Sharpmine.Server.Protocol.Packets.Status.Clientbound;
-
-public partial record PongResponsePacket : Abstract.Clientbound.PongResponsePacket;

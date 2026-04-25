@@ -1,11 +1,7 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
-public abstract record KeepAlivePacket : IServerboundPacket
+public abstract partial record KeepAlivePacket
 {
-
-    ProtocolState IPacket.State => default;
-
-    int IPacket.Id => 0;
 
     public long KeepAliveId { get; set; }
 

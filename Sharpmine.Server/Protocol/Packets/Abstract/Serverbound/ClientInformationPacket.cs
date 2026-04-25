@@ -1,11 +1,7 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
-public abstract record ClientInformationPacket : IServerboundPacket
+public abstract partial record ClientInformationPacket
 {
-
-    ProtocolState IPacket.State => default;
-
-    int IPacket.Id => 0;
 
     public string Locale { get; set; } = null!;
 

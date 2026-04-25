@@ -1,11 +1,7 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets.Abstract.Clientbound;
 
-public abstract record PongResponsePacket : IClientboundPacket
+public abstract partial record PongResponsePacket
 {
-
-    ProtocolState IPacket.State => default;
-
-    int IPacket.Id => 0;
 
     public long Timestamp { get; init; }
 

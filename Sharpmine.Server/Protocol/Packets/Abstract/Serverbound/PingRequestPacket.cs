@@ -2,12 +2,8 @@
 
 namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
-public abstract record PingRequestPacket : IServerboundPacket
+public abstract partial record PingRequestPacket
 {
-
-    ProtocolState IPacket.State => default;
-
-    int IPacket.Id => 0;
 
     public long Timestamp { get; set; }
 

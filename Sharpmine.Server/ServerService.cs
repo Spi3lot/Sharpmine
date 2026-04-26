@@ -46,7 +46,7 @@ public partial class ServerService(
                 // TODO: Consider "hostile" ban check before even calling HandleAsync
                 //       A "hostile" ban is even "stronger" than an IP ban.
 
-                HandleTcpClientAsync(client, lobby, stoppingToken);
+                StartClientHandler(client, lobby, stoppingToken);
             }
             catch (OperationCanceledException)
             {
@@ -71,21 +71,31 @@ public partial class ServerService(
         await Task.WhenAll(disconnectTasks);
     }
 
-    private void HandleTcpClientAsync(TcpClient client, SemaphoreSlim lobby, CancellationToken stoppingToken)
+    private void StartClientHandler(TcpClient client, SemaphoreSlim lobby, CancellationToken stoppingToken)
     {
         _ = Task.Run(async () =>
         {
             try
             {
+                if (stoppingToken.IsCancellationRequested)
+                {
+                    client.Dispose();
+                    return;
+                }
+
                 var handler = clientHandlerFactory.Create(client, this);
                 SetupHandler(handler);
                 await handler.HandleAsync(stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                LogErrorWhileHandling(ex, client.Client.RemoteEndPoint);
             }
             finally
             {
                 lobby.Release();
             }
-        }, stoppingToken);
+        }, CancellationToken.None); // To ensure lobby.Release() is always called
     }
 
     private void SetupHandler(ClientHandler handler)

@@ -45,6 +45,12 @@ public partial class ServerService(
 
                 // TODO: Consider "hostile" ban check before even calling HandleAsync
                 //       A "hostile" ban is even "stronger" than an IP ban.
+                // if (IsIpBanned(client))
+                // {
+                //     client.Dispose();
+                //     lobby.Release();
+                //     continue;
+                // }
 
                 StartClientHandler(client, lobby, stoppingToken);
             }

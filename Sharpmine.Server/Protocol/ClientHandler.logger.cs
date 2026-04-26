@@ -7,6 +7,9 @@ namespace Sharpmine.Server.Protocol;
 public partial class ClientHandler
 {
 
+    [LoggerMessage(LogLevel.Error, "Attempted to send {Packet} while in state {State}")]
+    partial void LogUnmatchedStates(IClientboundPacket packet, ProtocolState state);
+
     [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for processing")]
     partial void LogProcessNotImplemented(IServerboundPacket packet);
 

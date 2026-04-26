@@ -87,7 +87,7 @@ public partial class ServerService(
     {
         ActiveClientHandlers[handler.Id] = handler;
 
-        handler.Disposed += () =>
+        handler.Terminated += () =>
         {
             ActiveClientHandlers.Remove(handler.Id, out _);
             ClientConnectionTerminated?.Invoke(handler);

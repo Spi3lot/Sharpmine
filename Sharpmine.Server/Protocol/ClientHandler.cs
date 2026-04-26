@@ -7,6 +7,7 @@ using Serilog.Context;
 
 using Sharpmine.Server.Protocol.Extensions;
 using Sharpmine.Server.Protocol.Packets;
+using Sharpmine.Server.Protocol.Packets.Abstract.Clientbound;
 using Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
 namespace Sharpmine.Server.Protocol;
@@ -15,7 +16,7 @@ public sealed partial class ClientHandler(
     TcpClient client,
     ServerService server,
     PacketTransceiver packetTransceiver,
-    ILogger<ClientHandler> logger) : IDisposable
+    ILogger<ClientHandler> logger)
 {
 
     private readonly Channel<IClientboundPacket> _clientboundChannel = Channel.CreateClientbound();
@@ -24,9 +25,11 @@ public sealed partial class ClientHandler(
 
     private CancellationTokenSource? _cts;
 
-    private volatile bool _disposed;
+    private Task? _transmitTask;
 
-    public event Action? Disposed;
+    private volatile bool _disconnecting;
+
+    public event Action? Terminated;
 
     public Guid Id { get; } = Guid.CreateVersion7();
 
@@ -47,7 +50,7 @@ public sealed partial class ClientHandler(
         LogClientConnected(this);
 
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        var writeTask = TransmitClientboundPacketsAsync(stream, writer, _cts.Token);
+        _transmitTask = TransmitClientboundPacketsAsync(stream, writer, _cts.Token);
         var processTask = ProcessServerboundPacketsAsync(_cts.Token);
 
         try
@@ -65,13 +68,13 @@ public sealed partial class ClientHandler(
         catch (Exception ex)
         {
             LogErrorWhileHandling(ex);
-            throw;
+            await DisconnectAsync("Internal server error");
         }
         finally
         {
-            await DisconnectAsync();
-            await Task.WhenAll(writeTask, processTask);
-            Dispose();
+            await AbortAsync();
+            await Task.WhenAll(_transmitTask, processTask);
+            Cleanup();
         }
     }
 
@@ -104,10 +107,22 @@ public sealed partial class ClientHandler(
 
     public void SendPacket(IClientboundPacket packet)
     {
+        if (_disconnecting)
+        {
+            return;
+        }
+
+        if (packet.State != State)
+        {
+            LogUnmatchedStates(packet, State);
+            Abort();
+            return;
+        }
+
         if (!_clientboundChannel.Writer.TryWrite(packet))
         {
             LogDisconnectingClient(this, "Too many clientbound packets queued");
-            Disconnect();
+            Abort();
         }
     }
 
@@ -131,7 +146,7 @@ public sealed partial class ClientHandler(
         catch (Exception ex)
         {
             LogErrorWhileHandling(ex);
-            await DisconnectAsync();
+            await AbortAsync();
         }
     }
 
@@ -159,16 +174,42 @@ public sealed partial class ClientHandler(
         catch (Exception ex)
         {
             LogErrorWhileHandling(ex);
-            await DisconnectAsync();
+            await DisconnectAsync("Internal server error during packet processing");
         }
     }
 
-    public override string ToString()
+    public async Task DisconnectAsync(string reason)
     {
-        return Client.Client.RemoteEndPoint?.ToString() ?? "<NULL>";
+        if (Interlocked.Exchange(ref _disconnecting, true))
+        {
+            return;
+        }
+
+        if (DisconnectPacket.Create(State) is not { } packet)
+        {
+            await AbortAsync();
+            return;
+        }
+
+        _clientboundChannel.Writer.TryWrite(packet with { Reason = reason });
+        _clientboundChannel.Writer.Complete();
+
+        if (_transmitTask is not null)
+        {
+            await Task.WhenAny(_transmitTask, Task.Delay(2000));
+        }
+
+        await AbortAsync();
     }
 
-    public void Disconnect()
+    public Task AbortAsync()
+    {
+        return (_cts is { IsCancellationRequested: false })
+            ? _cts.CancelAsync()
+            : Task.CompletedTask;
+    }
+
+    public void Abort()
     {
         if (_cts is { IsCancellationRequested: false })
         {
@@ -176,24 +217,17 @@ public sealed partial class ClientHandler(
         }
     }
 
-    public Task DisconnectAsync()
+    private void Cleanup()
     {
-        return (_cts is { IsCancellationRequested: false })
-            ? _cts.CancelAsync()
-            : Task.CompletedTask;
-    }
-
-    public void Dispose()
-    {
-        if (Interlocked.Exchange(ref _disposed, true))
-        {
-            return;
-        }
-
         Client.Dispose();
         _cts?.Dispose();
         _cts = null;
-        Disposed?.Invoke();
+        Terminated?.Invoke();
+    }
+
+    public override string ToString()
+    {
+        return Client.Client.RemoteEndPoint?.ToString() ?? "<NULL>";
     }
 
 }

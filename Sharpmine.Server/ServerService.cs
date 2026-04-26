@@ -64,6 +64,11 @@ public partial class ServerService(
         }
 
         LogStoppingServer();
+
+        var disconnectTasks = ActiveClientHandlers.Values
+            .Select(handler => handler.DisconnectAsync("Server is shutting down."));
+
+        await Task.WhenAll(disconnectTasks);
     }
 
     private void HandleTcpClientAsync(TcpClient client, SemaphoreSlim lobby, CancellationToken stoppingToken)

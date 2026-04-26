@@ -73,23 +73,19 @@ public partial class PacketTransceiver
             return (false, null); // TODO: Until Pipelines are implemented to safely advance the buffer, we MUST drop the connection.
         }
 
-        bool success;
-
         try
         {
-            success = packet.DeserializeContent(stream, reader);
+            if (!packet.DeserializeContent(stream, reader))
+            {
+                LogDeserializeViolation(packet);
+                return (false, null);
+            }
         }
         catch (NotImplementedException)
         {
             // TODO: 'KeepAlive=packet is not IStateTransition' when using Pipelines
             //       Because we didn't read the payload bytes, the TCP stream is desynced.
             LogDeserializeNotImplemented(packet);
-            return (false, null);
-        }
-
-        if (!success)
-        {
-            LogDeserializeViolation(packet);
             return (false, null);
         }
 

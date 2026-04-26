@@ -96,13 +96,4 @@ public partial class ServerService(
         ClientConnectionEstablished?.Invoke(handler);
     }
 
-    [LoggerMessage(LogLevel.Information, "Started server, listening on port {Port}")]
-    partial void LogStartedServer(int port);
-
-    [LoggerMessage(LogLevel.Information, "Stopping server...")]
-    partial void LogStoppingServer();
-
-    [LoggerMessage(LogLevel.Error, "An error occurred while trying to accept a client")]
-    partial void LogErrorWhileAccepting(Exception ex);
-
 }

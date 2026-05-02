@@ -21,7 +21,17 @@ public record ServerStatus(
 
 public record StatusVersion(string Name, int? Protocol = null);
 
-public record StatusPlayers(int Max, int Online, List<StatusPlayer>? Sample = null);
+public record StatusPlayers(int Max, int Online, List<StatusPlayer>? Sample = null)
+{
+
+    public override string ToString()
+    {
+        var builder = new StringBuilder();
+        (this with { Sample = null }).PrintMembers(builder);
+        return builder.ToString();
+    }
+
+}
 
 public record StatusPlayer(string Name, Guid Id);
 

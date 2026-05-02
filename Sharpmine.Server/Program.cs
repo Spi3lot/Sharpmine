@@ -4,9 +4,11 @@ using Microsoft.Extensions.Hosting;
 
 using Serilog;
 
+using Sharpmine.Server.Configuration;
 using Sharpmine.Server.Gui;
 using Sharpmine.Server.Logging;
 using Sharpmine.Server.Protocol;
+using Sharpmine.Server.Security;
 
 namespace Sharpmine.Server;
 
@@ -23,12 +25,9 @@ public static class Program
         try
         {
             var builder = Host.CreateApplicationBuilder(args);
-
             builder.AddServiceDefaults();
-            Console.WriteLine($"Current Environment: {builder.Environment.EnvironmentName}");
 
             bool nogui = builder.Configuration.GetValue<bool>("nogui");
-            ushort port = builder.Configuration.GetValue<ushort?>("port") ?? 25565;
             var sink = new ListLogEventSink();
 
             Log.Logger = new LoggerConfiguration()
@@ -36,12 +35,18 @@ public static class Program
                 .WriteTo.Sink(sink)
                 .CreateLogger();
 
+            var propertiesConfig = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddIniFile(ServerConstants.PropertiesFileName, optional: true, reloadOnChange: true)
+                .Build();
+
             builder.Services.AddSerilog();
+            builder.Services.AddSingleton(propertiesConfig.Get<ServerProperties>() ?? new ServerProperties());
             builder.Services.AddSingleton(sink);
-            builder.Services.AddSingleton<ClientHandlerFactory>();
             builder.Services.AddSingleton<Form1>();
-            builder.Services.AddSingleton<ServerFactory>();
-            builder.Services.AddSingleton<ServerService>(sp => sp.GetRequiredService<ServerFactory>().Create(port));
+            builder.Services.AddSingleton<PlayerAccessManager>();
+            builder.Services.AddSingleton<ClientHandlerFactory>();
+            builder.Services.AddSingleton<ServerService>();
             builder.Services.AddHostedService<ServerService>(sp => sp.GetRequiredService<ServerService>());
 
             using var host = builder.Build();

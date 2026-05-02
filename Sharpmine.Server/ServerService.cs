@@ -3,13 +3,14 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using Sharpmine.Server.Configuration;
 using Sharpmine.Server.Protocol;
 using Sharpmine.Server.Protocol.Packets.Status;
 
 namespace Sharpmine.Server;
 
 public partial class ServerService(
-    int port,
+    ServerProperties properties,
     ClientHandlerFactory clientHandlerFactory,
     ILogger<ServerService> logger) : BackgroundService
 {
@@ -28,10 +29,10 @@ public partial class ServerService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var lobby = new SemaphoreSlim(2, 2); // TODO: Use MaxPlayerCount from properties
-        using var listener = TcpListener.Create(port);
+        using var lobby = new SemaphoreSlim(properties.MaxPlayers, properties.MaxPlayers);
+        using var listener = TcpListener.Create(properties.ServerPort);
         listener.Start();
-        LogStartedServer(port);
+        LogStartedServer(properties.ServerPort);
 
         while (!stoppingToken.IsCancellationRequested)
         {

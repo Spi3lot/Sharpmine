@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Net;
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -6,11 +7,13 @@ using Microsoft.Extensions.Logging;
 using Sharpmine.Server.Configuration;
 using Sharpmine.Server.Protocol;
 using Sharpmine.Server.Protocol.Packets.Status;
+using Sharpmine.Server.Security;
 
 namespace Sharpmine.Server;
 
 public partial class ServerService(
     ServerProperties properties,
+    PlayerAccessManager playerAccessManager,
     ClientHandlerFactory clientHandlerFactory,
     ILogger<ServerService> logger) : BackgroundService
 {
@@ -29,6 +32,7 @@ public partial class ServerService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // TODO: Remove
         using var lobby = new SemaphoreSlim(properties.MaxPlayers, properties.MaxPlayers);
         using var listener = TcpListener.Create(properties.ServerPort);
         listener.Start();
@@ -40,18 +44,30 @@ public partial class ServerService(
 
             try
             {
-                await lobby.WaitAsync(stoppingToken);
+                await lobby.WaitAsync(stoppingToken); // TODO: Remove
                 semaphoreAcquired = true;
                 var client = await listener.AcceptTcpClientAsync(stoppingToken);
+                var endpoint = client.Client.RemoteEndPoint as IPEndPoint;
+                string? ip = endpoint?.Address.ToString();
+                bool kick = false;
 
-                // TODO: Consider "hostile" ban check before even calling HandleAsync
-                //       A "hostile" ban is even "stronger" than an IP ban.
-                // if (IsIpBanned(client))
-                // {
-                //     client.Dispose();
-                //     lobby.Release();
-                //     continue;
-                // }
+                if (ip is null)
+                {
+                    LogClientIpIndeterminable();
+                    kick = true;
+                }
+                else if (JoinAccess.IpBlacklisted == playerAccessManager.EvaluateAccess(ip, null, Clients.Count).Access)
+                {
+                    LogClientBlacklisted(ip);
+                    kick = true;
+                }
+
+                if (kick)
+                {
+                    client.Dispose();
+                    lobby.Release();
+                    continue;
+                }
 
                 StartClientHandler(client, lobby, stoppingToken);
             }
@@ -61,6 +77,7 @@ public partial class ServerService(
             }
             catch (Exception ex)
             {
+                // TODO: Remove
                 if (semaphoreAcquired)
                 {
                     lobby.Release();
@@ -90,7 +107,7 @@ public partial class ServerService(
                     return;
                 }
 
-                var handler = clientHandlerFactory.Create(client, this);
+                var handler = clientHandlerFactory.Create(client, this, playerAccessManager);
                 SetupHandler(handler);
                 await handler.HandleAsync(stoppingToken);
             }
@@ -100,9 +117,9 @@ public partial class ServerService(
             }
             finally
             {
-                lobby.Release();
+                lobby.Release(); // TODO: Remove
             }
-        }, CancellationToken.None); // To ensure lobby.Release() is always called
+        }, CancellationToken.None); // To ensure lobby.Release() is always called // TODO: Probably remove this too
     }
 
     private void SetupHandler(ClientHandler handler)

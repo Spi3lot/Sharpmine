@@ -7,6 +7,12 @@ namespace Sharpmine.Server;
 public partial class ServerService
 {
 
+    [LoggerMessage(LogLevel.Error, "Could not determine IP of newly connected client")]
+    partial void LogClientIpIndeterminable();
+
+    [LoggerMessage(LogLevel.Error, "An error occurred while handling client {Ip}")]
+    partial void LogClientBlacklisted(string ip);
+
     [LoggerMessage(LogLevel.Error, "An error occurred while handling client {EndPoint}")]
     partial void LogErrorWhileHandling(Exception exception, EndPoint? endPoint);
 

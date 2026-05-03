@@ -9,6 +9,7 @@ using Sharpmine.Server.Protocol.Extensions;
 using Sharpmine.Server.Protocol.Packets;
 using Sharpmine.Server.Protocol.Packets.Abstract.Clientbound;
 using Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
+using Sharpmine.Server.Security;
 
 namespace Sharpmine.Server.Protocol;
 
@@ -16,6 +17,7 @@ public sealed partial class ClientHandler(
     TcpClient client,
     ServerService server,
     PacketTransceiver packetTransceiver,
+    PlayerAccessManager playerAccessManager, // TODO: Use
     ILogger<ClientHandler> logger)
 {
 

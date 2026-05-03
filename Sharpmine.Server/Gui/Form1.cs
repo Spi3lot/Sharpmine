@@ -23,7 +23,7 @@ public partial class Form1 : Form
             {
                 listBoxClients.DataSource = null;
 
-                listBoxClients.DataSource = _serverService.ActiveClientHandlers.Keys
+                listBoxClients.DataSource = _serverService.Clients.Keys
                     .Union(_sink.ClientLogs.Keys)
                     .Order()
                     .ToList();

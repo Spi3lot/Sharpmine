@@ -19,7 +19,7 @@ public partial class ServerService(
 
     public event Action<ClientHandler>? ClientConnectionTerminated;
 
-    public ConcurrentDictionary<Guid, ClientHandler> ActiveClientHandlers { get; } = [];
+    public ConcurrentDictionary<Guid, ClientHandler> Clients { get; } = [];
 
     // TODO: Read from server properties
     public ServerStatus Status { get; } = new(
@@ -72,7 +72,7 @@ public partial class ServerService(
 
         LogStoppingServer();
 
-        var disconnectTasks = ActiveClientHandlers.Values
+        var disconnectTasks = Clients.Values
             .Select(handler => handler.DisconnectAsync("Server is shutting down."));
 
         await Task.WhenAll(disconnectTasks);
@@ -107,11 +107,11 @@ public partial class ServerService(
 
     private void SetupHandler(ClientHandler handler)
     {
-        ActiveClientHandlers[handler.Id] = handler;
+        Clients[handler.Id] = handler;
 
         handler.Terminated += () =>
         {
-            ActiveClientHandlers.Remove(handler.Id, out _);
+            Clients.Remove(handler.Id, out _);
             ClientConnectionTerminated?.Invoke(handler);
         };
 

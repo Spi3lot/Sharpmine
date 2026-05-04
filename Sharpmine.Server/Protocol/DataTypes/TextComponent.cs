@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Sharpmine.Server.Protocol.Converters;
 
 namespace Sharpmine.Server.Protocol.DataTypes;
 

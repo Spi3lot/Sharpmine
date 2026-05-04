@@ -1,8 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Sharpmine.Server.Protocol.DataTypes;
 
-namespace Sharpmine.Server.Protocol.Converters;
+namespace Sharpmine.Server.Protocol.DataTypes;
 
 public class TextComponentConverter : JsonConverter<TextComponent>
 {

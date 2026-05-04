@@ -47,6 +47,7 @@ public static class Program
             builder.Services.AddSingleton<PlayerAccessManager>();
             builder.Services.AddSingleton<ClientHandlerFactory>();
             builder.Services.AddSingleton<ServerService>();
+            builder.Services.AddSingleton<ServerCapacityManager>();
             builder.Services.AddHostedService<ServerService>(sp => sp.GetRequiredService<ServerService>());
 
             using var host = builder.Build();

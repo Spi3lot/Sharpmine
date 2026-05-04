@@ -13,6 +13,7 @@ namespace Sharpmine.Server;
 
 public partial class ServerService(
     ServerProperties properties,
+    ServerCapacityManager capacityManager,
     PlayerAccessManager playerAccessManager,
     ClientHandlerFactory clientHandlerFactory,
     ILogger<ServerService> logger) : BackgroundService
@@ -32,20 +33,14 @@ public partial class ServerService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // TODO: Remove
-        using var lobby = new SemaphoreSlim(properties.MaxPlayers, properties.MaxPlayers);
         using var listener = TcpListener.Create(properties.ServerPort);
         listener.Start();
         LogStartedServer(properties.ServerPort);
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            bool semaphoreAcquired = false;
-
             try
             {
-                await lobby.WaitAsync(stoppingToken); // TODO: Remove
-                semaphoreAcquired = true;
                 var client = await listener.AcceptTcpClientAsync(stoppingToken);
                 var endpoint = client.Client.RemoteEndPoint as IPEndPoint;
                 string? ip = endpoint?.Address.ToString();
@@ -56,7 +51,7 @@ public partial class ServerService(
                     LogClientIpIndeterminable();
                     kick = true;
                 }
-                else if (JoinAccess.IpBlacklisted == playerAccessManager.EvaluateAccess(ip, null, Clients.Count).Access)
+                else if (JoinAccess.IpBlacklisted == playerAccessManager.EvaluateAccess(ip).Access)
                 {
                     LogClientBlacklisted(ip);
                     kick = true;
@@ -65,11 +60,10 @@ public partial class ServerService(
                 if (kick)
                 {
                     client.Dispose();
-                    lobby.Release();
                     continue;
                 }
 
-                StartClientHandler(client, lobby, stoppingToken);
+                StartClientHandler(client, stoppingToken);
             }
             catch (OperationCanceledException)
             {
@@ -77,12 +71,6 @@ public partial class ServerService(
             }
             catch (Exception ex)
             {
-                // TODO: Remove
-                if (semaphoreAcquired)
-                {
-                    lobby.Release();
-                }
-
                 LogErrorWhileAccepting(ex);
             }
         }
@@ -95,7 +83,7 @@ public partial class ServerService(
         await Task.WhenAll(disconnectTasks);
     }
 
-    private void StartClientHandler(TcpClient client, SemaphoreSlim lobby, CancellationToken stoppingToken)
+    private void StartClientHandler(TcpClient client, CancellationToken stoppingToken)
     {
         _ = Task.Run(async () =>
         {
@@ -107,7 +95,7 @@ public partial class ServerService(
                     return;
                 }
 
-                var handler = clientHandlerFactory.Create(client, this, playerAccessManager);
+                var handler = clientHandlerFactory.Create(client, this, capacityManager, playerAccessManager);
                 SetupHandler(handler);
                 await handler.HandleAsync(stoppingToken);
             }
@@ -115,11 +103,7 @@ public partial class ServerService(
             {
                 LogErrorWhileHandling(ex, client.Client.RemoteEndPoint);
             }
-            finally
-            {
-                lobby.Release(); // TODO: Remove
-            }
-        }, CancellationToken.None); // To ensure lobby.Release() is always called // TODO: Probably remove this too
+        }, stoppingToken);
     }
 
     private void SetupHandler(ClientHandler handler)

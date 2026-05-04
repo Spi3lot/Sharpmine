@@ -49,9 +49,11 @@ public partial class PlayerAccessManager
 
         _ops = LoadJson<OpEntry>(ServerConstants.OperatorsFileName)
             .ToDictionary(e => e.Uuid);
+
+        SaveAll();
     }
 
-    public (JoinAccess Access, string? Reason) EvaluateAccess(string ip, Guid? uuid, int? onlinePlayerCount)
+    public (JoinAccess Access, string? Reason) EvaluateAccess(string ip, Guid? uuid = null)
     {
         if (_blacklistedIps.Contains(ip))
         {
@@ -68,21 +70,12 @@ public partial class PlayerAccessManager
             return (JoinAccess.Allowed, null);
         }
 
-        if (_bannedPlayers.TryGetValue(uuid.Value, out var playerBan))
+        if (_bannedPlayers.TryGetValue(uuid.Value, out var ban))
         {
-            return (JoinAccess.Banned, $"You are banned from this server.\nReason: {playerBan.Reason}");
+            return (JoinAccess.Banned, $"You are banned from this server.\nReason: {ban.Reason}");
         }
 
-        bool isOp = _ops.TryGetValue(uuid.Value, out var op);
-
-        // Not thread-safe but if someone manages to win the race (of the) condition they probably deserved it!
-        if ((!isOp || !op!.BypassesPlayerLimit) && onlinePlayerCount >= _properties.MaxPlayers)
-        {
-            return (JoinAccess.ServerFull, "Server is full!");
-        }
-
-        if (!isOp && _properties is { OnlineMode: true, WhiteList: true }
-                  && !_whitelistedPlayers.ContainsKey(uuid.Value))
+        if (_properties.WhiteList && !IsImplicitlyWhitelisted(uuid.Value))
         {
             return (JoinAccess.NotWhitelisted, "You are not white-listed on this server!");
         }
@@ -90,9 +83,15 @@ public partial class PlayerAccessManager
         return (JoinAccess.Allowed, null);
     }
 
+    public bool IsImplicitlyWhitelisted(Guid playerId) => IsExplicitlyWhitelisted(playerId) || IsOp(playerId);
+
+    public bool IsExplicitlyWhitelisted(Guid playerId) => _whitelistedPlayers.ContainsKey(playerId);
+
     public bool IsOp(Guid playerId) => _ops.ContainsKey(playerId);
 
     public int GetOpLevel(Guid playerId) => _ops.TryGetValue(playerId, out var op) ? op.Level : 0;
+
+    public bool BypassesPlayerLimit(Guid playerId) => _ops.TryGetValue(playerId, out var op) && op.BypassesPlayerLimit;
 
     public void SaveAll()
     {

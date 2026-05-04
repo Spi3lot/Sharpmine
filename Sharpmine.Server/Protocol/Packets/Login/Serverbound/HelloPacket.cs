@@ -19,16 +19,21 @@ public partial record HelloPacket
         return true;
     }
 
-    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
+    public async ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
-        // TODO: Replace dummy with actual GameProfile
+        if (!handler.CapacityManager.TryReserveSlot(handler.AccessManager.BypassesPlayerLimit(Uuid)))
+        {
+            await handler.DisconnectAsync("Server is full!");
+            return;
+        }
+
+        // TODO: Send empty .Properties (only in offline-mode)
         var profile = new GameProfile(
             Uuid,
             Name,
             [new GameProfileProperty("textures", "1337", Option.Some("Singapore"))]);
 
         handler.SendPacket(new LoginFinishedPacket(profile));
-        return ValueTask.CompletedTask;
     }
 
 }

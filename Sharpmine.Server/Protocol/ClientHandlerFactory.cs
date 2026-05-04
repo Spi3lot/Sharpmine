@@ -11,13 +11,20 @@ public class ClientHandlerFactory(ILoggerFactory loggerFactory)
     public ClientHandler Create(
         TcpClient client,
         ServerService server,
+        ServerCapacityManager serverCapacityManager,
         PlayerAccessManager playerAccessManager)
     {
         var clientHandlerLogger = loggerFactory.CreateLogger<ClientHandler>();
         var packetLogger = loggerFactory.CreateLogger<PacketTransceiver>();
         var packetTransceiver = new PacketTransceiver(packetLogger);
-        var handler = new ClientHandler(client, server, packetTransceiver, playerAccessManager, clientHandlerLogger);
-        return handler;
+
+        return new ClientHandler(
+            client,
+            server,
+            packetTransceiver,
+            playerAccessManager,
+            serverCapacityManager,
+            clientHandlerLogger);
     }
 
 }

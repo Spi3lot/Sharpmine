@@ -17,7 +17,8 @@ public sealed partial class ClientHandler(
     TcpClient client,
     ServerService server,
     PacketTransceiver packetTransceiver,
-    PlayerAccessManager playerAccessManager, // TODO: Use
+    PlayerAccessManager playerAccessManager,
+    ServerCapacityManager serverCapacityManager,
     ILogger<ClientHandler> logger)
 {
 
@@ -39,9 +40,16 @@ public sealed partial class ClientHandler(
 
     public ServerService Server { get; } = server;
 
-    public ClientInformationPacket? Information { get; set; }
+    // TODO: Remove these internals in favor of dedicated packet handlers
+    internal PlayerAccessManager AccessManager { get; } = playerAccessManager;
+
+    internal ServerCapacityManager CapacityManager { get; } = serverCapacityManager;
 
     public ProtocolState State { get; private set; } = ProtocolState.Handshake;
+
+    public bool OccupiesPlayerSlot { get; internal set; }
+
+    public ClientInformationPacket? Information { get; internal set; }
 
     public async Task HandleAsync(CancellationToken cancellationToken)
     {
@@ -224,6 +232,13 @@ public sealed partial class ClientHandler(
         Client.Dispose();
         _cts?.Dispose();
         _cts = null;
+
+        if (OccupiesPlayerSlot)
+        {
+            CapacityManager.ReleaseSlot();
+            OccupiesPlayerSlot = false;
+        }
+
         Terminated?.Invoke();
     }
 

@@ -51,7 +51,7 @@ public partial class ServerService(
                     continue;
                 }
 
-                if (JoinAccess.IpBlacklisted == playerAccessManager.EvaluateAccess(ip, null, Clients.Count).Access)
+                if (JoinAccess.IpBlacklisted == playerAccessManager.EvaluateAccess(ip).Access)
                 {
                     LogClientBlacklisted(ip);
                     client.Dispose();
@@ -91,7 +91,7 @@ public partial class ServerService(
         return true;
     }
 
-    private void StartClientHandler(TcpClient client, string ip, SemaphoreSlim lobby, CancellationToken stoppingToken)
+    private void StartClientHandler(TcpClient client, string ip, CancellationToken stoppingToken)
     {
         _ = Task.Run(async () =>
         {

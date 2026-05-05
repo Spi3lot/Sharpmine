@@ -46,8 +46,15 @@ public static class Program
             builder.Services.AddSingleton<Form1>();
             builder.Services.AddSingleton<PlayerAccessManager>();
             builder.Services.AddSingleton<ClientHandlerFactory>();
+            builder.Services.AddSingleton<PacketDispatcher>();
             builder.Services.AddSingleton<ServerService>();
             builder.Services.AddHostedService<ServerService>(sp => sp.GetRequiredService<ServerService>());
+
+            builder.Services.Scan(scan => scan
+                .FromEntryAssembly()
+                .AddClasses(classes => classes.AssignableTo(typeof(IPacketHandler<>)))
+                .AsImplementedInterfaces()
+                .WithSingletonLifetime());
 
             using var host = builder.Build();
 

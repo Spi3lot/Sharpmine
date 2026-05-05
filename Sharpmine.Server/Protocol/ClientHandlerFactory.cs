@@ -5,19 +5,30 @@ using Sharpmine.Server.Security;
 
 namespace Sharpmine.Server.Protocol;
 
-public class ClientHandlerFactory(ILoggerFactory loggerFactory)
+public class ClientHandlerFactory(
+    PacketDispatcher dispatcher,
+    PlayerAccessManager playerAccessManager,
+    ILoggerFactory loggerFactory
+)
 {
 
     public ClientHandler Create(
+        string ip,
         TcpClient client,
-        ServerService server,
-        PlayerAccessManager playerAccessManager)
+        ServerService server)
     {
         var clientHandlerLogger = loggerFactory.CreateLogger<ClientHandler>();
         var packetLogger = loggerFactory.CreateLogger<PacketTransceiver>();
         var packetTransceiver = new PacketTransceiver(packetLogger);
-        var handler = new ClientHandler(client, server, packetTransceiver, playerAccessManager, clientHandlerLogger);
-        return handler;
+
+        return new ClientHandler(
+            ip,
+            client,
+            server,
+            packetTransceiver,
+            dispatcher,
+            playerAccessManager,
+            clientHandlerLogger);
     }
 
 }

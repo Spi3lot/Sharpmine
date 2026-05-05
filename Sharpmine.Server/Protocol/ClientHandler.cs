@@ -14,9 +14,11 @@ using Sharpmine.Server.Security;
 namespace Sharpmine.Server.Protocol;
 
 public sealed partial class ClientHandler(
+    string ip,
     TcpClient client,
     ServerService server,
     PacketTransceiver packetTransceiver,
+    PacketDispatcher dispatcher,
     PlayerAccessManager playerAccessManager, // TODO: Use
     ILogger<ClientHandler> logger)
 {
@@ -34,6 +36,8 @@ public sealed partial class ClientHandler(
     public event Action? Terminated;
 
     public Guid Id { get; } = Guid.CreateVersion7();
+
+    public string Ip { get; } = ip;
 
     public TcpClient Client { get; } = client;
 
@@ -159,13 +163,13 @@ public sealed partial class ClientHandler(
         {
             await foreach (var packet in _serverboundChannel.Reader.ReadAllAsync(cancellationToken))
             {
-                try
+                if (dispatcher.DispatchAsync(packet, this, cancellationToken) is { } handleTask)
                 {
-                    await packet.ProcessAsync(this, cancellationToken);
+                    await handleTask;
                 }
-                catch (NotImplementedException)
+                else
                 {
-                    LogProcessNotImplemented(packet);
+                    LogNoHandler(packet);
                 }
             }
         }
@@ -227,9 +231,6 @@ public sealed partial class ClientHandler(
         Terminated?.Invoke();
     }
 
-    public override string ToString()
-    {
-        return Client.Client.RemoteEndPoint?.ToString() ?? "<NULL>";
-    }
+    public override string ToString() => Ip;
 
 }

@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.Win32.SafeHandles;
 
 namespace Sharpmine.Gen;
 
@@ -75,6 +76,17 @@ public class PacketPropertyGenerator : IIncrementalGenerator
                         public partial {{first.TypeKeyword}} {{first.ClassName}}
                         {
                         """);
+
+        sb.AppendLine();
+        sb.AppendLine($"    public {first.ClassName}()");
+        sb.AppendLine("    {");
+
+        foreach (var info in fields.Select(field => field!.Value))
+        {
+            sb.AppendLine($"        {info.FieldName} = default!;");
+        }
+
+        sb.AppendLine("    }");
 
         foreach (var info in fields.Select(field => field!.Value))
         {

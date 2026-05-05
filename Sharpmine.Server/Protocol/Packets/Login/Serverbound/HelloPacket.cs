@@ -2,6 +2,7 @@
 
 using Sharpmine.Server.Protocol.DataTypes;
 using Sharpmine.Server.Protocol.Packets.Login.Clientbound;
+using Sharpmine.Server.Security;
 
 namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
 
@@ -21,6 +22,14 @@ public partial record HelloPacket
 
     public async ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
     {
+        var (access, reason) = handler.AccessManager.EvaluateAccess(handler.Ip, Uuid);
+
+        if (access is not JoinAccess.Allowed)
+        {
+            await handler.DisconnectAsync(reason!);
+            return;
+        }
+
         if (!handler.CapacityManager.TryReserveSlot(handler.AccessManager.BypassesPlayerLimit(Uuid)))
         {
             await handler.DisconnectAsync("Server is full!");

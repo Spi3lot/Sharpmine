@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 
 using Microsoft.Extensions.Hosting;
@@ -47,35 +48,24 @@ public partial class ServerService(
                 await lobby.WaitAsync(stoppingToken); // TODO: Remove
                 semaphoreAcquired = true;
                 var client = await listener.AcceptTcpClientAsync(stoppingToken);
-                var endpoint = client.Client.RemoteEndPoint as IPEndPoint;
-                string? ip = null;
-                bool kick = false;
 
-                if (endpoint is not null)
-                {
-                    var address = endpoint.Address;
-                    ip = ((address.IsIPv4MappedToIPv6) ? address.MapToIPv4() : address).ToString();
-
-                    if (JoinAccess.IpBlacklisted == playerAccessManager.EvaluateAccess(ip, null, Clients.Count).Access)
-                    {
-                        LogClientBlacklisted(ip);
-                        kick = true;
-                    }
-                }
-                else
+                if (!TryDetermineClientIp(client.Client.RemoteEndPoint as IPEndPoint, out string? ip))
                 {
                     LogClientIpIndeterminable();
-                    kick = true;
-                }
-
-                if (kick)
-                {
                     client.Dispose();
                     lobby.Release();
                     continue;
                 }
 
-                StartClientHandler(client, ip!, lobby, stoppingToken);
+                if (JoinAccess.IpBlacklisted == playerAccessManager.EvaluateAccess(ip, null, Clients.Count).Access)
+                {
+                    LogClientBlacklisted(ip);
+                    client.Dispose();
+                    lobby.Release();
+                    continue;
+                }
+
+                StartClientHandler(client, ip, lobby, stoppingToken);
             }
             catch (OperationCanceledException)
             {
@@ -99,6 +89,19 @@ public partial class ServerService(
             .Select(handler => handler.DisconnectAsync("Server is shutting down."));
 
         await Task.WhenAll(disconnectTasks);
+    }
+
+    private static bool TryDetermineClientIp(IPEndPoint? endpoint, [NotNullWhen(true)] out string? ip)
+    {
+        if (endpoint is null)
+        {
+            ip = null;
+            return false;
+        }
+
+        var address = endpoint.Address;
+        ip = (address.IsIPv4MappedToIPv6) ? address.MapToIPv4().ToString() : address.ToString();
+        return true;
     }
 
     private void StartClientHandler(TcpClient client, string ip, SemaphoreSlim lobby, CancellationToken stoppingToken)

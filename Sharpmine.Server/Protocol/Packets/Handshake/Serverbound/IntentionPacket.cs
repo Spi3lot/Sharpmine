@@ -1,6 +1,6 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
-public partial record IntentionPacket : IStateTransition
+public partial record IntentionPacket : IStateTransition, IUnhandledPacket
 {
 
     public ProtocolState NextState => (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;
@@ -20,11 +20,6 @@ public partial record IntentionPacket : IStateTransition
         ServerPort = reader.ReadUInt16();
         Intent = (Intent) reader.Read7BitEncodedInt();
         return true;
-    }
-
-    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
-    {
-        return ValueTask.CompletedTask;
     }
 
 }

@@ -258,6 +258,11 @@ public class PacketGenerator : IIncrementalGenerator
         sb.AppendLine("        ClientHandler client,");
         sb.AppendLine("        CancellationToken cancellationToken)");
         sb.AppendLine("    {");
+        sb.AppendLine("        if (packet is IUnhandledPacket)");
+        sb.AppendLine("        {");
+        sb.AppendLine("            return ValueTask.CompletedTask;");
+        sb.AppendLine("        }");
+        sb.AppendLine();
         sb.AppendLine("        return packet switch");
         sb.AppendLine("        {");
 
@@ -268,9 +273,8 @@ public class PacketGenerator : IIncrementalGenerator
             sb.AppendLine($"            Packets.{fqn} p => {fieldName}?.HandleAsync(p, client, cancellationToken),");
         }
 
-        sb.AppendLine("            _ => null");
+        sb.AppendLine("            _ => ValueTask.CompletedTask");
         sb.AppendLine("        };");
-        sb.AppendLine();
         sb.AppendLine("    }");
         sb.AppendLine("}");
 

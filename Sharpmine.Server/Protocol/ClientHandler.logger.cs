@@ -10,8 +10,8 @@ public partial class ClientHandler
     [LoggerMessage(LogLevel.Error, "Attempted to send {Packet} while in state {State}")]
     partial void LogUnmatchedStates(IClientboundPacket packet, ProtocolState state);
 
-    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for processing")]
-    partial void LogProcessNotImplemented(IServerboundPacket packet);
+    [LoggerMessage(LogLevel.Error, "{Packet} has no dedicated handler")]
+    partial void LogNoHandler(IServerboundPacket packet);
 
     [LoggerMessage(LogLevel.Error, "An error occurred while handling the client")]
     partial void LogErrorWhileHandling(Exception error);

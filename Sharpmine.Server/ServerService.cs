@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 
 using Microsoft.Extensions.Hosting;
@@ -42,28 +43,22 @@ public partial class ServerService(
             try
             {
                 var client = await listener.AcceptTcpClientAsync(stoppingToken);
-                var endpoint = client.Client.RemoteEndPoint as IPEndPoint;
-                string? ip = endpoint?.Address.ToString();
-                bool kick = false;
 
-                if (ip is null)
+                if (!TryDetermineClientIp(client.Client.RemoteEndPoint as IPEndPoint, out string? ip))
                 {
                     LogClientIpIndeterminable();
-                    kick = true;
-                }
-                else if (JoinAccess.IpBlacklisted == playerAccessManager.EvaluateAccess(ip).Access)
-                {
-                    LogClientBlacklisted(ip);
-                    kick = true;
-                }
-
-                if (kick)
-                {
                     client.Dispose();
                     continue;
                 }
 
-                StartClientHandler(client, stoppingToken);
+                if (JoinAccess.IpBlacklisted == playerAccessManager.EvaluateAccess(ip, null, Clients.Count).Access)
+                {
+                    LogClientBlacklisted(ip);
+                    client.Dispose();
+                    continue;
+                }
+
+                StartClientHandler(client, ip, stoppingToken);
             }
             catch (OperationCanceledException)
             {
@@ -83,7 +78,20 @@ public partial class ServerService(
         await Task.WhenAll(disconnectTasks);
     }
 
-    private void StartClientHandler(TcpClient client, CancellationToken stoppingToken)
+    private static bool TryDetermineClientIp(IPEndPoint? endpoint, [NotNullWhen(true)] out string? ip)
+    {
+        if (endpoint is null)
+        {
+            ip = null;
+            return false;
+        }
+
+        var address = endpoint.Address;
+        ip = (address.IsIPv4MappedToIPv6) ? address.MapToIPv4().ToString() : address.ToString();
+        return true;
+    }
+
+    private void StartClientHandler(TcpClient client, string ip, SemaphoreSlim lobby, CancellationToken stoppingToken)
     {
         _ = Task.Run(async () =>
         {
@@ -95,13 +103,13 @@ public partial class ServerService(
                     return;
                 }
 
-                var handler = clientHandlerFactory.Create(client, this, capacityManager, playerAccessManager);
+                var handler = clientHandlerFactory.Create(ip, client, this);
                 SetupHandler(handler);
                 await handler.HandleAsync(stoppingToken);
             }
             catch (Exception ex)
             {
-                LogErrorWhileHandling(ex, client.Client.RemoteEndPoint);
+                LogErrorWhileHandling(ex, ip);
             }
         }, stoppingToken);
     }

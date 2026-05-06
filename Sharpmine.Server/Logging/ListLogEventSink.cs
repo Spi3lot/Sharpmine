@@ -19,7 +19,19 @@ public class ListLogEventSink(
 
     public void Emit(LogEvent logEvent)
     {
-        string message = $"[{logEvent.Timestamp:HH:mm:ss} {logEvent.Level}] {logEvent.RenderMessage(formatProvider)}";
+        string level = logEvent.Level switch
+        {
+            LogEventLevel.Verbose => "VRB",
+            LogEventLevel.Debug => "DBG",
+            LogEventLevel.Information => "INF",
+            LogEventLevel.Warning => "WRN",
+            LogEventLevel.Error => "ERR",
+            LogEventLevel.Fatal => "FTL",
+            _ => "UKN"
+        };
+
+        string exceptionSuffix = (logEvent.Exception is null) ? string.Empty : $" -> {logEvent.Exception.Message}";
+        string message = $"[{logEvent.Timestamp:HH:mm:ss} {level}] {logEvent.RenderMessage(formatProvider)}{exceptionSuffix}";
 
         if (logEvent.Properties.TryGetValue("ClientHandlerId", out var idValue)
             && idValue is ScalarValue { Value: Guid id })

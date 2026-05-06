@@ -28,6 +28,7 @@ public partial class PlayerAccessManager
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
+        Converters = { new HyphenlessGuidConverter(), new MinecraftDateConverter() },
     };
 
     public PlayerAccessManager(ServerProperties properties, ILogger<PlayerAccessManager> logger)

@@ -7,7 +7,7 @@ namespace Sharpmine.Server.Security.Models;
 public class MinecraftDateConverter : JsonConverter<DateTimeOffset?>
 {
 
-    private const string Format = "yyyy-MM-dd HH:mm:ss Z";
+    private const string Format = "yyyy-MM-dd HH:mm:ss zzz";
 
     public override DateTimeOffset? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -30,7 +30,7 @@ public class MinecraftDateConverter : JsonConverter<DateTimeOffset?>
 
     public override void Write(Utf8JsonWriter writer, DateTimeOffset? value, JsonSerializerOptions options)
     {
-        writer.WriteStringValue(value?.ToString(Format) ?? "forever");
+        writer.WriteStringValue(value?.ToString(Format, CultureInfo.InvariantCulture) ?? "forever");
     }
 
 }

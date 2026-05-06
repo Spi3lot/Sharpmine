@@ -11,10 +11,4 @@ public abstract partial record KeepAlivePacket
         return true;
     }
 
-    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
-    {
-        // TODO: Check whether the client responded with the same packet
-        return ValueTask.CompletedTask;
-    }
-
 }

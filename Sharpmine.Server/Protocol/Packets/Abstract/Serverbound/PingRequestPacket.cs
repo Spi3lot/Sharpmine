@@ -13,12 +13,6 @@ public abstract partial record PingRequestPacket
         return true;
     }
 
-    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
-    {
-        handler.SendPacket(CreatePongResponsePacket());
-        return ValueTask.CompletedTask;
-    }
-
-    protected abstract PongResponsePacket CreatePongResponsePacket();
+    public abstract PongResponsePacket CreatePongResponsePacket();
 
 }

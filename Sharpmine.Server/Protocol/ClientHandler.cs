@@ -19,7 +19,6 @@ public sealed partial class ClientHandler(
     ServerService server,
     PacketTransceiver packetTransceiver,
     PacketDispatcher dispatcher,
-    PlayerAccessManager playerAccessManager,
     ServerCapacityManager serverCapacityManager,
     ILogger<ClientHandler> logger)
 {
@@ -43,11 +42,6 @@ public sealed partial class ClientHandler(
     public TcpClient Client { get; } = client;
 
     public ServerService Server { get; } = server;
-
-    // TODO: Remove these internals in favor of dedicated packet handlers
-    internal PlayerAccessManager AccessManager { get; } = playerAccessManager;
-
-    internal ServerCapacityManager CapacityManager { get; } = serverCapacityManager;
 
     public ProtocolState State { get; private set; } = ProtocolState.Handshake;
 
@@ -239,7 +233,7 @@ public sealed partial class ClientHandler(
 
         if (OccupiesPlayerSlot)
         {
-            CapacityManager.ReleaseSlot();
+            serverCapacityManager.ReleaseSlot();
             OccupiesPlayerSlot = false;
         }
 

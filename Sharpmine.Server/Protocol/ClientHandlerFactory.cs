@@ -7,7 +7,6 @@ namespace Sharpmine.Server.Protocol;
 
 public class ClientHandlerFactory(
     PacketDispatcher packetDispatcher,
-    PlayerAccessManager playerAccessManager,
     ServerCapacityManager serverCapacityManager,
     ILoggerFactory loggerFactory
 )
@@ -28,7 +27,6 @@ public class ClientHandlerFactory(
             server,
             packetTransceiver,
             packetDispatcher,
-            playerAccessManager,
             serverCapacityManager,
             clientHandlerLogger);
     }

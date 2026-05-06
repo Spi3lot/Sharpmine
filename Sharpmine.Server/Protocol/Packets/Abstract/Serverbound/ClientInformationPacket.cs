@@ -35,12 +35,6 @@ public abstract partial record ClientInformationPacket
         return true;
     }
 
-    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
-    {
-        handler.Information = this;
-        return ValueTask.CompletedTask;
-    }
-
 }
 
 public enum ChatMode

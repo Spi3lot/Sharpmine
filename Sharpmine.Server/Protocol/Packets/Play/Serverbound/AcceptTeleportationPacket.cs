@@ -11,9 +11,4 @@ public partial record AcceptTeleportationPacket
         return true;
     }
 
-    public ValueTask ProcessAsync(ClientHandler handler, CancellationToken cancellationToken)
-    {
-        return ValueTask.CompletedTask;
-    }
-
 }

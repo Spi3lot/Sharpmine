@@ -10,7 +10,7 @@ public partial class ServerService
     [LoggerMessage(LogLevel.Error, "Could not determine IP of newly connected client")]
     partial void LogClientIpIndeterminable();
 
-    [LoggerMessage(LogLevel.Error, "An error occurred while handling client {Ip}")]
+    [LoggerMessage(LogLevel.Debug, "Blacklisted IP {Ip} attempted to connect")]
     partial void LogClientBlacklisted(string ip);
 
     [LoggerMessage(LogLevel.Error, "An error occurred while handling client {Ip}")]

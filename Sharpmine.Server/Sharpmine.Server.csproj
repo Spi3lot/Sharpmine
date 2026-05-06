@@ -46,12 +46,4 @@
       </None>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Protocol\Packets\Handlers\Configuration\" />
-      <Folder Include="Protocol\Packets\Handlers\Handshake\" />
-      <Folder Include="Protocol\Packets\Handlers\Login\" />
-      <Folder Include="Protocol\Packets\Handlers\Play\" />
-      <Folder Include="Protocol\Packets\Handlers\Status\" />
-    </ItemGroup>
-
 </Project>

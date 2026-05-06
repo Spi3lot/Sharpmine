@@ -1,6 +1,6 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
-public partial record IntentionPacket : IStateTransition, IUnhandledPacket
+public partial record IntentionPacket : IStateTransition, IHandlerless
 {
 
     public ProtocolState NextState => (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;

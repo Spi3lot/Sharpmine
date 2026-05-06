@@ -1,3 +1,3 @@
 ﻿namespace Sharpmine.Server.Protocol.Packets;
 
-public interface IUnhandledPacket;
+public interface IHandlerless;

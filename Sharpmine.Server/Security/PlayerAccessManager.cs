@@ -63,7 +63,7 @@ public partial class PlayerAccessManager
             return (JoinAccess.IpBlacklisted, null);
         }
 
-        if (_bannedIps.TryGetValue(ip, out var ipBan))
+        if (_bannedIps.TryGetValue(ip, out var ipBan) && ipBan.Expires > DateTimeOffset.UtcNow)
         {
             return (JoinAccess.IpBanned, $"You are banned from this server.\nReason: {ipBan.Reason}");
         }
@@ -73,7 +73,7 @@ public partial class PlayerAccessManager
             return (JoinAccess.Allowed, null);
         }
 
-        if (_bannedPlayers.TryGetValue(uuid.Value, out var ban))
+        if (_bannedPlayers.TryGetValue(uuid.Value, out var ban) && ban.Expires > DateTimeOffset.UtcNow)
         {
             return (JoinAccess.Banned, $"You are banned from this server.\nReason: {ban.Reason}");
         }

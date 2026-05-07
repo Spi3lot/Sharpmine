@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
 using Sharpmine.Server.Configuration;
+using Sharpmine.Server.Protocol.DataTypes;
 using Sharpmine.Server.Security.Models;
 
 namespace Sharpmine.Server.Security;
@@ -19,15 +20,15 @@ public partial class PlayerAccessManager
 
     private readonly Dictionary<string, IpBanEntry> _bannedIps;
 
-    private readonly Dictionary<Guid, BanEntry> _bannedPlayers;
+    private readonly Dictionary<Uuid, BanEntry> _bannedPlayers;
 
-    private readonly Dictionary<Guid, WhitelistEntry> _whitelistedPlayers;
+    private readonly Dictionary<Uuid, WhitelistEntry> _whitelistedPlayers;
 
-    private readonly Dictionary<Guid, OpEntry> _ops;
+    private readonly Dictionary<Uuid, OpEntry> _ops;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        Converters = { new HyphenlessGuidConverter(), new MinecraftDateConverter() },
+        Converters = { new UuidConverter(), new MinecraftDateConverter() },
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
@@ -56,7 +57,7 @@ public partial class PlayerAccessManager
         SaveAll();
     }
 
-    public (JoinAccess Access, string? Reason) EvaluateAccess(string ip, Guid? uuid = null)
+    public (JoinAccess Access, string? Reason) EvaluateAccess(string ip, Uuid? uuid = null)
     {
         if (_blacklistedIps.Contains(ip))
         {
@@ -86,15 +87,15 @@ public partial class PlayerAccessManager
         return (JoinAccess.Allowed, null);
     }
 
-    public bool IsImplicitlyWhitelisted(Guid playerId) => IsExplicitlyWhitelisted(playerId) || IsOp(playerId);
+    public bool IsImplicitlyWhitelisted(Uuid playerId) => IsExplicitlyWhitelisted(playerId) || IsOp(playerId);
 
-    public bool IsExplicitlyWhitelisted(Guid playerId) => _whitelistedPlayers.ContainsKey(playerId);
+    public bool IsExplicitlyWhitelisted(Uuid playerId) => _whitelistedPlayers.ContainsKey(playerId);
 
-    public bool IsOp(Guid playerId) => _ops.ContainsKey(playerId);
+    public bool IsOp(Uuid playerId) => _ops.ContainsKey(playerId);
 
-    public int GetOpLevel(Guid playerId) => _ops.TryGetValue(playerId, out var op) ? op.Level : 0;
+    public int GetOpLevel(Uuid playerId) => _ops.TryGetValue(playerId, out var op) ? op.Level : 0;
 
-    public bool BypassesPlayerLimit(Guid playerId) => _ops.TryGetValue(playerId, out var op) && op.BypassesPlayerLimit;
+    public bool BypassesPlayerLimit(Uuid playerId) => _ops.TryGetValue(playerId, out var op) && op.BypassesPlayerLimit;
 
     public void SaveAll()
     {

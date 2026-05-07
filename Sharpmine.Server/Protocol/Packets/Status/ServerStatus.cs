@@ -1,5 +1,7 @@
 ﻿using System.Text;
 
+using Sharpmine.Server.Protocol.DataTypes;
+
 namespace Sharpmine.Server.Protocol.Packets.Status;
 
 public record ServerStatus(
@@ -33,6 +35,6 @@ public record StatusPlayers(int Max, int Online, List<StatusPlayer>? Sample = nu
 
 }
 
-public record StatusPlayer(string Name, Guid Id);
+public record StatusPlayer(string Name, Uuid Id);
 
 public record StatusDescription(string Text);

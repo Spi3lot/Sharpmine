@@ -1,7 +1,9 @@
-﻿namespace Sharpmine.Server.Security.Models;
+﻿using Sharpmine.Server.Protocol.DataTypes;
+
+namespace Sharpmine.Server.Security.Models;
 
 public record OpEntry(
-    Guid Uuid,
+    Uuid Uuid,
     string Name,
     int Level,
     bool BypassesPlayerLimit);

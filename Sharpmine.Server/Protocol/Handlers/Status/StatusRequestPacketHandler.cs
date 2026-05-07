@@ -1,4 +1,5 @@
 ﻿using Sharpmine.Server.Configuration;
+using Sharpmine.Server.Protocol.DataTypes;
 using Sharpmine.Server.Protocol.Packets.Status;
 using Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 using Sharpmine.Server.Protocol.Packets.Status.Serverbound;
@@ -25,8 +26,8 @@ public class StatusRequestPacketHandler(
             {
                 Sample =
                 [
-                    new StatusPlayer("Deswegen", Guid.Parse("7e5abf92-0bf6-4b21-8c12-ad9a32720f3b")),
-                    new StatusPlayer("Yes_Mc", Guid.Parse("ae2f02a6-001e-46b6-a659-5e016cf6e8e5"))
+                    new StatusPlayer("Deswegen", Uuid.Parse("7e5abf92-0bf6-4b21-8c12-ad9a32720f3b")),
+                    new StatusPlayer("Yes_Mc", Uuid.Parse("ae2f02a6-001e-46b6-a659-5e016cf6e8e5"))
                 ]
             }
         );

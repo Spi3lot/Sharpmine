@@ -1,3 +1,5 @@
-﻿namespace Sharpmine.Server.Security.Models;
+﻿using Sharpmine.Server.Protocol.DataTypes;
 
-public record WhitelistEntry(Guid Uuid, string Name);
+namespace Sharpmine.Server.Security.Models;
+
+public record WhitelistEntry(Uuid Uuid, string Name);

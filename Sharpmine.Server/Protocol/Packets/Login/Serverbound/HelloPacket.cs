@@ -11,12 +11,12 @@ public partial record HelloPacket
 
     public string Name { get; set; } = null!;
 
-    public Guid Uuid { get; set; }
+    public Uuid Uuid { get; set; }
 
     public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         Name = reader.ReadString();
-        Uuid = new Guid(reader.ReadBytes(16));
+        Uuid = new Uuid(reader.ReadBytes(16));
         return true;
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text.Encodings.Web;
+using System.Text.Json;
 
 using Microsoft.Extensions.Logging;
 
@@ -26,9 +27,10 @@ public partial class PlayerAccessManager
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
+        Converters = { new HyphenlessGuidConverter(), new MinecraftDateConverter() },
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
-        Converters = { new HyphenlessGuidConverter(), new MinecraftDateConverter() },
     };
 
     public PlayerAccessManager(ServerProperties properties, ILogger<PlayerAccessManager> logger)

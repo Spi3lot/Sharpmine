@@ -4,33 +4,35 @@ using System.Text.Json.Serialization;
 
 namespace Sharpmine.Server.Security.Models;
 
-public class MinecraftDateConverter : JsonConverter<DateTimeOffset?>
+public class MinecraftDateConverter : JsonConverter<DateTimeOffset>
 {
 
-    private const string Format = "yyyy-MM-dd HH:mm:ss zzz";
-
-    public override DateTimeOffset? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override DateTimeOffset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         string? dateString = reader.GetString();
 
         if (string.IsNullOrWhiteSpace(dateString) || dateString.Equals("forever", StringComparison.OrdinalIgnoreCase))
         {
-            return null;
+            return DateTimeOffset.MaxValue;
         }
 
         bool couldParse = DateTimeOffset.TryParseExact(
             dateString,
-            Format,
+            "yyyy-MM-dd HH:mm:ss K",
             CultureInfo.InvariantCulture,
-            DateTimeStyles.None,
+            DateTimeStyles.AllowWhiteSpaces,
             out var date);
 
-        return (couldParse) ? date : null;
+        return (couldParse) ? date : DateTimeOffset.MaxValue;
     }
 
-    public override void Write(Utf8JsonWriter writer, DateTimeOffset? value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)
     {
-        writer.WriteStringValue(value?.ToString(Format, CultureInfo.InvariantCulture) ?? "forever");
+        writer.WriteStringValue((value == DateTimeOffset.MaxValue)
+            ? "forever"
+            : TrimTimeZoneColon(value.ToString("yyyy-MM-dd HH:mm:ss zzz", CultureInfo.InvariantCulture)));
     }
+
+    private static string TrimTimeZoneColon(string value) => value.Remove(value.Length - 3, 1);
 
 }

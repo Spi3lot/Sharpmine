@@ -104,6 +104,7 @@ partial class Form1
         BackColor = System.Drawing.SystemColors.Control;
         ClientSize = new System.Drawing.Size(978, 450);
         Controls.Add(tableLayoutPanel1);
+        Font = new System.Drawing.Font("JetBrains Mono", 9, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) 0));
         Location = new System.Drawing.Point(15, 15);
         tableLayoutPanel1.ResumeLayout(false);
         tableLayoutPanel1.PerformLayout();

@@ -38,7 +38,7 @@ public static class Program
 
             var propertiesConfig = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddIniFile(ServerConstants.PropertiesFileName, optional: true, reloadOnChange: true)
+                .AddIniFile(ServerConstants.FileNames.Properties, optional: true, reloadOnChange: true)
                 .Build();
 
             builder.Services.AddSerilog();

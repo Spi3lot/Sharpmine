@@ -38,19 +38,19 @@ public partial class PlayerAccessManager
         _properties = properties;
         _logger = logger;
 
-        _blacklistedIps = LoadJson<string>(ServerConstants.BlacklistedIpsFileName)
+        _blacklistedIps = LoadJson<string>(ServerConstants.FileNames.BlacklistedIps)
             .ToHashSet();
 
-        _bannedIps = LoadJson<IpBanEntry>(ServerConstants.BannedIpsFileName)
+        _bannedIps = LoadJson<IpBanEntry>(ServerConstants.FileNames.BannedIps)
             .ToDictionary(e => e.Ip);
 
-        _bannedPlayers = LoadJson<BanEntry>(ServerConstants.BannedPlayersFileName)
+        _bannedPlayers = LoadJson<BanEntry>(ServerConstants.FileNames.BannedPlayers)
             .ToDictionary(e => e.Uuid);
 
-        _whitelistedPlayers = LoadJson<WhitelistEntry>(ServerConstants.WhitelistedPlayersFileName)
+        _whitelistedPlayers = LoadJson<WhitelistEntry>(ServerConstants.FileNames.WhitelistedPlayers)
             .ToDictionary(e => e.Uuid);
 
-        _ops = LoadJson<OpEntry>(ServerConstants.OperatorsFileName)
+        _ops = LoadJson<OpEntry>(ServerConstants.FileNames.Operators)
             .ToDictionary(e => e.Uuid);
 
         SaveAll();
@@ -98,11 +98,11 @@ public partial class PlayerAccessManager
 
     public void SaveAll()
     {
-        SaveToFile(ServerConstants.BlacklistedIpsFileName, _blacklistedIps);
-        SaveToFile(ServerConstants.BannedIpsFileName, _bannedIps.Values);
-        SaveToFile(ServerConstants.BannedPlayersFileName, _bannedPlayers.Values);
-        SaveToFile(ServerConstants.WhitelistedPlayersFileName, _whitelistedPlayers.Values);
-        SaveToFile(ServerConstants.OperatorsFileName, _ops.Values);
+        SaveToFile(ServerConstants.FileNames.BlacklistedIps, _blacklistedIps);
+        SaveToFile(ServerConstants.FileNames.BannedIps, _bannedIps.Values);
+        SaveToFile(ServerConstants.FileNames.BannedPlayers, _bannedPlayers.Values);
+        SaveToFile(ServerConstants.FileNames.WhitelistedPlayers, _whitelistedPlayers.Values);
+        SaveToFile(ServerConstants.FileNames.Operators, _ops.Values);
     }
 
     private static void SaveToFile<T>(string fileName, IEnumerable<T> data)

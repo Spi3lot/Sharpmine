@@ -7,18 +7,23 @@ public static class ServerConstants
 
     public const string VersionName = "1.21.10";
 
-    public const string IconFileName = "server-icon.png";
+    public static class FileNames
+    {
 
-    public const string PropertiesFileName = "server.properties";
+        public const string Icon = "server-icon.png";
 
-    public const string OperatorsFileName = "ops.json";
+        public const string Properties = "server.properties";
 
-    public const string WhitelistedPlayersFileName = "whitelist.json";
+        public const string Operators = "ops.json";
 
-    public const string BannedPlayersFileName = "banned-players.json";
+        public const string WhitelistedPlayers = "whitelist.json";
 
-    public const string BannedIpsFileName = "banned-ips.json";
+        public const string BannedPlayers = "banned-players.json";
 
-    public const string BlacklistedIpsFileName = "blacklist.json";
+        public const string BannedIps = "banned-ips.json";
+
+        public const string BlacklistedIps = "blacklist.json";
+
+    }
 
 }

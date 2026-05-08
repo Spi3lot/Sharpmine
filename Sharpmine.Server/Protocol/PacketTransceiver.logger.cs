@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace Sharpmine.Server.Protocol.Packets;
+using Sharpmine.Server.Protocol.Packets;
+
+namespace Sharpmine.Server.Protocol;
 
 public partial class PacketTransceiver
 {

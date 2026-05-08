@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using Sharpmine.Server.Protocol.Packets;
 using Sharpmine.Server.Security;
 
 namespace Sharpmine.Server.Protocol;

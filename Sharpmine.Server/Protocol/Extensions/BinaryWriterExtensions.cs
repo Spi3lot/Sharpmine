@@ -26,15 +26,18 @@ public static class BinaryWriterExtensions
             value.MatchSome(writeAction);
         }
 
-        public void WritePrefixedArray<T>(T[] value, Action<T> writeElementAction)
+        public void WritePrefixedArray<T>(ReadOnlySpan<T> value, Action<T> writeElementAction)
         {
             writer.Write7BitEncodedInt(value.Length);
             writer.WriteArray(value, writeElementAction);
         }
 
-        public void WriteArray<T>(T[] value, Action<T> writeElementAction)
+        public void WriteArray<T>(ReadOnlySpan<T> value, Action<T> writeElementAction)
         {
-            Array.ForEach(value, writeElementAction);
+            foreach (T element in value)
+            {
+                writeElementAction(element);
+            }
         }
 
         public void WriteUuid(Guid uuid)

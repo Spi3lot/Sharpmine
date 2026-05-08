@@ -33,13 +33,16 @@ public static class BinaryReaderExtensions
         public T[] ReadArray<T>(int length, Func<T> readElementAction)
         {
             T[] array = new T[length];
-
-            for (int i = 0; i < length; i++)
-            {
-                array[i] = readElementAction();
-            }
-
+            reader.ReadIntoSpan(array, readElementAction);
             return array;
+        }
+
+        public void ReadIntoSpan<T>(Span<T> destination, Func<T> readElementAction)
+        {
+            for (int i = 0; i < destination.Length; i++)
+            {
+                destination[i] = readElementAction();
+            }
         }
 
         public Guid ReadUuid()

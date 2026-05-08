@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Sharpmine.Server.Protocol.Packets.Status;
+namespace Sharpmine.Server.Protocol.DataTypes;
 
 public record ServerStatus(
     StatusVersion Version,

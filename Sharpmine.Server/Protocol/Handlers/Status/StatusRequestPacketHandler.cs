@@ -1,5 +1,5 @@
 ﻿using Sharpmine.Server.Configuration;
-using Sharpmine.Server.Protocol.Packets.Status;
+using Sharpmine.Server.Protocol.DataTypes;
 using Sharpmine.Server.Protocol.Packets.Status.Clientbound;
 using Sharpmine.Server.Protocol.Packets.Status.Serverbound;
 using Sharpmine.Server.Security;

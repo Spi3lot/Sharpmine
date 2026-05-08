@@ -10,11 +10,17 @@ public partial class ClientHandler
     [LoggerMessage(LogLevel.Error, "Attempted to send {Packet} while in state {State}")]
     partial void LogUnmatchedStates(IClientboundPacket packet, ProtocolState state);
 
-    [LoggerMessage(LogLevel.Warning, "{Packet} has no dedicated handler")]
-    partial void LogNoHandler(IServerboundPacket packet);
-
     [LoggerMessage(LogLevel.Error, "An error occurred while handling the client")]
     partial void LogErrorWhileHandling(Exception error);
+
+    [LoggerMessage(LogLevel.Error, "An error occurred while transmitting {Packet}")]
+    public partial void LogErrorWhileTransmittingPacket(Exception ex, IClientboundPacket? packet);
+
+    [LoggerMessage(LogLevel.Error, "An error occurred while handling {Packet}")]
+    public partial void LogErrorWhileHandlingPacket(Exception ex, IServerboundPacket? packet);
+
+    [LoggerMessage(LogLevel.Warning, "Missing handler for {Packet}")]
+    public partial void LogNoPacketHandler(IServerboundPacket packet);
 
     [LoggerMessage(LogLevel.Information, "{Handler} connected")]
     partial void LogClientConnected(ClientHandler handler);

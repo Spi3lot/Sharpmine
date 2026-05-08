@@ -33,6 +33,8 @@ public sealed partial class ClientHandler(
 
     private volatile bool _disconnecting;
 
+    private volatile bool _aborted;
+
     public event Action? Terminated;
 
     public Guid Id { get; } = Guid.CreateVersion7();
@@ -40,8 +42,6 @@ public sealed partial class ClientHandler(
     public string Ip { get; } = ip;
 
     public TcpClient Client { get; } = client;
-
-    public ServerService Server { get; } = server;
 
     public ProtocolState State { get; private set; } = ProtocolState.Handshake;
 
@@ -58,8 +58,15 @@ public sealed partial class ClientHandler(
         LogClientConnected(this);
 
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        _transmitTask = TransmitClientboundPacketsAsync(stream, writer, _cts.Token);
-        var processTask = ProcessServerboundPacketsAsync(_cts.Token);
+
+        if (_aborted)
+        {
+            await AbortAsync();
+            return;
+        }
+
+        _transmitTask = new ClientboundChannelWorker(_clientboundChannel, this, stream, writer, packetTransceiver).StartAsync(_cts.Token);
+        var processTask = new ServerboundChannelWorker(_serverboundChannel, this, packetDispatcher).StartAsync(_cts.Token);
 
         try
         {
@@ -134,58 +141,6 @@ public sealed partial class ClientHandler(
         }
     }
 
-    // TODO: outsource
-    private async Task TransmitClientboundPacketsAsync(
-        NetworkStream stream,
-        BinaryWriter writer,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            await foreach (var packet in _clientboundChannel.Reader.ReadAllAsync(cancellationToken))
-            {
-                await packetTransceiver.TransmitAsync(packet, stream, writer, cancellationToken);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // Shutting down
-        }
-        catch (Exception ex)
-        {
-            LogErrorWhileHandling(ex);
-            await AbortAsync();
-        }
-    }
-
-    // TODO: outsource
-    private async Task ProcessServerboundPacketsAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            await foreach (var packet in _serverboundChannel.Reader.ReadAllAsync(cancellationToken))
-            {
-                if (packetDispatcher.DispatchAsync(packet, this, cancellationToken) is { } handleTask)
-                {
-                    await handleTask;
-                }
-                else
-                {
-                    LogNoHandler(packet);
-                }
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // Shutting down
-        }
-        catch (Exception ex)
-        {
-            LogErrorWhileHandling(ex);
-            await DisconnectAsync("Internal server error during packet processing");
-        }
-    }
-
     public async Task DisconnectAsync(string reason)
     {
         if (Interlocked.Exchange(ref _disconnecting, true))
@@ -202,9 +157,19 @@ public sealed partial class ClientHandler(
         _clientboundChannel.Writer.TryWrite(packet with { Reason = reason });
         _clientboundChannel.Writer.Complete();
 
-        if (_transmitTask is not null)
+        if (_transmitTask is null)
         {
-            await Task.WhenAny(_transmitTask, Task.Delay(2000));
+            await AbortAsync();
+            return;
+        }
+
+        try
+        {
+            await _transmitTask.WaitAsync(TimeSpan.FromSeconds(2));
+        }
+        catch (TimeoutException)
+        {
+            // Force kill
         }
 
         await AbortAsync();
@@ -212,16 +177,31 @@ public sealed partial class ClientHandler(
 
     public Task AbortAsync()
     {
-        return (_cts is { IsCancellationRequested: false })
-            ? _cts.CancelAsync()
-            : Task.CompletedTask;
+        _aborted = true;
+        _disconnecting = true;
+
+        try
+        {
+            return _cts?.CancelAsync() ?? Task.CompletedTask;
+        }
+        catch (ObjectDisposedException)
+        {
+            return Task.CompletedTask;
+        }
     }
 
     public void Abort()
     {
-        if (_cts is { IsCancellationRequested: false })
+        _aborted = true;
+        _disconnecting = true;
+
+        try
         {
-            _cts.Cancel();
+            _cts?.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+            // Do nothing, _cts already cancaled
         }
     }
 

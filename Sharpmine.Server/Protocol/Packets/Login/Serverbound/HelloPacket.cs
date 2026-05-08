@@ -1,9 +1,4 @@
-﻿using Optional;
-
-using Sharpmine.Server.Protocol.DataTypes;
-using Sharpmine.Server.Protocol.Extensions;
-using Sharpmine.Server.Protocol.Packets.Login.Clientbound;
-using Sharpmine.Server.Security;
+﻿using Sharpmine.Server.Protocol.Extensions;
 
 namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
 

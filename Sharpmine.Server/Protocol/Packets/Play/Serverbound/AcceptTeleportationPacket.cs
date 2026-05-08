@@ -1,13 +1,16 @@
+using Sharpmine.Server.Protocol.Attributes;
+
 namespace Sharpmine.Server.Protocol.Packets.Play.Serverbound;
 
 public partial record AcceptTeleportationPacket
 {
 
-    public int TeleportId { get; set; }
+    [PacketProperty]
+    private int _teleportId;
 
     public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
-        TeleportId = reader.Read7BitEncodedInt();
+        _teleportId = reader.Read7BitEncodedInt();
         return true;
     }
 

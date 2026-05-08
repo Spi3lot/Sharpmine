@@ -1,13 +1,16 @@
-﻿namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
+﻿using Sharpmine.Server.Protocol.Attributes;
+
+namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
 public abstract partial record KeepAlivePacket
 {
 
-    public long KeepAliveId { get; set; }
+    [PacketProperty]
+    private long _keepAliveId;
 
     public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
-        KeepAliveId = reader.ReadInt64();
+        _keepAliveId = reader.ReadInt64();
         return true;
     }
 

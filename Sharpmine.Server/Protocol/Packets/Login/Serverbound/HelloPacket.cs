@@ -1,18 +1,21 @@
-﻿using Sharpmine.Server.Protocol.Extensions;
+﻿using Sharpmine.Server.Protocol.Attributes;
+using Sharpmine.Server.Protocol.Extensions;
 
 namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
 
 public partial record HelloPacket
 {
 
-    public string Name { get; set; } = null!;
+    [PacketProperty]
+    private string _name;
 
-    public Guid Uuid { get; set; }
+    [PacketProperty]
+    private Guid _uuid;
 
     public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
-        Name = reader.ReadString();
-        Uuid = reader.ReadUuid();
+        _name = reader.ReadString();
+        _uuid = reader.ReadUuid();
         return true;
     }
 

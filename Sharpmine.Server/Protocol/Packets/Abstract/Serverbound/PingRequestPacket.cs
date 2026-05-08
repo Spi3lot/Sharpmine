@@ -1,15 +1,17 @@
-﻿using Sharpmine.Server.Protocol.Packets.Abstract.Clientbound;
+﻿using Sharpmine.Server.Protocol.Attributes;
+using Sharpmine.Server.Protocol.Packets.Abstract.Clientbound;
 
 namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
 public abstract partial record PingRequestPacket
 {
 
-    public long Timestamp { get; set; }
+    [PacketProperty]
+    private long _timestamp;
 
     public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
-        Timestamp = reader.ReadInt64();
+        _timestamp = reader.ReadInt64();
         return true;
     }
 

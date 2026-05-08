@@ -1,24 +1,30 @@
-﻿namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
+﻿using Sharpmine.Server.Protocol.Attributes;
+
+namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
 public partial record IntentionPacket : IStateTransition, IHandlerless
 {
 
-    public ProtocolState NextState => (Intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;
+    public ProtocolState NextState => (_intent == Intent.Status) ? ProtocolState.Status : ProtocolState.Login;
 
-    public int ProtocolVersion { get; set; }
+    [PacketProperty]
+    private int _protocolVersion;
 
-    public string ServerAddress { get; set; } = null!;
+    [PacketProperty]
+    private string _serverAddress;
 
-    public ushort ServerPort { get; set; }
+    [PacketProperty]
+    private ushort _serverPort;
 
-    public Intent Intent { get; set; }
+    [PacketProperty]
+    private Intent _intent;
 
     public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
-        ProtocolVersion = reader.Read7BitEncodedInt();
-        ServerAddress = reader.ReadString();
-        ServerPort = reader.ReadUInt16();
-        Intent = (Intent) reader.Read7BitEncodedInt();
+        _protocolVersion = reader.Read7BitEncodedInt();
+        _serverAddress = reader.ReadString();
+        _serverPort = reader.ReadUInt16();
+        _intent = (Intent) reader.Read7BitEncodedInt();
         return true;
     }
 

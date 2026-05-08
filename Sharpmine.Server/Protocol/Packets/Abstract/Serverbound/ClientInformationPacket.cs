@@ -1,37 +1,48 @@
-﻿namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
+﻿using Sharpmine.Server.Protocol.Attributes;
+
+namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
 public abstract partial record ClientInformationPacket
 {
 
-    public string Locale { get; set; } = null!;
+    [PacketProperty]
+    private string _locale;
 
-    public sbyte ViewDistance { get; set; }
+    [PacketProperty]
+    private sbyte _viewDistance;
 
-    public ChatMode ChatMode { get; set; }
+    [PacketProperty]
+    private ChatMode _chatMode;
 
-    public bool ChatColors { get; set; }
+    [PacketProperty]
+    private bool _chatColors;
 
-    public SkinParts DisplayedSkinParts { get; set; }
+    [PacketProperty]
+    private SkinParts _displayedSkinParts;
 
-    public Hand MainHand { get; set; }
+    [PacketProperty]
+    private Hand _mainHand;
 
-    public bool EnableTextFiltering { get; set; }
+    [PacketProperty]
+    private bool _enableTextFiltering;
 
-    public bool AllowServerListings { get; set; }
+    [PacketProperty]
+    private bool _allowServerListings;
 
-    public ParticleStatus ParticleStatus { get; set; }
+    [PacketProperty]
+    private ParticleStatus _particleStatus;
 
     public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
-        Locale = reader.ReadString();
-        ViewDistance = reader.ReadSByte();
-        ChatMode = (ChatMode) reader.Read7BitEncodedInt();
-        ChatColors = reader.ReadBoolean();
-        DisplayedSkinParts = (SkinParts) reader.ReadByte();
-        MainHand = (Hand) reader.Read7BitEncodedInt();
-        EnableTextFiltering = reader.ReadBoolean();
-        AllowServerListings = reader.ReadBoolean();
-        ParticleStatus = (ParticleStatus) reader.Read7BitEncodedInt();
+        _locale = reader.ReadString();
+        _viewDistance = reader.ReadSByte();
+        _chatMode = (ChatMode) reader.Read7BitEncodedInt();
+        _chatColors = reader.ReadBoolean();
+        _displayedSkinParts = (SkinParts) reader.ReadByte();
+        _mainHand = (Hand) reader.Read7BitEncodedInt();
+        _enableTextFiltering = reader.ReadBoolean();
+        _allowServerListings = reader.ReadBoolean();
+        _particleStatus = (ParticleStatus) reader.Read7BitEncodedInt();
         return true;
     }
 

@@ -1,6 +1,7 @@
 ﻿using Optional;
 
 using Sharpmine.Server.Protocol.DataTypes;
+using Sharpmine.Server.Protocol.Extensions;
 using Sharpmine.Server.Protocol.Packets.Login.Clientbound;
 using Sharpmine.Server.Security;
 
@@ -16,7 +17,7 @@ public partial record HelloPacket
     public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
     {
         Name = reader.ReadString();
-        Uuid = new Guid(reader.ReadBytes(16));
+        Uuid = reader.ReadUuid();
         return true;
     }
 

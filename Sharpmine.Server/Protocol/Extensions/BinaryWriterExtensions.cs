@@ -37,6 +37,13 @@ public static class BinaryWriterExtensions
             Array.ForEach(value, writeElementAction);
         }
 
+        public void WriteUuid(Guid uuid)
+        {
+            Span<byte> buffer = stackalloc byte[16];
+            uuid.TryWriteBytes(buffer, bigEndian: true, out _);
+            writer.Write(buffer);
+        }
+
     }
 
 }

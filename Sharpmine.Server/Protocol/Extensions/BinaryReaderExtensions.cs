@@ -42,6 +42,13 @@ public static class BinaryReaderExtensions
             return array;
         }
 
+        public Guid ReadUuid()
+        {
+            Span<byte> buffer = stackalloc byte[16];
+            reader.ReadExactly(buffer);
+            return new Guid(buffer, bigEndian: true);
+        }
+
     }
 
 }

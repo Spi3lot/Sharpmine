@@ -2,7 +2,7 @@
 
 namespace Sharpmine.Server.Protocol.DataTypes;
 
-public record GameProfile(Uuid Uuid, string Username, GameProfileProperty[] Properties) : IClientboundDataType
+public record GameProfile(Guid Uuid, string Username, GameProfileProperty[] Properties) : IClientboundDataType
 {
 
     public void Serialize(BinaryWriter writer)

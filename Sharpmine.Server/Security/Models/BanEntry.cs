@@ -1,9 +1,7 @@
-﻿using Sharpmine.Server.Protocol.DataTypes;
-
-namespace Sharpmine.Server.Security.Models;
+﻿namespace Sharpmine.Server.Security.Models;
 
 public record BanEntry(
-    Uuid Uuid,
+    Guid Uuid,
     string Name,
     DateTimeOffset Created,
     string Source,

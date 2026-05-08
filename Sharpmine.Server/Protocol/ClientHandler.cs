@@ -18,7 +18,7 @@ public sealed partial class ClientHandler(
     TcpClient client,
     ServerService server,
     PacketTransceiver packetTransceiver,
-    PacketDispatcher dispatcher,
+    PacketDispatcher packetDispatcher,
     ServerCapacityManager serverCapacityManager,
     ILogger<ClientHandler> logger)
 {
@@ -165,7 +165,7 @@ public sealed partial class ClientHandler(
         {
             await foreach (var packet in _serverboundChannel.Reader.ReadAllAsync(cancellationToken))
             {
-                if (dispatcher.DispatchAsync(packet, this, cancellationToken) is { } handleTask)
+                if (packetDispatcher.DispatchAsync(packet, this, cancellationToken) is { } handleTask)
                 {
                     await handleTask;
                 }

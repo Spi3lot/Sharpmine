@@ -15,6 +15,8 @@ public static class BinaryWriterExtensions
             value.Serialize(writer);
         }
 
+        // TODO: Replace (Prefixed)Optional(Array) with a custom IBidirectionalDataType
+        //       to get rid of the delegate( allocation)s
         public void WritePrefixedOptional<T>(Option<T> value, Action<T> writeAction)
         {
             writer.Write(value.HasValue);

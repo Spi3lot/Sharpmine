@@ -15,6 +15,8 @@ public static class BinaryReaderExtensions
             return T.Deserialize(reader);
         }
 
+        // TODO: Replace (Prefixed)Optional(Array) with a custom IBidirectionalDataType
+        //       to get rid of the delegate( allocation)s
         public Option<T> ReadPrefixedOptional<T>(Func<T> readAction)
         {
             return reader.ReadOptional(reader.ReadBoolean(), readAction);

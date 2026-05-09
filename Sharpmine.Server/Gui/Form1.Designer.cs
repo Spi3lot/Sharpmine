@@ -51,13 +51,13 @@ partial class Form1
         tableLayoutPanel1.Name = "tableLayoutPanel1";
         tableLayoutPanel1.RowCount = 2;
         tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-        tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 423F));
-        tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+        tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 481F));
+        tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
         tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-        tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-        tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-        tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-        tableLayoutPanel1.Size = new System.Drawing.Size(978, 450);
+        tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+        tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+        tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+        tableLayoutPanel1.Size = new System.Drawing.Size(978, 512);
         tableLayoutPanel1.TabIndex = 4;
 
         // 
@@ -67,7 +67,7 @@ partial class Form1
         checkBoxShowGlobal.Dock = System.Windows.Forms.DockStyle.Fill;
         checkBoxShowGlobal.Location = new System.Drawing.Point(264, 3);
         checkBoxShowGlobal.Name = "checkBoxShowGlobal";
-        checkBoxShowGlobal.Size = new System.Drawing.Size(711, 21);
+        checkBoxShowGlobal.Size = new System.Drawing.Size(711, 25);
         checkBoxShowGlobal.TabIndex = 4;
         checkBoxShowGlobal.Text = "Global Logs";
         checkBoxShowGlobal.UseVisualStyleBackColor = true;
@@ -78,9 +78,9 @@ partial class Form1
         listBoxClients.Dock = System.Windows.Forms.DockStyle.Fill;
         listBoxClients.FormattingEnabled = true;
         listBoxClients.HorizontalScrollbar = true;
-        listBoxClients.Location = new System.Drawing.Point(3, 30);
+        listBoxClients.Location = new System.Drawing.Point(3, 34);
         listBoxClients.Name = "listBoxClients";
-        listBoxClients.Size = new System.Drawing.Size(255, 417);
+        listBoxClients.Size = new System.Drawing.Size(255, 475);
         listBoxClients.TabIndex = 2;
         listBoxClients.SelectedIndexChanged += ListBoxClients_SelectedIndexChanged;
 
@@ -91,20 +91,21 @@ partial class Form1
         listBoxLogs.FormattingEnabled = true;
         listBoxLogs.HorizontalScrollbar = true;
         listBoxLogs.Items.AddRange(new object[] { "", "" });
-        listBoxLogs.Location = new System.Drawing.Point(264, 30);
+        listBoxLogs.Location = new System.Drawing.Point(264, 34);
         listBoxLogs.Name = "listBoxLogs";
-        listBoxLogs.Size = new System.Drawing.Size(711, 417);
+        listBoxLogs.SelectionMode = System.Windows.Forms.SelectionMode.None;
+        listBoxLogs.Size = new System.Drawing.Size(711, 475);
         listBoxLogs.TabIndex = 3;
 
         // 
         // Form1
         // 
-        AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+        AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         BackColor = System.Drawing.SystemColors.Control;
-        ClientSize = new System.Drawing.Size(978, 450);
+        ClientSize = new System.Drawing.Size(978, 512);
         Controls.Add(tableLayoutPanel1);
-        Font = new System.Drawing.Font("JetBrains Mono", 9, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) 0));
+        Font = new System.Drawing.Font("JetBrains Mono", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) 0));
         Location = new System.Drawing.Point(15, 15);
         tableLayoutPanel1.ResumeLayout(false);
         tableLayoutPanel1.PerformLayout();

@@ -7,7 +7,7 @@ public record GameProfile(Guid Uuid, string Username, GameProfileProperty[] Prop
 
     public void Serialize(BinaryWriter writer)
     {
-        writer.Write(Uuid.ToByteArray());
+        writer.WriteUuid(Uuid);
         writer.Write(Username);
         writer.WritePrefixedArray(Properties, writer.Write);
     }

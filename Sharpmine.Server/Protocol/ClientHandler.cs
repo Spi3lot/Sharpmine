@@ -62,7 +62,6 @@ public sealed partial class ClientHandler(
         if (_aborted)
         {
             await AbortAsync();
-            return;
         }
 
         _transmitTask = new ClientboundChannelWorker(_clientboundChannel, this, stream, writer, packetTransceiver).StartAsync(_cts.Token);

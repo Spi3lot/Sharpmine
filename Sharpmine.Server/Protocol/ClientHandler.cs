@@ -200,7 +200,7 @@ public sealed partial class ClientHandler(
         }
         catch (ObjectDisposedException)
         {
-            // Do nothing, _cts already cancaled
+            // Do nothing, _cts already canceled
         }
     }
 

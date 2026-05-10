@@ -28,7 +28,7 @@ public sealed partial class ClientHandler(
 
     private CancellationTokenSource? _cts;
 
-    private Task? _transmitTask;
+    private Task? _transmissionTask;
 
     private volatile bool _disconnecting;
 
@@ -55,7 +55,7 @@ public sealed partial class ClientHandler(
         using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
         using var _ = LogContext.PushProperty("ClientHandlerId", Id);
         LogClientConnected(this);
-        Task? processTask = null;
+        Task? dispatchTask = null;
 
         try
         {
@@ -65,8 +65,8 @@ public sealed partial class ClientHandler(
             }
 
             _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _transmitTask = new TransmissionWorker(_clientboundChannel, this, stream, writer, packetTransceiver).StartAsync(_cts.Token);
-            processTask = new DispatchWorker(_serverboundChannel, this, packetDispatcher).StartAsync(_cts.Token);
+            _transmissionTask = new TransmissionWorker(_clientboundChannel, this, stream, writer, packetTransceiver).StartAsync(_cts.Token);
+            dispatchTask = new DispatchWorker(_serverboundChannel, this, packetDispatcher).StartAsync(_cts.Token);
 
             while (await TryReceivePacketAsync(stream, reader, _cts.Token)) ;
         }
@@ -89,9 +89,9 @@ public sealed partial class ClientHandler(
 
             try
             {
-                if (_transmitTask is not null && processTask is not null) await Task.WhenAll(_transmitTask, processTask);
-                else if (_transmitTask is not null) await _transmitTask;
-                else if (processTask is not null) await processTask;
+                if (_transmissionTask is not null && dispatchTask is not null) await Task.WhenAll(_transmissionTask, dispatchTask);
+                else if (_transmissionTask is not null) await _transmissionTask;
+                else if (dispatchTask is not null) await dispatchTask;
             }
             catch
             {
@@ -164,7 +164,7 @@ public sealed partial class ClientHandler(
         _clientboundChannel.Writer.TryWrite(packet with { Reason = reason });
         _clientboundChannel.Writer.Complete();
 
-        if (_transmitTask is null)
+        if (_transmissionTask is null)
         {
             await AbortAsync();
             return;
@@ -172,7 +172,7 @@ public sealed partial class ClientHandler(
 
         try
         {
-            await _transmitTask.WaitAsync(TimeSpan.FromSeconds(2));
+            await _transmissionTask.WaitAsync(TimeSpan.FromSeconds(2));
         }
         catch (TimeoutException)
         {

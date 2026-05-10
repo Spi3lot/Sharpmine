@@ -73,8 +73,7 @@ public class PacketGenerator : IIncrementalGenerator
             int id = packet.Value.GetProperty("protocol_id").GetInt32();
             string rawName = packet.Name.StartsWith("minecraft:") ? packet.Name.Substring(10) : packet.Name;
             string packetName = ToPascalCase(rawName);
-            string className = packetName + "Packet";
-            builder.Add(new PacketModel(directionName, packetName, className, stateName, id));
+            builder.Add(new PacketModel(directionName, packetName, stateName, id));
         }
     }
 
@@ -116,7 +115,7 @@ public class PacketGenerator : IIncrementalGenerator
         string containingNamespace = $"{PacketsNamespace}.{packet.StateName}.{packet.Direction}";
         string modifier = isCrossState ? "override " : "";
         string inheritance = isCrossState
-            ? $"{PacketsNamespace}.Abstract.{packet.Direction}.{packet.PacketName}Packet"
+            ? $"{PacketsNamespace}.Abstract.{packet.Direction}.{packet.ClassName}"
             : $"I{packet.Direction}Packet";
 
         string source = $$"""
@@ -195,7 +194,7 @@ public class PacketGenerator : IIncrementalGenerator
 
                             namespace {{PacketsNamespace}}.Abstract.{{group.Key.Direction}};
 
-                            public abstract partial record {{group.Key.PacketName}}Packet : I{{group.Key.Direction}}Packet
+                            public abstract partial record {{group.Key.ClassName}} : I{{group.Key.Direction}}Packet
                             {
                                 public abstract ProtocolState State { get; }
                                 public abstract int Id { get; }
@@ -205,7 +204,7 @@ public class PacketGenerator : IIncrementalGenerator
             {
                 sb.AppendLine($$"""
 
-                                    public static {{group.Key.PacketName}}Packet? Create(ProtocolState state)
+                                    public static {{group.Key.ClassName}} Create(ProtocolState state)
                                     {
                                         return state switch
                                         {
@@ -224,7 +223,7 @@ public class PacketGenerator : IIncrementalGenerator
             }
 
             sb.Append('}');
-            context.AddSource($"{PacketsNamespace}.Abstract.{group.Key.Direction}/{group.Key.PacketName}Packet.Abstract.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+            context.AddSource($"{PacketsNamespace}.Abstract.{group.Key.Direction}/{group.Key.ClassName}.Abstract.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
         }
     }
 
@@ -314,14 +313,19 @@ public class PacketGenerator : IIncrementalGenerator
                 .Select(static word => char.ToUpper(word[0]) + word.Substring(1)));
     }
 
-    private readonly record struct PacketModel(
-        string Direction,
-        string PacketName,
-        string ClassName,
-        string StateName,
-        int Id);
+    private readonly record struct PacketModel(string Direction, string PacketName, string StateName, int Id)
+    {
 
-    private readonly record struct CrossStateKey(string Direction, string PacketName);
+        public string ClassName { get; } = PacketName + "Packet";
+
+    }
+
+    private readonly record struct CrossStateKey(string Direction, string PacketName)
+    {
+
+        public string ClassName { get; } = PacketName + "Packet";
+
+    }
 
     private readonly record struct CrossStateServerboundPacketModel(string ClassName, string StateName);
 

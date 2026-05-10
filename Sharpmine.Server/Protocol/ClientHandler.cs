@@ -56,19 +56,19 @@ public sealed partial class ClientHandler(
         using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
         using var _ = LogContext.PushProperty("ClientHandlerId", Id);
         LogClientConnected(this);
-
-        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
-        if (_aborted)
-        {
-            await AbortAsync();
-        }
-
-        _transmitTask = new ClientboundChannelWorker(_clientboundChannel, this, stream, writer, packetTransceiver).StartAsync(_cts.Token);
-        var processTask = new ServerboundChannelWorker(_serverboundChannel, this, packetDispatcher).StartAsync(_cts.Token);
+        Task? processTask = null;
 
         try
         {
+            if (_aborted)
+            {
+                return;
+            }
+
+            _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            _transmitTask = new ClientboundChannelWorker(_clientboundChannel, this, stream, writer, packetTransceiver).StartAsync(_cts.Token);
+            processTask = new ServerboundChannelWorker(_serverboundChannel, this, packetDispatcher).StartAsync(_cts.Token);
+
             while (await TryReceivePacketAsync(stream, reader, _cts.Token)) ;
         }
         catch (OperationCanceledException)
@@ -87,7 +87,18 @@ public sealed partial class ClientHandler(
         finally
         {
             await AbortAsync();
-            await Task.WhenAll(_transmitTask, processTask);
+
+            try
+            {
+                if (_transmitTask is not null && processTask is not null) await Task.WhenAll(_transmitTask, processTask);
+                else if (_transmitTask is not null) await _transmitTask;
+                else if (processTask is not null) await processTask;
+            }
+            catch
+            {
+                // It is safe to ignore everything here
+            }
+
             Cleanup();
         }
     }

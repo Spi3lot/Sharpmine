@@ -11,10 +11,7 @@ public class ClientHandlerFactory(
 )
 {
 
-    public ClientHandler Create(
-        string ip,
-        TcpClient client,
-        ServerService server)
+    public ClientHandler Create(string ip, TcpClient client)
     {
         var clientHandlerLogger = loggerFactory.CreateLogger<ClientHandler>();
         var packetLogger = loggerFactory.CreateLogger<PacketTransceiver>();
@@ -23,7 +20,6 @@ public class ClientHandlerFactory(
         return new ClientHandler(
             ip,
             client,
-            server,
             packetTransceiver,
             packetDispatcher,
             serverCapacityManager,

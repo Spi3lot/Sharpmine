@@ -16,7 +16,6 @@ namespace Sharpmine.Server.Protocol;
 public sealed partial class ClientHandler(
     string ip,
     TcpClient client,
-    ServerService server,
     PacketTransceiver packetTransceiver,
     PacketDispatcher packetDispatcher,
     ServerCapacityManager serverCapacityManager,

@@ -65,8 +65,8 @@ public sealed partial class ClientHandler(
             }
 
             _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _transmitTask = new ClientboundChannelWorker(_clientboundChannel, this, stream, writer, packetTransceiver).StartAsync(_cts.Token);
-            processTask = new ServerboundChannelWorker(_serverboundChannel, this, packetDispatcher).StartAsync(_cts.Token);
+            _transmitTask = new TransmissionWorker(_clientboundChannel, this, stream, writer, packetTransceiver).StartAsync(_cts.Token);
+            processTask = new DispatchWorker(_serverboundChannel, this, packetDispatcher).StartAsync(_cts.Token);
 
             while (await TryReceivePacketAsync(stream, reader, _cts.Token)) ;
         }

@@ -2,7 +2,7 @@ using System.Threading.Channels;
 
 namespace Sharpmine.Server.Protocol.Packets;
 
-public class ServerboundChannelWorker(
+public class DispatchWorker(
     Channel<IServerboundPacket> channel,
     ClientHandler client,
     PacketDispatcher packetDispatcher) : ChannelWorker<IServerboundPacket>(channel)

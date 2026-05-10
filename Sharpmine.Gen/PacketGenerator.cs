@@ -215,11 +215,11 @@ public class PacketGenerator : IIncrementalGenerator
                     sb.AppendLine($"            ProtocolState.{packet.StateName} => new {PacketsNamespace}.{packet.StateName}.{packet.Direction}.{packet.ClassName}(),");
                 }
 
-                sb.AppendLine("""
-                                          _ => null
-                                      };
-                                  }
-                              """);
+                sb.AppendLine($$"""
+                                            _ => throw new ArgumentOutOfRangeException(nameof(state), state, "{{group.Key.Direction}} {{group.Key.ClassName}} does not exist in the given state.")
+                                        };
+                                    }
+                                """);
             }
 
             sb.Append('}');

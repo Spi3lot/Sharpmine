@@ -9,6 +9,7 @@ using Sharpmine.Server.Protocol.Extensions;
 using Sharpmine.Server.Protocol.Packets;
 using Sharpmine.Server.Protocol.Packets.Abstract.Clientbound;
 using Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
+using Sharpmine.Server.Protocol.Packets.Login.Clientbound;
 using Sharpmine.Server.Security;
 
 namespace Sharpmine.Server.Protocol;
@@ -148,20 +149,32 @@ public sealed partial class ClientHandler(
         }
     }
 
-    public async Task DisconnectAsync(string reason)
+    public Task DisconnectAsync(string reason)
+    {
+        if (State == ProtocolState.Login)
+        {
+            return DisconnectAsync(new LoginDisconnectPacket(reason));
+        }
+
+        try
+        {
+            return DisconnectAsync(DisconnectPacket.Create(State) with { Reason = reason });
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            LogDisconnectRequestedInInvalidState(ex, State);
+            return AbortForcefullyAsync();
+        }
+    }
+
+    public async Task DisconnectAsync(IClientboundPacket disconnectPacket)
     {
         if (Interlocked.Exchange(ref _disconnecting, true))
         {
             return;
         }
 
-        if (DisconnectPacket.Create(State) is not { } packet)
-        {
-            await AbortForcefullyAsync();
-            return;
-        }
-
-        _clientboundChannel.Writer.TryWrite(packet with { Reason = reason });
+        _clientboundChannel.Writer.TryWrite(disconnectPacket);
         await AbortGracefullyAsync();
     }
 

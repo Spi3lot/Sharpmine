@@ -22,6 +22,9 @@ public partial class ClientHandler
     [LoggerMessage(LogLevel.Warning, "Missing handler for {Packet}")]
     public partial void LogNoPacketHandler(IServerboundPacket packet);
 
+    [LoggerMessage(LogLevel.Warning, "Disconnect requested in state {State}, aborting forcefully.")]
+    partial void LogDisconnectRequestedInInvalidState(Exception ex, ProtocolState state);
+
     [LoggerMessage(LogLevel.Information, "{Handler} connected")]
     partial void LogClientConnected(ClientHandler handler);
 

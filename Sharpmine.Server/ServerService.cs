@@ -85,16 +85,10 @@ public partial class ServerService(
 
     private void StartClientHandler(TcpClient client, string ip, CancellationToken stoppingToken)
     {
-        _ = Task.Run(async () =>
+        Task.Run(async () =>
         {
             try
             {
-                if (stoppingToken.IsCancellationRequested)
-                {
-                    client.Dispose();
-                    return;
-                }
-
                 var handler = clientHandlerFactory.Create(ip, client, this);
                 SetupHandler(handler);
                 await handler.HandleAsync(stoppingToken);

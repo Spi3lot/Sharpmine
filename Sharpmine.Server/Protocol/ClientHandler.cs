@@ -19,7 +19,7 @@ public sealed partial class ClientHandler(
     PacketTransceiver packetTransceiver,
     PacketDispatcher packetDispatcher,
     ServerCapacityManager serverCapacityManager,
-    ILogger<ClientHandler> logger)
+    ILogger<ClientHandler> logger) : IDisposable
 {
 
     private readonly Channel<IClientboundPacket> _clientboundChannel = Channel.CreateClientbound();
@@ -97,8 +97,6 @@ public sealed partial class ClientHandler(
             {
                 // It is safe to ignore everything here
             }
-
-            Cleanup();
         }
     }
 
@@ -214,7 +212,7 @@ public sealed partial class ClientHandler(
         }
     }
 
-    private void Cleanup()
+    public void Dispose()
     {
         Client.Dispose();
         _cts?.Dispose();

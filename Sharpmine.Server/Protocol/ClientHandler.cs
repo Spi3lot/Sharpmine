@@ -85,7 +85,7 @@ public sealed partial class ClientHandler(
         }
         finally
         {
-            await AbortAsync();
+            await AbortForcefullyAsync();
 
             try
             {
@@ -137,14 +137,14 @@ public sealed partial class ClientHandler(
         if (packet.State != State)
         {
             LogUnmatchedStates(packet, State);
-            Abort();
+            AbortForcefully();
             return;
         }
 
         if (!_clientboundChannel.Writer.TryWrite(packet))
         {
             LogDisconnectingClient(this, "Too many clientbound packets queued");
-            Abort();
+            AbortForcefully();
         }
     }
 
@@ -157,16 +157,21 @@ public sealed partial class ClientHandler(
 
         if (DisconnectPacket.Create(State) is not { } packet)
         {
-            await AbortAsync();
+            await AbortForcefullyAsync();
             return;
         }
 
         _clientboundChannel.Writer.TryWrite(packet with { Reason = reason });
+        await AbortGracefullyAsync();
+    }
+
+    public async Task AbortGracefullyAsync()
+    {
         _clientboundChannel.Writer.Complete();
 
         if (_transmissionTask is null)
         {
-            await AbortAsync();
+            await AbortForcefullyAsync();
             return;
         }
 
@@ -179,10 +184,10 @@ public sealed partial class ClientHandler(
             // Force kill
         }
 
-        await AbortAsync();
+        await AbortForcefullyAsync();
     }
 
-    public Task AbortAsync()
+    public Task AbortForcefullyAsync()
     {
         _aborted = true;
         _disconnecting = true;
@@ -197,7 +202,7 @@ public sealed partial class ClientHandler(
         }
     }
 
-    public void Abort()
+    public void AbortForcefully()
     {
         _aborted = true;
         _disconnecting = true;

@@ -18,7 +18,7 @@ public class TransmissionWorker(
     protected override Task OnErrorAsync(Exception ex, IClientboundPacket? currentItem)
     {
         client.LogErrorWhileTransmittingPacket(ex, currentItem);
-        return client.AbortAsync();
+        return client.AbortForcefullyAsync();
     }
 
 }

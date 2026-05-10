@@ -32,6 +32,8 @@ public class HelloPacketHandler(
             return;
         }
 
+        client.OccupiesPlayerSlot = true;
+
         // TODO: Send empty .Properties (only in offline-mode)
         var profile = new GameProfile(
             packet.Uuid,

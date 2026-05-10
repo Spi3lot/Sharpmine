@@ -87,10 +87,9 @@ public partial class ServerService(
     {
         Task.Run(async () =>
         {
-            using var handler = clientHandlerFactory.Create(ip, client);
-
             try
             {
+                using var handler = clientHandlerFactory.Create(ip, client);
                 SetupHandler(handler);
                 await handler.HandleAsync(stoppingToken);
             }

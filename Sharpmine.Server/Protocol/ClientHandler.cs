@@ -130,11 +130,6 @@ public sealed partial class ClientHandler(
 
     public void SendPacket(IClientboundPacket packet)
     {
-        if (_disconnecting)
-        {
-            return;
-        }
-
         if (packet.State != State)
         {
             LogUnmatchedStates(packet, State);
@@ -142,7 +137,9 @@ public sealed partial class ClientHandler(
             return;
         }
 
-        if (!_clientboundChannel.Writer.TryWrite(packet))
+        // Checking _disconnecting **after** attempting to write to the channel to prevent a race condition
+        // that would cause forceful abortion even though graceful disconnection might already be in progress
+        if (!_clientboundChannel.Writer.TryWrite(packet) && !_disconnecting)
         {
             LogDisconnectingClient(this, "Too many clientbound packets queued");
             AbortForcefully();

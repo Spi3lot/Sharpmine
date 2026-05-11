@@ -6,7 +6,6 @@ using Serilog;
 
 using Sharpmine.Server.Configuration;
 using Sharpmine.Server.Gui;
-using Sharpmine.Server.Logging;
 using Sharpmine.Server.Protocol;
 using Sharpmine.Server.Protocol.Handlers;
 using Sharpmine.Server.Security;
@@ -17,7 +16,7 @@ public static class Program
 {
 
     [STAThread]
-    public static async Task Main(params string[] args)
+    public static void Main(params string[] args)
     {
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
@@ -29,7 +28,7 @@ public static class Program
             builder.AddServiceDefaults();
 
             bool nogui = builder.Configuration.GetValue<bool>("nogui");
-            var sink = new ListLogEventSink();
+            var sink = new WpfLogSink();
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Configuration)
@@ -44,7 +43,8 @@ public static class Program
             builder.Services.AddSerilog();
             builder.Services.AddSingleton(propertiesConfig.Get<ServerProperties>() ?? new ServerProperties());
             builder.Services.AddSingleton(sink);
-            builder.Services.AddSingleton<Form1>();
+            builder.Services.AddSingleton<MainWindow>();
+            builder.Services.AddSingleton<MainViewModel>();
             builder.Services.AddSingleton<PlayerAccessManager>();
             builder.Services.AddSingleton<ClientHandlerFactory>();
             builder.Services.AddSingleton<PacketDispatcher>();
@@ -63,14 +63,17 @@ public static class Program
             if (nogui || args.Contains("--nogui", StringComparer.OrdinalIgnoreCase)
                       || args.Contains("/nogui", StringComparer.OrdinalIgnoreCase))
             {
-                await host.RunAsync();
+                host.Run();
                 return;
             }
 
-            await host.StartAsync();
-            ApplicationConfiguration.Initialize();
-            Application.Run(host.Services.GetRequiredService<Form1>());
-            await host.StopAsync();
+            host.Start();
+
+            var app = new System.Windows.Application();
+            var mainWindow = host.Services.GetRequiredService<MainWindow>();
+            app.Run(mainWindow);
+
+            host.StopAsync().GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {
@@ -78,7 +81,7 @@ public static class Program
         }
         finally
         {
-            await Log.CloseAndFlushAsync();
+            Log.CloseAndFlush();
         }
     }
 

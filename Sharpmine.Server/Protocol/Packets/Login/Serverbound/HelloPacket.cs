@@ -1,4 +1,6 @@
-﻿using Sharpmine.Server.Protocol.Attributes;
+﻿using System.Buffers;
+
+using Sharpmine.Server.Protocol.Attributes;
 using Sharpmine.Server.Protocol.Extensions;
 
 namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
@@ -12,11 +14,10 @@ public partial record HelloPacket
     [PacketProperty]
     private Guid _uuid;
 
-    public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
+    public bool DeserializeContent(ref SequenceReader<byte> reader)
     {
-        _name = reader.ReadString();
-        _uuid = reader.ReadUuid();
-        return true;
+        return reader.TryReadString(out _name, 16)
+               && reader.TryReadUuid(out _uuid);
     }
 
 }

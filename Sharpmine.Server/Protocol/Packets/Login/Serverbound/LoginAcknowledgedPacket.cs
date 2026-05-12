@@ -1,10 +1,12 @@
-﻿namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
+﻿using System.Buffers;
+
+namespace Sharpmine.Server.Protocol.Packets.Login.Serverbound;
 
 public partial record LoginAcknowledgedPacket : IStateTransition, IHandlerless
 {
 
     public ProtocolState NextState => ProtocolState.Configuration;
 
-    public bool DeserializeContent(NetworkStream stream, BinaryReader reader) => true;
+    public bool DeserializeContent(ref SequenceReader<byte> reader) => true;
 
 }

@@ -1,4 +1,7 @@
-﻿using Sharpmine.Server.Protocol.Attributes;
+﻿using System.Buffers;
+
+using Sharpmine.Server.Protocol.Attributes;
+using Sharpmine.Server.Protocol.Extensions;
 
 namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
@@ -8,11 +11,10 @@ public abstract partial record CustomPayloadPacket
     [PacketProperty]
     private string _channel;
 
-    public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
+    public bool DeserializeContent(ref SequenceReader<byte> reader)
     {
-        _channel = reader.ReadString();
+        return reader.TryReadString(out _channel);
         throw new NotImplementedException("Data");
-        return true;
     }
 
 }

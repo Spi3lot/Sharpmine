@@ -1,8 +1,10 @@
-﻿namespace Sharpmine.Server.Protocol.DataTypes;
+﻿using System.Buffers;
 
-public interface IServerboundDataType<out TSelf> where TSelf : IServerboundDataType<TSelf>
+namespace Sharpmine.Server.Protocol.DataTypes;
+
+public interface IServerboundDataType<TSelf> where TSelf : IServerboundDataType<TSelf>
 {
 
-    static abstract TSelf Deserialize(BinaryReader reader);
+    static abstract bool TryDeserialize(ref SequenceReader<byte> reader, out TSelf value);
 
 }

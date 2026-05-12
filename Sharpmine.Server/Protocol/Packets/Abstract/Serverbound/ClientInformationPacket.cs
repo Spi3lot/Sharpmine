@@ -1,4 +1,7 @@
-﻿using Sharpmine.Server.Protocol.Attributes;
+﻿using System.Buffers;
+
+using Sharpmine.Server.Protocol.Attributes;
+using Sharpmine.Server.Protocol.Extensions;
 
 namespace Sharpmine.Server.Protocol.Packets.Abstract.Serverbound;
 
@@ -32,18 +35,17 @@ public abstract partial record ClientInformationPacket
     [PacketProperty]
     private ParticleStatus _particleStatus;
 
-    public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
+    public bool DeserializeContent(ref SequenceReader<byte> reader)
     {
-        _locale = reader.ReadString();
-        _viewDistance = reader.ReadSByte();
-        _chatMode = (ChatMode) reader.Read7BitEncodedInt();
-        _chatColors = reader.ReadBoolean();
-        _displayedSkinParts = (SkinParts) reader.ReadByte();
-        _mainHand = (Hand) reader.Read7BitEncodedInt();
-        _enableTextFiltering = reader.ReadBoolean();
-        _allowServerListings = reader.ReadBoolean();
-        _particleStatus = (ParticleStatus) reader.Read7BitEncodedInt();
-        return true;
+        return reader.TryReadString(out _locale, 16)
+               && reader.TryReadSByte(out _viewDistance)
+               && reader.TryReadEnum(out _chatMode)
+               && reader.TryReadBoolean(out _chatColors)
+               && reader.TryReadEnum(out _displayedSkinParts)
+               && reader.TryReadEnum(out _mainHand)
+               && reader.TryReadBoolean(out _enableTextFiltering)
+               && reader.TryReadBoolean(out _allowServerListings)
+               && reader.TryReadEnum(out _particleStatus);
     }
 
 }
@@ -60,7 +62,7 @@ public enum ChatMode
 }
 
 [Flags]
-public enum SkinParts : byte
+public enum SkinParts
 {
 
     Cape = 0x01,

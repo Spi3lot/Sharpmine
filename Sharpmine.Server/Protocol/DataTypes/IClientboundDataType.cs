@@ -1,8 +1,10 @@
+using System.Buffers;
+
 namespace Sharpmine.Server.Protocol.DataTypes;
 
 public interface IClientboundDataType
 {
 
-    void Serialize(BinaryWriter writer);
+    void Serialize(IBufferWriter<byte> writer);
 
 }

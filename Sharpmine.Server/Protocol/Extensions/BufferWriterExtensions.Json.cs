@@ -1,10 +1,14 @@
+﻿using System.Buffers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Sharpmine.Server.Protocol.Extensions;
 
-public static class StreamExtensions
+public static partial class BufferWriterExtensions
 {
+
+    [ThreadStatic]
+    private static ArrayBufferWriter<byte>? _jsonBuffer;
 
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -20,18 +24,24 @@ public static class StreamExtensions
                          | JsonNumberHandling.AllowNamedFloatingPointLiterals,
     };
 
-    extension<T>(Stream stream) where T : class
+    extension(IBufferWriter<byte> writer)
     {
 
-        public Task WriteJson(T value)
+        public void WriteJsonString<T>(T value)
         {
-            return JsonSerializer.SerializeAsync(stream, value, Options);
+            var buffer = _jsonBuffer ??= new ArrayBufferWriter<byte>();
+            buffer.Clear();
+            buffer.WriteJson(value);
+            writer.WriteVarInt(buffer.WrittenCount);
+            writer.Write(buffer.WrittenSpan);
         }
 
+        public void WriteJson<T>(T value) => writer.WriteJson(value, Options);
 
-        public T? ReadJson()
+        public void WriteJson<T>(T value, JsonSerializerOptions options)
         {
-            return JsonSerializer.Deserialize<T>(stream, Options);
+            using var jsonWriter = new Utf8JsonWriter(writer);
+            JsonSerializer.Serialize(jsonWriter, value, options);
         }
 
     }

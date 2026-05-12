@@ -1,4 +1,7 @@
-﻿using Sharpmine.Server.Protocol.Attributes;
+﻿using System.Buffers;
+
+using Sharpmine.Server.Protocol.Attributes;
+using Sharpmine.Server.Protocol.Extensions;
 
 namespace Sharpmine.Server.Protocol.Packets.Handshake.Serverbound;
 
@@ -19,18 +22,17 @@ public partial record IntentionPacket : IStateTransition, IHandlerless
     [PacketProperty]
     private Intent _intent;
 
-    public bool DeserializeContent(NetworkStream stream, BinaryReader reader)
+    public bool DeserializeContent(ref SequenceReader<byte> reader)
     {
-        _protocolVersion = reader.Read7BitEncodedInt();
-        _serverAddress = reader.ReadString();
-        _serverPort = reader.ReadUInt16();
-        _intent = (Intent) reader.Read7BitEncodedInt();
-        return true;
+        return reader.TryReadVarInt(out _protocolVersion)
+               && reader.TryReadString(out _serverAddress)
+               && reader.TryReadUInt16(out _serverPort)
+               && reader.TryReadEnum(out _intent);
     }
 
 }
 
-public enum Intent : byte
+public enum Intent
 {
 
     Status = 1,

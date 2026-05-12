@@ -1,21 +1,28 @@
+using System.Buffers;
+
+using Sharpmine.Server.Protocol.Extensions;
+
 namespace Sharpmine.Server.Protocol.DataTypes;
 
 public readonly record struct Position(int X, short Y, int Z) : IBidirectionalDataType<Position>
 {
 
-    public static Position Deserialize(BinaryReader reader)
+    public static bool TryDeserialize(ref SequenceReader<byte> reader, out Position value)
     {
-        long val = reader.ReadInt64();
+        value = default;
+        if (!reader.TryReadBigEndian(out long val)) return false;
 
-        return new Position(
+        value = new Position(
             (int) (val >> 38),
             (short) ((val << 52) >> 52),
             (int) ((val << 26) >> 26));
+
+        return true;
     }
 
-    public void Serialize(BinaryWriter writer)
+    public void Serialize(IBufferWriter<byte> writer)
     {
-        writer.Write(((X & 0x3FFFFFFL) << 38) | ((Z & 0x3FFFFFFL) << 12) | (Y & 0xFFFL));
+        writer.WriteInt64(((X & 0x3FFFFFFL) << 38) | ((Z & 0x3FFFFFFL) << 12) | (Y & 0xFFFL));
     }
 
 }

@@ -1,9 +1,11 @@
-﻿namespace Sharpmine.Server.Protocol.Packets.Configuration.Clientbound;
+﻿using System.Buffers;
+
+namespace Sharpmine.Server.Protocol.Packets.Configuration.Clientbound;
 
 public partial record FinishConfigurationPacket
 {
 
-    public void SerializeContent(Stream stream, BinaryWriter writer)
+    public void SerializeContent(IBufferWriter<byte> writer)
     {
     }
 

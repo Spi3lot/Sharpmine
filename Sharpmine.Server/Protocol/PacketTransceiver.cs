@@ -1,37 +1,29 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Buffers;
+using System.IO.Pipelines;
 
+using Microsoft.Extensions.Logging;
+
+using Sharpmine.Server.Protocol.Extensions;
 using Sharpmine.Server.Protocol.Packets;
 
 namespace Sharpmine.Server.Protocol;
 
-public partial class PacketTransceiver
+public partial class PacketTransceiver(ILogger<PacketTransceiver> logger)
 {
 
-    private readonly ILogger<PacketTransceiver> _logger;
-
-    private readonly MemoryStream _memoryStream;
-
-    private readonly BinaryWriter _memoryStreamWriter;
-
-    public PacketTransceiver(ILogger<PacketTransceiver> logger)
-    {
-        _logger = logger;
-        _memoryStream = new MemoryStream();
-        _memoryStreamWriter = new BinaryWriter(_memoryStream);
-    }
+    private readonly ArrayBufferWriter<byte> _arrayBufferWriter = new();
 
     public async Task TransmitAsync(
         IClientboundPacket packet,
-        NetworkStream stream,
-        BinaryWriter writer,
+        PipeWriter pipeWriter,
         CancellationToken cancellationToken)
     {
-        _memoryStream.SetLength(0);
-        _memoryStreamWriter.Write7BitEncodedInt(packet.Id);
+        _arrayBufferWriter.Clear();
+        _arrayBufferWriter.WriteVarInt(packet.Id);
 
         try
         {
-            packet.SerializeContent(_memoryStream, _memoryStreamWriter);
+            packet.SerializeContent(_arrayBufferWriter);
         }
         catch (NotImplementedException)
         {
@@ -39,21 +31,49 @@ public partial class PacketTransceiver
             return;
         }
 
-        int packetLength = checked((int) _memoryStream.Length);
-        writer.Write7BitEncodedInt(packetLength);
-        await stream.WriteAsync(_memoryStream.GetBuffer().AsMemory(0, packetLength), cancellationToken);
-
+        int packetLength = _arrayBufferWriter.WrittenCount;
+        pipeWriter.WriteVarInt(packetLength);
+        pipeWriter.Write(_arrayBufferWriter.WrittenSpan);
+        await pipeWriter.FlushAsync(cancellationToken);
         LogTransmittedPacket(packet, packet.State, packet.Id, packetLength);
     }
 
     public async Task<(bool KeepAlive, IServerboundPacket? Packet)> ReceiveAsync(
         ProtocolState state,
-        NetworkStream stream,
-        BinaryReader reader,
+        PipeReader pipeReader,
         CancellationToken cancellationToken)
     {
-        cancellationToken.ThrowIfCancellationRequested(); // TODO: Remove once Pipelines are implemented
-        int length = reader.Read7BitEncodedInt();
+        var result = await pipeReader.ReadAsync(cancellationToken);
+        var buffer = result.Buffer;
+
+        /*
+         * I am aware this check is not perfect and leads to a false positive
+         * when an IntentionPacket with a length of 254 bytes is sent.
+         * However for that to occur, the client would need to enter a hostname
+         * of exactly 246 characters in length, which is highly unlikely to ever
+         * be attempted by anyone, at least not in a serious manner.
+         *
+         * I therefore declare this a negligible side effect.
+         */
+        if (state == ProtocolState.Handshake && buffer.Length > 0 && buffer.FirstSpan[0] == 0xFE)
+        {
+            LogReceivedLegacyPing();
+            return (false, null);
+        }
+
+        if (result.IsCanceled)
+        {
+            return (false, null);
+        }
+
+        var lengthPrefixReader = new SequenceReader<byte>(buffer);
+
+        if (!lengthPrefixReader.TryReadVarInt(out int length, out int lengthPrefixLength)
+            || buffer.Length < lengthPrefixLength + length)
+        {
+            pipeReader.AdvanceTo(buffer.Start, buffer.End);
+            return (!result.IsCompleted, null);
+        }
 
         if (length == 0)
         {
@@ -61,23 +81,24 @@ public partial class PacketTransceiver
             return (false, null);
         }
 
-        if (IsLegacyPing(state, length))
+        var packetSlice = buffer.Slice(lengthPrefixLength, length);
+        var packetReader = new SequenceReader<byte>(packetSlice);
+
+        if (!packetReader.TryReadVarInt(out int packetId, out _))
         {
-            LogReceivedLegacyPing();
             return (false, null);
         }
-
-        int packetId = reader.Read7BitEncodedInt();
 
         if (!ServerboundPacketRegistry.TryCreatePacket(state, packetId, out var packet))
         {
             LogReceivedUnknownPacket(state, packetId, length);
-            return (false, null); // TODO: Until Pipelines are implemented to safely advance the buffer, we MUST drop the connection.
+            pipeReader.AdvanceTo(packetSlice.End);
+            return (true, null);
         }
 
         try
         {
-            if (!packet.DeserializeContent(stream, reader))
+            if (!packet.DeserializeContent(ref packetReader))
             {
                 LogDeserializeViolation(packet);
                 return (false, null);
@@ -85,29 +106,14 @@ public partial class PacketTransceiver
         }
         catch (NotImplementedException)
         {
-            // TODO: 'KeepAlive=packet is not IStateTransition' when using Pipelines
-            //       Because we didn't read the payload bytes, the TCP stream is desynced.
             LogDeserializeNotImplemented(packet);
-            return (false, null);
+            pipeReader.AdvanceTo(packetSlice.End);
+            return (packet is not IStateTransition, null);
         }
 
         LogReceivedPacket(packet, state, packetId, length);
+        pipeReader.AdvanceTo(packetSlice.End);
         return (true, packet);
-    }
-
-    /*
-     * I am aware this check is not perfect and leads to a false positive
-     * when an IntentionPacket with a length of 254 bytes is sent.
-     * However for that to occur, the client would need to enter a hostname
-     * of exactly 246 characters in length, which is highly unlikely to ever
-     * be attempted by anyone, at least not in a serious manner.
-     *
-     * I therefore declare this a negligible side effect.
-     */
-    private static bool IsLegacyPing(ProtocolState state, int length)
-    {
-        // [0xFE, 0x01] => [0b_1111_1110, 0b_0000_0001] => 7BitEncodedInt => 0b1111_1110 => 0xFE => 254
-        return state == ProtocolState.Handshake && length == 254;
     }
 
 }

@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿using System.IO.Pipelines;
 using System.Threading.Channels;
 
 using Microsoft.Extensions.Logging;
@@ -52,8 +52,8 @@ public sealed partial class ClientHandler(
     public async Task HandleAsync(CancellationToken cancellationToken)
     {
         await using var stream = Client.GetStream();
-        await using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+        var writer = PipeWriter.Create(stream);
+        var reader = PipeReader.Create(stream);
         using var _ = LogContext.PushProperty("ClientHandlerId", Id);
         LogClientConnected(this);
         Task? dispatchTask = null;
@@ -66,10 +66,10 @@ public sealed partial class ClientHandler(
             }
 
             _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _transmissionTask = new TransmissionWorker(_clientboundChannel, this, stream, writer, packetTransceiver).StartAsync(_cts.Token);
+            _transmissionTask = new TransmissionWorker(_clientboundChannel, this, writer, packetTransceiver).StartAsync(_cts.Token);
             dispatchTask = new DispatchWorker(_serverboundChannel, this, packetDispatcher).StartAsync(_cts.Token);
 
-            while (await TryReceivePacketAsync(stream, reader, _cts.Token)) ;
+            while (await TryReceivePacketAsync(reader, _cts.Token)) ;
         }
         catch (OperationCanceledException)
         {
@@ -98,15 +98,15 @@ public sealed partial class ClientHandler(
             {
                 // It is safe to ignore everything here
             }
+
+            await reader.CompleteAsync();
+            await writer.CompleteAsync();
         }
     }
 
-    private async Task<bool> TryReceivePacketAsync(
-        NetworkStream stream,
-        BinaryReader reader,
-        CancellationToken cancellationToken)
+    private async Task<bool> TryReceivePacketAsync(PipeReader pipeReader, CancellationToken cancellationToken)
     {
-        var (keepAlive, packet) = await packetTransceiver.ReceiveAsync(State, stream, reader, cancellationToken);
+        var (keepAlive, packet) = await packetTransceiver.ReceiveAsync(State, pipeReader, cancellationToken);
 
         if (!keepAlive)
         {

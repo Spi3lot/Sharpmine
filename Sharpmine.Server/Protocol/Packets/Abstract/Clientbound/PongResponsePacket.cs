@@ -1,13 +1,17 @@
-﻿namespace Sharpmine.Server.Protocol.Packets.Abstract.Clientbound;
+﻿using System.Buffers;
+
+using Sharpmine.Server.Protocol.Extensions;
+
+namespace Sharpmine.Server.Protocol.Packets.Abstract.Clientbound;
 
 public abstract partial record PongResponsePacket
 {
 
     public long Timestamp { get; init; }
 
-    public void SerializeContent(Stream stream, BinaryWriter writer)
+    public void SerializeContent(IBufferWriter<byte> writer)
     {
-        writer.Write(Timestamp);
+        writer.WriteInt64(Timestamp);
     }
 
 }

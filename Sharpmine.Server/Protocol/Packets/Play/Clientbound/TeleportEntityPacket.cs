@@ -1,3 +1,7 @@
+using System.Buffers;
+
+using Sharpmine.Server.Protocol.Extensions;
+
 namespace Sharpmine.Server.Protocol.Packets.Play.Clientbound;
 
 public partial record TeleportEntityPacket(
@@ -14,19 +18,19 @@ public partial record TeleportEntityPacket(
     bool OnGround)
 {
 
-    public void SerializeContent(Stream stream, BinaryWriter writer)
+    public void SerializeContent(IBufferWriter<byte> writer)
     {
-        writer.Write7BitEncodedInt(EntityId);
-        writer.Write(X);
-        writer.Write(Y);
-        writer.Write(Z);
-        writer.Write(VelocityX);
-        writer.Write(VelocityY);
-        writer.Write(VelocityZ);
-        writer.Write(Yaw);
-        writer.Write(Pitch);
-        writer.Write((int) Flags);
-        writer.Write(OnGround);
+        writer.WriteVarInt(EntityId);
+        writer.WriteDouble(X);
+        writer.WriteDouble(Y);
+        writer.WriteDouble(Z);
+        writer.WriteDouble(VelocityX);
+        writer.WriteDouble(VelocityY);
+        writer.WriteDouble(VelocityZ);
+        writer.WriteSingle(Yaw);
+        writer.WriteSingle(Pitch);
+        writer.WriteInt32((int) Flags);
+        writer.WriteBoolean(OnGround);
     }
 
 }

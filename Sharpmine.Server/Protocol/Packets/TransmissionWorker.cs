@@ -1,3 +1,4 @@
+using System.IO.Pipelines;
 using System.Threading.Channels;
 
 namespace Sharpmine.Server.Protocol.Packets;
@@ -5,14 +6,13 @@ namespace Sharpmine.Server.Protocol.Packets;
 public class TransmissionWorker(
     Channel<IClientboundPacket> channel,
     ClientHandler client,
-    NetworkStream stream,
-    BinaryWriter writer,
+    PipeWriter pipeWriter,
     PacketTransceiver packetTransceiver) : ChannelWorker<IClientboundPacket>(channel)
 {
 
     protected override Task ProcessAsync(IClientboundPacket currentItem, CancellationToken cancellationToken)
     {
-        return packetTransceiver.TransmitAsync(currentItem, stream, writer, cancellationToken);
+        return packetTransceiver.TransmitAsync(currentItem, pipeWriter, cancellationToken);
     }
 
     protected override Task OnErrorAsync(Exception ex, IClientboundPacket? currentItem)

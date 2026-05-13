@@ -46,10 +46,12 @@ public static class Program
             builder.Services.AddSingleton<MainWindow>();
             builder.Services.AddSingleton<MainViewModel>();
             builder.Services.AddSingleton<PlayerAccessManager>();
-            builder.Services.AddSingleton<ClientHandlerFactory>();
+            builder.Services.AddSingleton<PacketReceiver>();
             builder.Services.AddSingleton<PacketDispatcher>();
-            builder.Services.AddSingleton<ServerService>();
+            builder.Services.AddTransient<PacketTransmitter>();
             builder.Services.AddSingleton<ServerCapacityManager>();
+            builder.Services.AddSingleton<ClientHandlerFactory>();
+            builder.Services.AddSingleton<ServerService>();
             builder.Services.AddHostedService<ServerService>(sp => sp.GetRequiredService<ServerService>());
 
             builder.Services.Scan(scan => scan

@@ -17,8 +17,9 @@ namespace Sharpmine.Server.Protocol;
 public sealed partial class ClientHandler(
     string ip,
     TcpClient client,
-    PacketTransceiver packetTransceiver,
+    PacketReceiver packetReceiver,
     PacketDispatcher packetDispatcher,
+    PacketTransmitter packetTransmitter,
     ServerCapacityManager serverCapacityManager,
     ILogger<ClientHandler> logger) : IDisposable
 {
@@ -66,7 +67,7 @@ public sealed partial class ClientHandler(
             }
 
             _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _transmissionTask = new TransmissionWorker(_clientboundChannel, this, writer, packetTransceiver).StartAsync(_cts.Token);
+            _transmissionTask = new TransmissionWorker(_clientboundChannel, this, writer, packetTransmitter).StartAsync(_cts.Token);
             dispatchTask = new DispatchWorker(_serverboundChannel, this, packetDispatcher).StartAsync(_cts.Token);
 
             while (await TryReceivePacketAsync(reader, _cts.Token)) ;
@@ -106,7 +107,7 @@ public sealed partial class ClientHandler(
 
     private async Task<bool> TryReceivePacketAsync(PipeReader pipeReader, CancellationToken cancellationToken)
     {
-        var (keepAlive, packet) = await packetTransceiver.ReceiveAsync(State, pipeReader, cancellationToken);
+        var (keepAlive, packet) = await packetReceiver.ReceiveAsync(State, pipeReader, cancellationToken);
 
         if (!keepAlive)
         {

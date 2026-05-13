@@ -7,12 +7,12 @@ public class TransmissionWorker(
     Channel<IClientboundPacket> channel,
     ClientHandler client,
     PipeWriter pipeWriter,
-    PacketTransceiver packetTransceiver) : ChannelWorker<IClientboundPacket>(channel)
+    PacketTransmitter packetTransmitter) : ChannelWorker<IClientboundPacket>(channel)
 {
 
     protected override Task ProcessAsync(IClientboundPacket currentItem, CancellationToken cancellationToken)
     {
-        return packetTransceiver.TransmitAsync(currentItem, pipeWriter, cancellationToken);
+        return packetTransmitter.TransmitAsync(currentItem, pipeWriter, cancellationToken);
     }
 
     protected override Task OnErrorAsync(Exception ex, IClientboundPacket? currentItem)

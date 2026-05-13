@@ -4,11 +4,8 @@ using Sharpmine.Server.Protocol.Packets;
 
 namespace Sharpmine.Server.Protocol;
 
-public partial class PacketTransceiver
+public partial class PacketReceiver
 {
-
-    [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for serialization")]
-    partial void LogSerializeNotImplemented(IClientboundPacket packet);
 
     [LoggerMessage(LogLevel.Error, "Deserializing {Packet} caused a violation")]
     partial void LogDeserializeViolation(IServerboundPacket packet);
@@ -24,9 +21,6 @@ public partial class PacketTransceiver
 
     [LoggerMessage(LogLevel.Warning, "Received legacy ping, closing connection")]
     partial void LogReceivedLegacyPing();
-
-    [LoggerMessage(LogLevel.Debug, "Transmitted {State}:0x{Id:X2} with {Length} bytes: {Packet}")]
-    partial void LogTransmittedPacket(IClientboundPacket packet, ProtocolState state, int id, int length);
 
     [LoggerMessage(LogLevel.Debug, "Received {State}:0x{Id:X2} with {Length} bytes: {Packet}")]
     partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id, int length);

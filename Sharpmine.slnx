@@ -1,7 +1,9 @@
 <Solution>
   <Project Path="Sharpmine.AppHost/Sharpmine.AppHost.csproj" />
   <Project Path="Sharpmine.Gen/Sharpmine.Gen.csproj" />
-  <Project Path="Sharpmine.Server/Sharpmine.Server.csproj" />
+  <Project Path="Sharpmine.Server.Console/Sharpmine.Server.Console.csproj" />
+  <Project Path="Sharpmine.Server.Core/Sharpmine.Server.Core.csproj" />
+  <Project Path="Sharpmine.Server.Wpf/Sharpmine.Server.Wpf.csproj" />
   <Project Path="Sharpmine.ServiceDefaults/Sharpmine.ServiceDefaults.csproj" />
   <Project Path="Sharpmine.Tests/Sharpmine.Tests.csproj" />
 </Solution>

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
@@ -11,122 +14,158 @@ namespace Sharpmine.Gen;
 public class PacketGenerator : IIncrementalGenerator
 {
 
-    private const string BaseNamespace = "Sharpmine.Server.Protocol.Packets";
+    private const string ProtocolNamespace = "Sharpmine.Server.Core.Protocol";
+
+    private const string PacketsNamespace = $"{ProtocolNamespace}.Packets";
+
+    private const string HandlersNamespace = $"{ProtocolNamespace}.Handlers";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var packetProvider = context.AdditionalTextsProvider
             .Where(static file => file.Path.EndsWith("packets.json", StringComparison.OrdinalIgnoreCase))
-            .Select(static (text, cancellationToken) => text.GetText(cancellationToken)?.ToString());
+            .Select(static (text, cancellationToken) => ParsePackets(text.GetText(cancellationToken)?.ToString()))
+            .SelectMany(static (packets, _) => packets)
+            .Collect();
 
         context.RegisterSourceOutput(packetProvider, Execute);
     }
 
-    private static void Execute(SourceProductionContext context, string? jsonContent)
+    private static ImmutableArray<PacketModel> ParsePackets(string? jsonContent)
     {
         if (string.IsNullOrWhiteSpace(jsonContent))
         {
-            return;
+            return ImmutableArray<PacketModel>.Empty;
         }
 
         using var doc = JsonDocument.Parse(jsonContent!);
-        var sb = new StringBuilder();
-        StartRegistry(sb);
+        var builder = ImmutableArray.CreateBuilder<PacketModel>();
 
         var orderedStateProperties = doc.RootElement
             .EnumerateObject()
-            .OrderBy(static prop => prop.Value
-                .GetProperty("serverbound")
-                .GetPropertyCount()
-            );
+            .OrderBy(static prop => (prop.Value.TryGetProperty("serverbound", out var sb))
+                ? sb.GetPropertyCount()
+                : 0);
 
         foreach (var stateProperty in orderedStateProperties)
         {
-            GenerateProtocolDirection(context, stateProperty, "Serverbound", sb);
-            GenerateProtocolDirection(context, stateProperty, "Clientbound", null);
+            string stateName = ToPascalCase(stateProperty.Name);
+            GenerateProtocolDirection(stateProperty, "Serverbound", stateName, builder);
+            GenerateProtocolDirection(stateProperty, "Clientbound", stateName, builder);
         }
 
-        EndRegistry(sb);
-        context.AddSource("Registry/ServerboundPacketRegistry.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+        return builder.ToImmutable();
     }
 
     private static void GenerateProtocolDirection(
-        SourceProductionContext context,
         JsonProperty stateProperty,
         string directionName,
-        StringBuilder? sb
-    )
+        string stateName,
+        ImmutableArray<PacketModel>.Builder builder)
     {
         if (!stateProperty.Value.TryGetProperty(directionName.ToLower(), out var packetsElement))
         {
             return;
         }
 
-        string stateName = ToPascalCase(stateProperty.Name);
-        string interfaceName = $"I{directionName}Packet";
-
-        var orderedPackets = packetsElement.EnumerateObject()
-            .Select(static prop => (prop.Name, Id: prop.Value.GetProperty("protocol_id").GetInt32()))
-            .OrderBy(static prop => prop.Id);
-
-        foreach (var packet in orderedPackets)
+        foreach (var packet in packetsElement.EnumerateObject())
         {
-            string packetName = packet.Name.Substring("minecraft:".Length);
-            string packetClassName = ToPascalCase(packetName) + "Packet";
-            GeneratePacketPartial(context, packetClassName, interfaceName, stateName, directionName, packet.Id);
-            sb?.AppendLine($"            (ProtocolState.{stateName}, 0x{packet.Id:X2}) => new {stateName}.{directionName}.{packetClassName}(),");
+            int id = packet.Value.GetProperty("protocol_id").GetInt32();
+            string rawName = packet.Name.StartsWith("minecraft:") ? packet.Name.Substring(10) : packet.Name;
+            string packetName = ToPascalCase(rawName);
+            builder.Add(new PacketModel(directionName, packetName, stateName, id));
         }
+    }
+
+    private static void Execute(SourceProductionContext context, ImmutableArray<PacketModel> packets)
+    {
+        if (packets.IsDefaultOrEmpty) return;
+
+        var crossStateGroups = packets
+            .GroupBy(static p => new CrossStateKey(p.Direction, p.PacketName))
+            .Where(static g => g.Count() > 1)
+            .ToImmutableArray();
+
+        var crossStateKeys = crossStateGroups
+            .Select(static g => g.Key)
+            .ToImmutableArray();
+
+        var distinctCrossStateKeys = new HashSet<CrossStateKey>(crossStateKeys);
+
+        foreach (var packet in packets)
+        {
+            bool isCrossState = distinctCrossStateKeys.Contains(new CrossStateKey(packet.Direction, packet.PacketName));
+            GeneratePacketPartial(context, packet, isCrossState);
+        }
+
+        var serverboundPackets = packets
+            .Where(p => p.Direction == "Serverbound")
+            .ToImmutableArray();
+
+        GenerateAbstractPacketPartials(context, crossStateGroups);
+        GenerateRegistry(context, serverboundPackets);
+        GeneratePacketDispatcher(context, serverboundPackets, crossStateKeys);
     }
 
     private static void GeneratePacketPartial(
         SourceProductionContext context,
-        string className,
-        string interfaceName,
-        string stateName,
-        string directionName,
-        int id
-    )
+        PacketModel packet,
+        bool isCrossState)
     {
+        string containingNamespace = $"{PacketsNamespace}.{packet.StateName}.{packet.Direction}";
+        string modifier = isCrossState ? "override " : "";
+        string inheritance = isCrossState
+            ? $"{PacketsNamespace}.Abstract.{packet.Direction}.{packet.ClassName}"
+            : $"I{packet.Direction}Packet";
+
         string source = $$"""
                           // <auto-generated />
 
                           using System;
 
-                          namespace {{BaseNamespace}}.{{stateName}}.{{directionName}};
+                          namespace {{containingNamespace}};
 
-                          public partial record {{className}} : {{interfaceName}} 
+                          public partial record {{packet.ClassName}} : {{inheritance}} 
                           {
-                              public ProtocolState State => ProtocolState.{{stateName}};
-                              public int Id => 0x{{id:X2}};
+                              public {{modifier}}ProtocolState State => ProtocolState.{{packet.StateName}};
+                              public {{modifier}}int Id => 0x{{packet.Id:X2}};
                           }
                           """;
 
-        context.AddSource($"{stateName}.{directionName}/{className}.g.cs", SourceText.From(source, Encoding.UTF8));
+        context.AddSource($"{containingNamespace}/{packet.ClassName}.Protocol.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 
-    private static void StartRegistry(StringBuilder sb)
+    private static void GenerateRegistry(
+        SourceProductionContext context,
+        ImmutableArray<PacketModel> serverboundPackets)
     {
+        var sb = new StringBuilder();
+
         sb.AppendLine($$"""
                         // <auto-generated />
 
                         #nullable enable
 
-                        using System;
                         using System.Diagnostics.CodeAnalysis;
 
-                        namespace {{BaseNamespace}};
+                        namespace {{PacketsNamespace}};
 
                         public static class ServerboundPacketRegistry 
                         {
-                            public static bool TryCreatePacket(ProtocolState state, int id, [NotNullWhen(true)] out IServerboundPacket? packet)
+                            public static bool TryCreatePacket(
+                                ProtocolState state,
+                                int id,
+                                [NotNullWhen(true)] out IServerboundPacket? packet)
                             {
                                 packet = (state, id) switch
                                 {
                         """);
-    }
 
-    private static void EndRegistry(StringBuilder sb)
-    {
+        foreach (var packet in serverboundPackets)
+        {
+            sb.AppendLine($"            (ProtocolState.{packet.StateName}, 0x{packet.Id:X2}) => new {packet.StateName}.Serverbound.{packet.ClassName}(),");
+        }
+
         sb.Append("""
                               _ => null
                           };
@@ -135,13 +174,159 @@ public class PacketGenerator : IIncrementalGenerator
                       }
                   }
                   """);
+
+        context.AddSource($"{PacketsNamespace}/ServerboundPacketRegistry.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+    }
+
+    private static void GenerateAbstractPacketPartials(
+        SourceProductionContext context,
+        ImmutableArray<IGrouping<CrossStateKey, PacketModel>> crossStateGroups)
+    {
+        foreach (var group in crossStateGroups)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($$"""
+                            // <auto-generated />
+
+                            #nullable enable
+
+                            using System;
+
+                            namespace {{PacketsNamespace}}.Abstract.{{group.Key.Direction}};
+
+                            public abstract partial record {{group.Key.ClassName}} : I{{group.Key.Direction}}Packet
+                            {
+                                public abstract ProtocolState State { get; }
+                                public abstract int Id { get; }
+                            """);
+
+            if (group.Key.Direction == "Clientbound")
+            {
+                sb.AppendLine($$"""
+
+                                    public static {{group.Key.ClassName}} Create(ProtocolState state)
+                                    {
+                                        return state switch
+                                        {
+                                """);
+
+                foreach (var packet in group)
+                {
+                    sb.AppendLine($"            ProtocolState.{packet.StateName} => new {PacketsNamespace}.{packet.StateName}.{packet.Direction}.{packet.ClassName}(),");
+                }
+
+                sb.AppendLine($$"""
+                                            _ => throw new ArgumentOutOfRangeException(nameof(state), state, "{{group.Key.Direction}} {{group.Key.ClassName}} does not exist in the given state.")
+                                        };
+                                    }
+                                """);
+            }
+
+            sb.Append('}');
+            context.AddSource($"{PacketsNamespace}.Abstract.{group.Key.Direction}/{group.Key.ClassName}.Abstract.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+        }
+    }
+
+    private static void GeneratePacketDispatcher(
+        SourceProductionContext context,
+        ImmutableArray<PacketModel> serverboundPackets,
+        ImmutableArray<CrossStateKey> crossStateKeys)
+    {
+        var allServerboundPackets = serverboundPackets
+            .Select(packet => new CrossStateServerboundPacketModel(packet.ClassName, packet.StateName))
+            .Union(crossStateKeys
+                .Where(key => key.Direction == "Serverbound")
+                .Select(key => new CrossStateServerboundPacketModel(key.PacketName + "Packet", "Abstract")))
+            .ToArray();
+
+        var sb = new StringBuilder();
+        sb.AppendLine($$"""
+                        // <auto-generated />
+                        #nullable enable
+
+                        using System;
+                        using System.Threading;
+                        using System.Threading.Tasks;
+                        using Microsoft.Extensions.DependencyInjection;
+                        using {{HandlersNamespace}};
+                        using {{PacketsNamespace}};
+
+                        namespace {{ProtocolNamespace}};
+
+                        public class PacketDispatcher
+                        {
+                        """);
+
+        foreach (var packet in allServerboundPackets)
+        {
+            string fqn = $"{packet.StateName}.Serverbound.{packet.ClassName}";
+            string fieldName = $"_{packet.StateName.ToLower()}{packet.ClassName}Handler";
+            sb.AppendLine($"    private readonly IPacketHandler<Packets.{fqn}>? {fieldName};");
+        }
+
+        sb.AppendLine();
+        sb.AppendLine("    public PacketDispatcher(IServiceProvider services)");
+        sb.AppendLine("    {");
+
+        foreach (var packet in allServerboundPackets)
+        {
+            string fqn = $"{packet.StateName}.Serverbound.{packet.ClassName}";
+            string fieldName = $"_{packet.StateName.ToLower()}{packet.ClassName}Handler";
+            sb.AppendLine($"        {fieldName} = services.GetService<IPacketHandler<Packets.{fqn}>>();");
+        }
+
+        sb.AppendLine("    }");
+        sb.AppendLine();
+        sb.AppendLine("    public ValueTask? DispatchAsync(");
+        sb.AppendLine("        IServerboundPacket packet,");
+        sb.AppendLine("        ClientHandler client,");
+        sb.AppendLine("        CancellationToken cancellationToken)");
+        sb.AppendLine("    {");
+        sb.AppendLine("        if (packet is IHandlerless)");
+        sb.AppendLine("        {");
+        sb.AppendLine("            return ValueTask.CompletedTask;");
+        sb.AppendLine("        }");
+        sb.AppendLine();
+        sb.AppendLine("        return packet switch");
+        sb.AppendLine("        {");
+
+        foreach (var packet in allServerboundPackets)
+        {
+            string fqn = $"{packet.StateName}.Serverbound.{packet.ClassName}";
+            string fieldName = $"_{packet.StateName.ToLower()}{packet.ClassName}Handler";
+            sb.AppendLine($"            Packets.{fqn} p when {fieldName} is not null => {fieldName}.HandleAsync(p, client, cancellationToken),");
+        }
+
+        sb.AppendLine("            _ => null");
+        sb.AppendLine("        };");
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
+
+        context.AddSource($"{ProtocolNamespace}/PacketDispatcher.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }
 
     private static string ToPascalCase(string input)
     {
-        return string.Join("", input.Split(['_', '/'], StringSplitOptions.RemoveEmptyEntries)
-            .Select(static word => char.ToUpper(word[0]) + word.Substring(1))
-        );
+        return string.Join(
+            string.Empty,
+            input.Split(['_', '/'], StringSplitOptions.RemoveEmptyEntries)
+                .Select(static word => char.ToUpper(word[0]) + word.Substring(1)));
     }
+
+    private readonly record struct PacketModel(string Direction, string PacketName, string StateName, int Id)
+    {
+
+        public string ClassName { get; } = PacketName + "Packet";
+
+    }
+
+    private readonly record struct CrossStateKey(string Direction, string PacketName)
+    {
+
+        public string ClassName { get; } = PacketName + "Packet";
+
+    }
+
+    private readonly record struct CrossStateServerboundPacketModel(string ClassName, string StateName);
 
 }

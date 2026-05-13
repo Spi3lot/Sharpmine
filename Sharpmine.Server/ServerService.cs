@@ -26,6 +26,7 @@ public partial class ServerService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var handleTasks = new ConcurrentDictionary<Task, byte>();
         using var listener = TcpListener.Create(properties.ServerPort);
         listener.Start();
         LogStartedServer(properties.ServerPort);
@@ -50,7 +51,9 @@ public partial class ServerService(
                     continue;
                 }
 
-                StartClientHandler(client, ip, stoppingToken);
+                var task = StartClientHandler(client, ip, stoppingToken);
+                handleTasks.TryAdd(task, 0);
+                _ = task.ContinueWith(t => handleTasks.TryRemove(t, out _), CancellationToken.None);
             }
             catch (OperationCanceledException)
             {
@@ -65,9 +68,10 @@ public partial class ServerService(
         LogStoppingServer();
 
         var disconnectTasks = Clients.Values
-            .Select(handler => handler.DisconnectAsync("Server is shutting down."));
+            .Select(clientHandler => clientHandler.DisconnectAsync("Server is shutting down."));
 
         await Task.WhenAll(disconnectTasks);
+        await Task.WhenAll(handleTasks.Keys);
     }
 
     private static bool TryDetermineClientIp(IPEndPoint? endpoint, [NotNullWhen(true)] out string? ip)
@@ -83,9 +87,9 @@ public partial class ServerService(
         return true;
     }
 
-    private void StartClientHandler(TcpClient client, string ip, CancellationToken stoppingToken)
+    private Task StartClientHandler(TcpClient client, string ip, CancellationToken stoppingToken)
     {
-        Task.Run(async () =>
+        return Task.Run(async () =>
         {
             try
             {

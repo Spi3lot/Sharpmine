@@ -16,7 +16,7 @@ public class PacketPropertyGenerator : IIncrementalGenerator
     {
         var fieldDeclarations = context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                "Sharpmine.Server.Protocol.Attributes.PacketPropertyAttribute",
+                "Sharpmine.Server.Core.Protocol.Attributes.PacketPropertyAttribute",
                 predicate: static (node, _) => node is VariableDeclaratorSyntax,
                 transform: static (ctx, _) => GetFieldInfo(ctx))
             .Where(static info => info is not null);

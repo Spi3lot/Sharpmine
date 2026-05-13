@@ -13,12 +13,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="6.0.4"/>
-        <PackageReference Include="TUnit" Version="1.21.6" />
+        <PackageReference Include="coverlet.collector" Version="10.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="TUnit" Version="1.44.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Sharpmine.Server\Sharpmine.Server.csproj" />
+      <ProjectReference Include="..\Sharpmine.Server.Core\Sharpmine.Server.Core.csproj" />
     </ItemGroup>
 
 </Project>

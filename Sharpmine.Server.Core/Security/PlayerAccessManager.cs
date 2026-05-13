@@ -1,0 +1,134 @@
+﻿using System.Text.Encodings.Web;
+using System.Text.Json;
+
+using Microsoft.Extensions.Logging;
+
+using Sharpmine.Server.Core.Configuration;
+using Sharpmine.Server.Core.Security.Models;
+
+namespace Sharpmine.Server.Core.Security;
+
+public partial class PlayerAccessManager
+{
+
+    private readonly ServerProperties _properties;
+
+    private readonly ILogger<PlayerAccessManager> _logger;
+
+    private readonly HashSet<string> _blacklistedIps;
+
+    private readonly Dictionary<string, IpBanEntry> _bannedIps;
+
+    private readonly Dictionary<Guid, BanEntry> _bannedPlayers;
+
+    private readonly Dictionary<Guid, WhitelistEntry> _whitelistedPlayers;
+
+    private readonly Dictionary<Guid, OpEntry> _ops;
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        Converters = { new HyphenlessGuidConverter(), new MinecraftDateConverter() },
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true,
+    };
+
+    public PlayerAccessManager(ServerProperties properties, ILogger<PlayerAccessManager> logger)
+    {
+        _properties = properties;
+        _logger = logger;
+
+        _blacklistedIps = LoadJson<string>(ServerConstants.FileNames.BlacklistedIps)
+            .ToHashSet();
+
+        _bannedIps = LoadJson<IpBanEntry>(ServerConstants.FileNames.BannedIps)
+            .ToDictionary(e => e.Ip);
+
+        _bannedPlayers = LoadJson<BanEntry>(ServerConstants.FileNames.BannedPlayers)
+            .ToDictionary(e => e.Uuid);
+
+        _whitelistedPlayers = LoadJson<WhitelistEntry>(ServerConstants.FileNames.WhitelistedPlayers)
+            .ToDictionary(e => e.Uuid);
+
+        _ops = LoadJson<OpEntry>(ServerConstants.FileNames.Operators)
+            .ToDictionary(e => e.Uuid);
+
+        SaveAll();
+    }
+
+    public (JoinAccess Access, string? Reason) EvaluateAccess(string ip, Guid? uuid = null)
+    {
+        if (_blacklistedIps.Contains(ip))
+        {
+            return (JoinAccess.IpBlacklisted, null);
+        }
+
+        if (_bannedIps.TryGetValue(ip, out var ipBan) && ipBan.Expires > DateTimeOffset.UtcNow)
+        {
+            return (JoinAccess.IpBanned, $"You are banned from this server.\nReason: {ipBan.Reason}");
+        }
+
+        if (!uuid.HasValue)
+        {
+            return (JoinAccess.Allowed, null);
+        }
+
+        if (_bannedPlayers.TryGetValue(uuid.Value, out var ban) && ban.Expires > DateTimeOffset.UtcNow)
+        {
+            return (JoinAccess.Banned, $"You are banned from this server.\nReason: {ban.Reason}");
+        }
+
+        if (_properties.WhiteList && !IsImplicitlyWhitelisted(uuid.Value))
+        {
+            return (JoinAccess.NotWhitelisted, "You are not white-listed on this server!");
+        }
+
+        return (JoinAccess.Allowed, null);
+    }
+
+    public bool IsImplicitlyWhitelisted(Guid playerId) => IsExplicitlyWhitelisted(playerId) || IsOp(playerId);
+
+    public bool IsExplicitlyWhitelisted(Guid playerId) => _whitelistedPlayers.ContainsKey(playerId);
+
+    public bool IsOp(Guid playerId) => _ops.ContainsKey(playerId);
+
+    public int GetOpLevel(Guid playerId) => _ops.TryGetValue(playerId, out var op) ? op.Level : 0;
+
+    public bool BypassesPlayerLimit(Guid playerId) => _ops.TryGetValue(playerId, out var op) && op.BypassesPlayerLimit;
+
+    public void SaveAll()
+    {
+        SaveToFile(ServerConstants.FileNames.BlacklistedIps, _blacklistedIps);
+        SaveToFile(ServerConstants.FileNames.BannedIps, _bannedIps.Values);
+        SaveToFile(ServerConstants.FileNames.BannedPlayers, _bannedPlayers.Values);
+        SaveToFile(ServerConstants.FileNames.WhitelistedPlayers, _whitelistedPlayers.Values);
+        SaveToFile(ServerConstants.FileNames.Operators, _ops.Values);
+    }
+
+    private static void SaveToFile<T>(string fileName, IEnumerable<T> data)
+    {
+        string json = JsonSerializer.Serialize(data, JsonOptions);
+        File.WriteAllText(fileName, json);
+    }
+
+    private List<T> LoadJson<T>(string fileName)
+    {
+        try
+        {
+            if (!File.Exists(fileName))
+            {
+                File.WriteAllText(fileName, "[]");
+                return [];
+            }
+
+            string json = File.ReadAllText(fileName);
+            return JsonSerializer.Deserialize<List<T>>(json, JsonOptions) ?? [];
+        }
+        catch (Exception ex)
+        {
+            LogErrorWhileLoadingJson(ex);
+            return [];
+        }
+    }
+
+}

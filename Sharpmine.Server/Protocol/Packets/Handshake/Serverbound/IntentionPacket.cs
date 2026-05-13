@@ -25,7 +25,7 @@ public partial record IntentionPacket : IStateTransition, IHandlerless
     public bool DeserializeContent(ref SequenceReader<byte> reader)
     {
         return reader.TryReadVarInt(out _protocolVersion)
-               && reader.TryReadString(out _serverAddress)
+               && reader.TryReadString(out _serverAddress, 255)
                && reader.TryReadUInt16(out _serverPort)
                && reader.TryReadEnum(out _intent);
     }

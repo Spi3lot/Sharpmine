@@ -110,7 +110,7 @@ public partial class ServerService(
 
         handler.Terminated += () =>
         {
-            Clients.Remove(handler.Id, out _);
+            Clients.TryRemove(handler.Id, out _);
             ClientConnectionTerminated?.Invoke(handler);
         };
 

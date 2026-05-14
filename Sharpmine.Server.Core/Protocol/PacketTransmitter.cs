@@ -32,10 +32,11 @@ public partial class PacketTransmitter(ILogger<PacketTransmitter> logger)
         }
 
         int packetLength = _arrayBufferWriter.WrittenCount;
+        LogTransmittingPacket(packet, packet.State, packet.Id, packetLength);
+
         pipeWriter.WriteVarInt(packetLength);
         pipeWriter.Write(_arrayBufferWriter.WrittenSpan);
         await pipeWriter.FlushAsync(cancellationToken);
-        LogTransmittedPacket(packet, packet.State, packet.Id, packetLength);
     }
 
 }

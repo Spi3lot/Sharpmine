@@ -3,10 +3,8 @@ using System.Runtime.CompilerServices;
 
 namespace Sharpmine.Server.Wpf;
 
-public class ClientSession(Guid id) : INotifyPropertyChanged
+public record ClientSession(Guid Id, string Ip) : INotifyPropertyChanged
 {
-
-    public Guid Id { get; } = id;
 
     public bool IsConnected
     {

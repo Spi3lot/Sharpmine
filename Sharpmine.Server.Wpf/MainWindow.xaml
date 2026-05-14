@@ -27,7 +27,7 @@
                  SelectedValuePath="Id">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Id}">
+                    <TextBlock Text="{Binding Ip}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="Gray" />

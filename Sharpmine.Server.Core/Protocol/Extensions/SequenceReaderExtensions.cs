@@ -145,10 +145,10 @@ public static partial class SequenceReaderExtensions
             {
                 if (!reader.TryRead(out byte currentByte)) return false;
 
+                size++;
                 result |= (long) (currentByte & SegmentBits) << position;
                 if ((currentByte & ContinueBit) == 0) return true;
 
-                size++;
                 position += 7;
                 if (position >= 64) return false;
             }

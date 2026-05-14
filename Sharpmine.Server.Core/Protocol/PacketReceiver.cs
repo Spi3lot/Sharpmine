@@ -17,6 +17,12 @@ public partial class PacketReceiver(ILogger<PacketTransmitter> logger)
         CancellationToken cancellationToken)
     {
         var result = await pipeReader.ReadAsync(cancellationToken);
+
+        if (result.IsCanceled)
+        {
+            return (false, null);
+        }
+
         var buffer = result.Buffer;
 
         /*
@@ -31,11 +37,6 @@ public partial class PacketReceiver(ILogger<PacketTransmitter> logger)
         if (state == ProtocolState.Handshake && buffer.Length > 0 && buffer.FirstSpan[0] == 0xFE)
         {
             LogReceivedLegacyPing();
-            return (false, null);
-        }
-
-        if (result.IsCanceled)
-        {
             return (false, null);
         }
 

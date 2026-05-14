@@ -126,7 +126,7 @@ public partial class PlayerAccessManager
         }
         catch (Exception ex)
         {
-            LogErrorWhileLoadingJson(ex);
+            LogErrorWhileLoadingJson(ex, fileName);
             return [];
         }
     }

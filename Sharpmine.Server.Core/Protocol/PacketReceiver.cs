@@ -20,6 +20,7 @@ public partial class PacketReceiver(ILogger<PacketTransmitter> logger)
 
         if (result.IsCanceled)
         {
+            LogPendingPipeReadCanceled();
             return (false, null);
         }
 
@@ -60,6 +61,7 @@ public partial class PacketReceiver(ILogger<PacketTransmitter> logger)
 
         if (!packetReader.TryReadVarInt(out int packetId, out _))
         {
+            LogReceivedCorruptedPacketId(state, length);
             return (false, null);
         }
 

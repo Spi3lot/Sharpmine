@@ -129,7 +129,12 @@ public static partial class SequenceReaderExtensions
                 if ((currentByte & ContinueBit) == 0) return true;
 
                 position += 7;
-                if (position >= 32) return false;
+
+                if (position >= 32)
+                {
+                    size = -1;
+                    return false;
+                }
             }
         }
 
@@ -150,7 +155,12 @@ public static partial class SequenceReaderExtensions
                 if ((currentByte & ContinueBit) == 0) return true;
 
                 position += 7;
-                if (position >= 64) return false;
+
+                if (position >= 64)
+                {
+                    size = -1;
+                    return false;
+                }
             }
         }
 

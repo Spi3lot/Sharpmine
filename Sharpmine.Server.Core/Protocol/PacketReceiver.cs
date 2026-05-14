@@ -43,8 +43,19 @@ public partial class PacketReceiver(ILogger<PacketTransmitter> logger)
 
         var lengthPrefixReader = new SequenceReader<byte>(buffer);
 
-        if (!lengthPrefixReader.TryReadVarInt(out int length, out int lengthPrefixLength)
-            || buffer.Length < lengthPrefixLength + length)
+        if (!lengthPrefixReader.TryReadVarInt(out int length, out int lengthPrefixLength))
+        {
+            if (lengthPrefixLength < 0)
+            {
+                LogReceivedCorruptedPacketLength(state);
+                return (false, null);
+            }
+
+            pipeReader.AdvanceTo(buffer.Start, buffer.End);
+            return (!result.IsCompleted, null);
+        }
+
+        if (buffer.Length < lengthPrefixLength + length)
         {
             pipeReader.AdvanceTo(buffer.Start, buffer.End);
             return (!result.IsCompleted, null);

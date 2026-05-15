@@ -8,15 +8,15 @@ public class DispatchWorker(
     PacketDispatcher packetDispatcher) : ChannelWorker<IServerboundPacket>(channel)
 {
 
-    protected override async Task ProcessAsync(IServerboundPacket currentItem, CancellationToken cancellationToken)
+    protected override ValueTask ProcessAsync(IServerboundPacket currentItem, CancellationToken cancellationToken)
     {
         if (packetDispatcher.DispatchAsync(currentItem, client, cancellationToken) is not { } handleTask)
         {
             client.LogNoPacketHandler(currentItem);
-            return;
+            return ValueTask.CompletedTask;
         }
 
-        await handleTask;
+        return handleTask;
     }
 
     protected override Task OnErrorAsync(Exception ex, IServerboundPacket? currentItem)

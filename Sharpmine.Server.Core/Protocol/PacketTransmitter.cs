@@ -13,7 +13,7 @@ public partial class PacketTransmitter(ILogger<PacketTransmitter> logger)
 
     private readonly ArrayBufferWriter<byte> _arrayBufferWriter = new();
 
-    public async Task TransmitAsync(
+    public async ValueTask<bool> TransmitAsync(
         IClientboundPacket packet,
         PipeWriter pipeWriter,
         CancellationToken cancellationToken)
@@ -28,7 +28,7 @@ public partial class PacketTransmitter(ILogger<PacketTransmitter> logger)
         catch (NotImplementedException)
         {
             LogSerializeNotImplemented(packet);
-            return;
+            return true;
         }
 
         int packetLength = _arrayBufferWriter.WrittenCount;
@@ -36,7 +36,8 @@ public partial class PacketTransmitter(ILogger<PacketTransmitter> logger)
 
         pipeWriter.WriteVarInt(packetLength);
         pipeWriter.Write(_arrayBufferWriter.WrittenSpan);
-        await pipeWriter.FlushAsync(cancellationToken);
+        var result = await pipeWriter.FlushAsync(cancellationToken);
+        return !(result.IsCompleted || result.IsCanceled);
     }
 
 }

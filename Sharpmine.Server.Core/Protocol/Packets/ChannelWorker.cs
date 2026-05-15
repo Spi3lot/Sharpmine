@@ -27,7 +27,7 @@ public abstract class ChannelWorker<T>(Channel<T> channel)
         }
     }
 
-    protected abstract Task ProcessAsync(T currentItem, CancellationToken cancellationToken);
+    protected abstract ValueTask ProcessAsync(T currentItem, CancellationToken cancellationToken);
 
     protected abstract Task OnErrorAsync(Exception ex, T? currentItem);
 

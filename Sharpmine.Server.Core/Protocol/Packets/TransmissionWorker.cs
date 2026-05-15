@@ -10,9 +10,13 @@ public class TransmissionWorker(
     PacketTransmitter packetTransmitter) : ChannelWorker<IClientboundPacket>(channel)
 {
 
-    protected override Task ProcessAsync(IClientboundPacket currentItem, CancellationToken cancellationToken)
+    protected override async ValueTask ProcessAsync(IClientboundPacket currentItem, CancellationToken cancellationToken)
     {
-        return packetTransmitter.TransmitAsync(currentItem, pipeWriter, cancellationToken);
+        if (!await packetTransmitter.TransmitAsync(currentItem, pipeWriter, cancellationToken))
+        {
+            channel.Writer.TryComplete();
+            await client.AbortForcefullyAsync();
+        }
     }
 
     protected override Task OnErrorAsync(Exception ex, IClientboundPacket? currentItem)

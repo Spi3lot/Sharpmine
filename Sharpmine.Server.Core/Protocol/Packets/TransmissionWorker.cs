@@ -14,7 +14,6 @@ public class TransmissionWorker(
     {
         if (!await packetTransmitter.TransmitAsync(currentItem, pipeWriter, cancellationToken))
         {
-            channel.Writer.TryComplete();
             await client.AbortForcefullyAsync();
         }
     }

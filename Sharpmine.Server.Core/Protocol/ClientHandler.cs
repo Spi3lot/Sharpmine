@@ -120,7 +120,7 @@ public sealed partial class ClientHandler(
             State = transition.NextState;
         }
 
-        if (packet is not null && !_serverboundChannel.Writer.TryWrite(packet))
+        if (packet is not null && !_serverboundChannel.Writer.TryWrite(packet) && !_disconnecting)
         {
             LogDisconnectingClient(this, "Too many serverbound packets queued");
             return false;
@@ -178,7 +178,7 @@ public sealed partial class ClientHandler(
 
     public async Task AbortGracefullyAsync()
     {
-        _clientboundChannel.Writer.Complete();
+        TryCompleteChannelWriters();
 
         if (_transmissionTask is null)
         {
@@ -202,6 +202,7 @@ public sealed partial class ClientHandler(
     {
         _aborted = true;
         _disconnecting = true;
+        TryCompleteChannelWriters();
 
         try
         {
@@ -217,6 +218,7 @@ public sealed partial class ClientHandler(
     {
         _aborted = true;
         _disconnecting = true;
+        TryCompleteChannelWriters();
 
         try
         {
@@ -226,6 +228,12 @@ public sealed partial class ClientHandler(
         {
             // Do nothing, _cts already canceled
         }
+    }
+
+    private void TryCompleteChannelWriters()
+    {
+        _clientboundChannel.Writer.TryComplete();
+        _serverboundChannel.Writer.TryComplete();
     }
 
     public void Dispose()

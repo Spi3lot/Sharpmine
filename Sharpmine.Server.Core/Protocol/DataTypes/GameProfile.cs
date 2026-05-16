@@ -11,7 +11,7 @@ public record GameProfile(Guid Uuid, string Username, GameProfileProperty[] Prop
     {
         writer.WriteUuid(Uuid);
         writer.WriteString(Username);
-        writer.WritePrefixedArray(Properties, static (writer, property) => writer.Write(property));
+        writer.WritePrefixedArray(Properties);
     }
 
 }

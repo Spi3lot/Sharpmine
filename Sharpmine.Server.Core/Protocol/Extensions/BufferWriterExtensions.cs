@@ -143,10 +143,24 @@ public static partial class BufferWriterExtensions
             value.Serialize(writer);
         }
 
+        public void WritePrefixedOptional<T>(Option<T> value) where T : IClientboundDataType
+        {
+            writer.WriteBoolean(value.HasValue);
+            writer.WriteOptional(value);
+        }
+
         public void WritePrefixedOptional<T>(Option<T> value, Action<IBufferWriter<byte>, T> writeAction)
         {
             writer.WriteBoolean(value.HasValue);
             writer.WriteOptional(value, writeAction);
+        }
+
+        public void WriteOptional<T>(Option<T> value) where T : IClientboundDataType
+        {
+            if (value.HasValue)
+            {
+                writer.Write(value.ValueOrFailure());
+            }
         }
 
         public void WriteOptional<T>(Option<T> value, Action<IBufferWriter<byte>, T> writeAction)
@@ -157,10 +171,24 @@ public static partial class BufferWriterExtensions
             }
         }
 
+        public void WritePrefixedArray<T>(ReadOnlySpan<T> value) where T : IClientboundDataType
+        {
+            writer.WriteVarInt(value.Length);
+            writer.WriteArray(value);
+        }
+
         public void WritePrefixedArray<T>(ReadOnlySpan<T> value, Action<IBufferWriter<byte>, T> writeElementAction)
         {
             writer.WriteVarInt(value.Length);
             writer.WriteArray(value, writeElementAction);
+        }
+
+        public void WriteArray<T>(ReadOnlySpan<T> value) where T : IClientboundDataType
+        {
+            foreach (T element in value)
+            {
+                writer.Write(element);
+            }
         }
 
         public void WriteArray<T>(ReadOnlySpan<T> value, Action<IBufferWriter<byte>, T> writeElementAction)

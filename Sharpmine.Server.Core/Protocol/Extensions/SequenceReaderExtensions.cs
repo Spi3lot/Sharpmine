@@ -192,12 +192,34 @@ public static partial class SequenceReaderExtensions
             return T.TryDeserialize(ref reader, out value);
         }
 
+        public bool TryReadPrefixedOptional<T>(out Option<T> result) where T : IServerboundDataType<T>
+        {
+            result = Option.None<T>();
+
+            return reader.TryReadBoolean(out bool hasValue)
+                   && reader.TryReadOptional(hasValue, out result);
+        }
+
         public bool TryReadPrefixedOptional<T>(out Option<T> result, TryReadFunc<T> readFunc)
         {
             result = Option.None<T>();
 
             return reader.TryReadBoolean(out bool hasValue)
                    && reader.TryReadOptional(hasValue, out result, readFunc);
+        }
+
+        public bool TryReadOptional<T>(bool hasValue, out Option<T> result) where T : IServerboundDataType<T>
+        {
+            result = Option.None<T>();
+            if (!hasValue) return true;
+
+            if (reader.TryRead(out T val))
+            {
+                result = Option.Some(val);
+                return true;
+            }
+
+            return false;
         }
 
         public bool TryReadOptional<T>(bool hasValue, out Option<T> result, TryReadFunc<T> readFunc)
@@ -214,12 +236,41 @@ public static partial class SequenceReaderExtensions
             return false;
         }
 
-        public bool TryReadPrefixedArray<T>(TryReadFunc<T> readElementFunc, out T[] result)
+        public bool TryReadPrefixedArray<T>(out T[] result) where T : IServerboundDataType<T>
+        {
+            result = [];
+
+            return reader.TryReadVarInt(out int length)
+                   && reader.TryReadArray(length, out result);
+        }
+
+        public bool TryReadPrefixedArray<T>(out T[] result, TryReadFunc<T> readElementFunc)
         {
             result = [];
 
             return reader.TryReadVarInt(out int length)
                    && reader.TryReadArray(length, out result, readElementFunc);
+        }
+
+        public bool TryReadArray<T>(int length, out T[] result) where T : IServerboundDataType<T>
+        {
+            result = [];
+            if (length < 0) return false;
+
+            T[] array = new T[length];
+
+            for (int i = 0; i < length; i++)
+            {
+                if (!reader.TryRead(out T element))
+                {
+                    return false;
+                }
+
+                array[i] = element;
+            }
+
+            result = array;
+            return true;
         }
 
         public bool TryReadArray<T>(int length, out T[] result, TryReadFunc<T> readElementFunc)

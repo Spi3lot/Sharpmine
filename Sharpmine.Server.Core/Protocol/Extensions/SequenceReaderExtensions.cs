@@ -14,9 +14,9 @@ public static partial class SequenceReaderExtensions
 
     public delegate bool TryReadFunc<T>(ref SequenceReader<byte> reader, out T value);
 
-    private const int SegmentBits = 0x7F;
+    private const byte SegmentBits = 0x7F;
 
-    private const int ContinueBit = ~0x7F;
+    private const byte ContinueBit = 0x80;
 
     extension(ref SequenceReader<byte> reader)
     {
@@ -120,10 +120,8 @@ public static partial class SequenceReaderExtensions
             size = 0;
             int position = 0;
 
-            while (true)
+            while (reader.TryRead(out byte currentByte))
             {
-                if (!reader.TryRead(out byte currentByte)) return false;
-
                 size++;
                 result |= (currentByte & SegmentBits) << position;
                 if ((currentByte & ContinueBit) == 0) return true;
@@ -136,6 +134,8 @@ public static partial class SequenceReaderExtensions
                     return false;
                 }
             }
+
+            return false;
         }
 
         public bool TryReadVarLong(out long result) => reader.TryReadVarLong(out result, out _);
@@ -146,10 +146,8 @@ public static partial class SequenceReaderExtensions
             size = 0;
             int position = 0;
 
-            while (true)
+            while (reader.TryRead(out byte currentByte))
             {
-                if (!reader.TryRead(out byte currentByte)) return false;
-
                 size++;
                 result |= (long) (currentByte & SegmentBits) << position;
                 if ((currentByte & ContinueBit) == 0) return true;
@@ -162,6 +160,8 @@ public static partial class SequenceReaderExtensions
                     return false;
                 }
             }
+
+            return false;
         }
 
         public bool TryReadString(out string result, short maxLength = short.MaxValue)

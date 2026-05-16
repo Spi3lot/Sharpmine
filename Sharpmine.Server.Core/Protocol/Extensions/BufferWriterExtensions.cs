@@ -12,6 +12,10 @@ namespace Sharpmine.Server.Core.Protocol.Extensions;
 public static partial class BufferWriterExtensions
 {
 
+    private const byte SegmentBits = 0x7F;
+
+    private const byte ContinueBit = 0x80;
+
     extension(IBufferWriter<byte> writer)
     {
 
@@ -92,18 +96,31 @@ public static partial class BufferWriterExtensions
 
         public void WriteVarInt(int value)
         {
-            uint unsigned = (uint) value;
-            var span = writer.GetSpan(5);
+            var span = writer.GetSpan(5); // 5 == ceil(32 / 7)
             int written = 0;
 
-            do
+            while ((value & ~SegmentBits) != 0)
             {
-                byte temp = (byte) (unsigned & 127);
-                unsigned >>= 7;
-                if (unsigned != 0) temp |= 128;
-                span[written++] = temp;
-            } while (unsigned != 0);
+                span[written++] = (byte) ((value & SegmentBits) | ContinueBit);
+                value >>>= 7;
+            }
 
+            span[written++] = (byte) value;
+            writer.Advance(written);
+        }
+
+        public void WriteVarLong(long value)
+        {
+            var span = writer.GetSpan(10); // 10 == ceil(64 / 7)
+            int written = 0;
+
+            while ((value & ~((long) SegmentBits)) != 0)
+            {
+                span[written++] = (byte) ((value & SegmentBits) | ContinueBit);
+                value >>>= 7;
+            }
+
+            span[written++] = (byte) value;
             writer.Advance(written);
         }
 

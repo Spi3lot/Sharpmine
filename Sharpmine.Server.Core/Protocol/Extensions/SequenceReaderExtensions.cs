@@ -297,13 +297,27 @@ public static partial class SequenceReaderExtensions
         public bool TryReadEnum<TEnum>(out TEnum value)
             where TEnum : unmanaged, Enum
         {
-            return reader.TryReadEnum(out value, static (ref reader, out value) => reader.TryReadVarInt(out value));
+            if (!reader.TryReadVarInt(out int rawValue))
+            {
+                value = default;
+                return false;
+            }
+
+            value = Unsafe.As<int, TEnum>(ref rawValue);
+            return true;
         }
 
         public bool TryReadEnum<TEnum>(out TEnum value, TryReadFunc<int> readFunc)
             where TEnum : unmanaged, Enum
         {
-            return reader.TryReadEnum<TEnum, int>(out value, readFunc);
+            if (!readFunc(ref reader, out int rawValue))
+            {
+                value = default;
+                return false;
+            }
+
+            value = Unsafe.As<int, TEnum>(ref rawValue);
+            return true;
         }
 
         public bool TryReadEnum<TEnum, TUnderlying>(out TEnum value, TryReadFunc<TUnderlying> readFunc)

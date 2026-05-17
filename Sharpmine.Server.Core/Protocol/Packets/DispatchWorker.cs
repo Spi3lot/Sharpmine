@@ -1,18 +1,21 @@
 using System.Threading.Channels;
 
+using Microsoft.Extensions.Logging;
+
 namespace Sharpmine.Server.Core.Protocol.Packets;
 
-public class DispatchWorker(
+public partial class DispatchWorker(
     Channel<IServerboundPacket> channel,
     ClientHandler client,
-    PacketDispatcher packetDispatcher) : ChannelWorker<IServerboundPacket>(channel)
+    PacketDispatcher packetDispatcher,
+    ILogger<DispatchWorker> logger) : ChannelWorker<IServerboundPacket>(channel)
 {
 
     protected override ValueTask ProcessAsync(IServerboundPacket currentItem, CancellationToken cancellationToken)
     {
         if (packetDispatcher.DispatchAsync(currentItem, client, cancellationToken) is not { } handleTask)
         {
-            client.LogNoPacketHandler(currentItem);
+            LogNoPacketHandler(currentItem);
             return ValueTask.CompletedTask;
         }
 
@@ -21,7 +24,7 @@ public class DispatchWorker(
 
     protected override Task OnErrorAsync(Exception ex, IServerboundPacket? currentItem)
     {
-        client.LogErrorWhileHandlingPacket(ex, currentItem);
+        LogErrorWhileHandlingPacket(ex, currentItem);
         return client.DisconnectAsync("Internal server error during packet handling");
     }
 

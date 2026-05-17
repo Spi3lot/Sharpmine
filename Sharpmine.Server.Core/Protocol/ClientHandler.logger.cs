@@ -13,12 +13,6 @@ public partial class ClientHandler
     [LoggerMessage(LogLevel.Error, "An error occurred while handling the client")]
     partial void LogErrorWhileHandling(Exception error);
 
-    [LoggerMessage(LogLevel.Error, "An error occurred while handling {Packet}")]
-    public partial void LogErrorWhileHandlingPacket(Exception ex, IServerboundPacket? packet);
-
-    [LoggerMessage(LogLevel.Warning, "Missing handler for {Packet}")]
-    public partial void LogNoPacketHandler(IServerboundPacket packet);
-
     [LoggerMessage(LogLevel.Warning, "Disconnect requested in state {State}, aborting forcefully")]
     partial void LogDisconnectRequestedInInvalidState(Exception ex, ProtocolState state);
 

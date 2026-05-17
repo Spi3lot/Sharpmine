@@ -5,13 +5,15 @@ namespace Sharpmine.Server.Core.Protocol.Packets;
 public abstract class ChannelWorker<T>(Channel<T> channel)
 {
 
+    protected Channel<T> Channel { get; } = channel;
+
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         T? currentItem = default;
 
         try
         {
-            await foreach (T item in channel.Reader.ReadAllAsync(cancellationToken))
+            await foreach (T item in Channel.Reader.ReadAllAsync(cancellationToken))
             {
                 currentItem = item;
                 await ProcessAsync(currentItem, cancellationToken);

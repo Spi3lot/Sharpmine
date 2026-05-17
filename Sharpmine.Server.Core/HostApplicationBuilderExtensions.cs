@@ -33,7 +33,6 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddSingleton<PacketReceiver>();
             builder.Services.AddSingleton<PacketDispatcher>();
             builder.Services.AddTransient<PacketSerializer>();
-            builder.Services.AddTransient<PacketTransmitter>();
             builder.Services.AddSingleton<ServerCapacityManager>();
             builder.Services.AddSingleton<ServerService>();
             builder.Services.AddHostedService<ServerService>(sp => sp.GetRequiredService<ServerService>());

@@ -8,6 +8,7 @@ using Sharpmine.Server.Core.Configuration;
 using Sharpmine.Server.Core.Domain;
 using Sharpmine.Server.Core.Protocol;
 using Sharpmine.Server.Core.Protocol.Handlers;
+using Sharpmine.Server.Core.Protocol.Packets;
 using Sharpmine.Server.Core.Security;
 
 namespace Sharpmine.Server.Core;
@@ -34,7 +35,6 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddTransient<PacketSerializer>();
             builder.Services.AddTransient<PacketTransmitter>();
             builder.Services.AddSingleton<ServerCapacityManager>();
-            builder.Services.AddSingleton<ClientHandlerFactory>();
             builder.Services.AddSingleton<ServerService>();
             builder.Services.AddHostedService<ServerService>(sp => sp.GetRequiredService<ServerService>());
 
@@ -44,6 +44,14 @@ public static class HostApplicationBuilderExtensions
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime());
 
+            return builder.AddFactoryServices();
+        }
+
+        public TBuilder AddFactoryServices()
+        {
+            builder.Services.AddSingleton<ClientHandlerFactory>();
+            builder.Services.AddSingleton<TransmissionWorkerFactory>();
+            builder.Services.AddSingleton<DispatchWorkerFactory>();
             return builder;
         }
 

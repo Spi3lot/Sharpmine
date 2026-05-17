@@ -13,9 +13,6 @@ public partial class ClientHandler
     [LoggerMessage(LogLevel.Error, "An error occurred while handling the client")]
     partial void LogErrorWhileHandling(Exception error);
 
-    [LoggerMessage(LogLevel.Error, "An error occurred while transmitting {Packet}")]
-    public partial void LogErrorWhileTransmittingPacket(Exception ex, IClientboundPacket? packet);
-
     [LoggerMessage(LogLevel.Error, "An error occurred while handling {Packet}")]
     public partial void LogErrorWhileHandlingPacket(Exception ex, IServerboundPacket? packet);
 

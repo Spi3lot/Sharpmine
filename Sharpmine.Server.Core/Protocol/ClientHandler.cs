@@ -18,8 +18,8 @@ public sealed partial class ClientHandler(
     string ip,
     TcpClient client,
     PacketReceiver packetReceiver,
-    PacketDispatcher packetDispatcher,
-    PacketTransmitter packetTransmitter,
+    DispatchWorkerFactory dispatchWorkerFactory,
+    TransmissionWorkerFactory transmissionWorkerFactory,
     ServerCapacityManager serverCapacityManager,
     ILogger<ClientHandler> logger) : IDisposable
 {
@@ -65,8 +65,8 @@ public sealed partial class ClientHandler(
             }
 
             _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _transmissionTask = new TransmissionWorker(_clientboundChannel, this, writer, packetTransmitter).StartAsync(_cts.Token);
-            dispatchTask = new DispatchWorker(_serverboundChannel, this, packetDispatcher).StartAsync(_cts.Token);
+            _transmissionTask = transmissionWorkerFactory.Create(_clientboundChannel, this, writer).StartAsync(_cts.Token);
+            dispatchTask = dispatchWorkerFactory.Create(_serverboundChannel, this).StartAsync(_cts.Token);
 
             while (await TryReceivePacketAsync(reader, _cts.Token)) ;
         }

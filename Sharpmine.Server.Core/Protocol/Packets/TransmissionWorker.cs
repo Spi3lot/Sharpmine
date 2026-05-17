@@ -1,13 +1,16 @@
 using System.IO.Pipelines;
 using System.Threading.Channels;
 
+using Microsoft.Extensions.Logging;
+
 namespace Sharpmine.Server.Core.Protocol.Packets;
 
-public class TransmissionWorker(
+public partial class TransmissionWorker(
     Channel<IClientboundPacket> channel,
     ClientHandler client,
     PipeWriter pipeWriter,
-    PacketTransmitter packetTransmitter) : ChannelWorker<IClientboundPacket>(channel)
+    PacketSerializer packetSerializer,
+    ILogger<TransmissionWorker> logger) : ChannelWorker<IClientboundPacket>(channel)
 {
 
     protected override async ValueTask ProcessAsync(IClientboundPacket currentItem, CancellationToken cancellationToken)
@@ -20,7 +23,7 @@ public class TransmissionWorker(
 
     protected override Task OnErrorAsync(Exception ex, IClientboundPacket? currentItem)
     {
-        client.LogErrorWhileTransmittingPacket(ex, currentItem);
+        LogErrorWhileTransmittingPacket(ex, currentItem);
         return client.AbortForcefullyAsync();
     }
 

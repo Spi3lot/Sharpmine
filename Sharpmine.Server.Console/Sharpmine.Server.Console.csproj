@@ -18,28 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="..\SharedConfig\appsettings.json" Link="appsettings.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="..\SharedConfig\appsettings.Development.json" Link="appsettings.Development.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="..\SharedConfig\server.properties" Link="server.properties">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="..\SharedConfig\blacklist.json" Link="blacklist.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="..\SharedConfig\banned-ips.json" Link="banned-ips.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="..\SharedConfig\banned-players.json" Link="banned-players.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="..\SharedConfig\whitelist.json" Link="whitelist.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="..\SharedConfig\ops.json" Link="ops.json">
+        <Content Include="..\SharedConfig\*.*" Link="%(Filename)%(Extension)">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>

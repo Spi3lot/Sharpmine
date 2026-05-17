@@ -28,8 +28,8 @@ public partial class PacketReceiver
     [LoggerMessage(LogLevel.Warning, "Received legacy ping, closing connection")]
     partial void LogReceivedLegacyPing();
 
-    [LoggerMessage(LogLevel.Debug, "Received {State}:0x{Id:X2} with {Length} bytes: {Packet}")]
-    partial void LogReceivedPacket(IServerboundPacket packet, ProtocolState state, int id, int length);
+    [LoggerMessage(LogLevel.Debug, "Received {Length} bytes: {Packet}")]
+    partial void LogReceivedPacket(IServerboundPacket packet, int length);
 
     [LoggerMessage(LogLevel.Debug, "Pending pipe read was canceled")]
     partial void LogPendingPipeReadCanceled();

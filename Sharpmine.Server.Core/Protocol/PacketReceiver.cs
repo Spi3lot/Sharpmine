@@ -98,7 +98,7 @@ public partial class PacketReceiver(ILogger<PacketTransmitter> logger)
             return (packet is not IStateTransition, null);
         }
 
-        LogReceivedPacket(packet, state, packetId, length);
+        LogReceivedPacket(packet, length);
         pipeReader.AdvanceTo(packetSlice.End);
         return (true, packet);
     }

@@ -1,5 +1,4 @@
-﻿using Optional;
-
+﻿using Sharpmine.Server.Core.Configuration;
 using Sharpmine.Server.Core.Protocol.DataTypes;
 using Sharpmine.Server.Core.Protocol.Packets.Login.Clientbound;
 using Sharpmine.Server.Core.Security;
@@ -9,6 +8,7 @@ using HelloPacket = Sharpmine.Server.Core.Protocol.Packets.Login.Serverbound.Hel
 namespace Sharpmine.Server.Core.Protocol.Handlers.Login;
 
 public class HelloPacketHandler(
+    ServerProperties properties,
     PlayerAccessManager playerAccessManager,
     ServerCapacityManager serverCapacityManager) : IPacketHandler<HelloPacket>
 {
@@ -26,21 +26,24 @@ public class HelloPacketHandler(
             return;
         }
 
-        if (!serverCapacityManager.TryReserveSlot(playerAccessManager.BypassesPlayerLimit(packet.Uuid)))
+        var player = new StatusPlayer(packet.Name, packet.Uuid);
+        bool bypassesPlayerLimit = playerAccessManager.BypassesPlayerLimit(packet.Uuid);
+
+        if (!serverCapacityManager.TryReserveSlot(client.Id, player, bypassesPlayerLimit))
         {
             await client.DisconnectAsync("Server is full!");
             return;
         }
 
-        client.OccupiesPlayerSlot = true;
-
-        // TODO: Send empty .Properties (only in offline-mode)
-        var profile = new GameProfile(
-            packet.Uuid,
-            packet.Name,
-            [new GameProfileProperty("textures", "1337", Option.Some("Singapore"))]);
-
-        client.SendPacket(new LoginFinishedPacket(profile));
+        if (properties.OnlineMode)
+        {
+            // TODO
+        }
+        else
+        {
+            var profile = new GameProfile(packet.Uuid, packet.Name, []);
+            client.SendPacket(new LoginFinishedPacket(profile));
+        }
     }
 
 }

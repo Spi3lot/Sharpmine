@@ -46,8 +46,6 @@ public sealed partial class ClientHandler(
 
     public ProtocolState State { get; private set; } = ProtocolState.Handshake;
 
-    public bool OccupiesPlayerSlot { get; internal set; }
-
     public ClientInformationPacket? Information { get; internal set; }
 
     public async Task HandleAsync(CancellationToken cancellationToken)
@@ -241,13 +239,7 @@ public sealed partial class ClientHandler(
         Client.Dispose();
         _cts?.Dispose();
         _cts = null;
-
-        if (OccupiesPlayerSlot)
-        {
-            serverCapacityManager.ReleaseSlot();
-            OccupiesPlayerSlot = false;
-        }
-
+        serverCapacityManager.TryReleaseSlot(Id);
         Terminated?.Invoke();
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Immutable;
+using System.Text;
 
 namespace Sharpmine.Server.Core.Protocol.DataTypes;
 
@@ -21,7 +22,7 @@ public record ServerStatus(
 
 public record StatusVersion(string Name, int? Protocol = null);
 
-public record StatusPlayers(int Max, int Online, List<StatusPlayer>? Sample = null)
+public record StatusPlayers(int Max, int Online, ImmutableArray<StatusPlayer>? Sample = null)
 {
 
     public override string ToString()

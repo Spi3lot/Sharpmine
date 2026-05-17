@@ -1,15 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Collections.Immutable;
 
 using Sharpmine.Server.Core.Configuration;
+using Sharpmine.Server.Core.Protocol.DataTypes;
 
 namespace Sharpmine.Server.Core.Security;
 
-public partial class ServerCapacityManager(ServerProperties properties, ILogger<ServerCapacityManager> logger)
+public class ServerCapacityManager(ServerProperties properties)
 {
 
     private readonly Lock _capacityLock = new();
 
-    private int _onlinePlayerCount;
+    private readonly Dictionary<Guid, StatusPlayer> _onlinePlayers = [];
 
     public int OnlinePlayerCount
     {
@@ -17,36 +18,38 @@ public partial class ServerCapacityManager(ServerProperties properties, ILogger<
         {
             lock (_capacityLock)
             {
-                return _onlinePlayerCount;
+                return _onlinePlayers.Count;
             }
         }
     }
 
-    public bool TryReserveSlot(bool bypassLimit)
+    public ImmutableArray<StatusPlayer> GetOnlinePlayers()
     {
         lock (_capacityLock)
         {
-            if (_onlinePlayerCount >= properties.MaxPlayers && !bypassLimit)
+            return [.. _onlinePlayers.Values];
+        }
+    }
+
+    public bool TryReserveSlot(Guid id, StatusPlayer player, bool bypassLimit)
+    {
+        lock (_capacityLock)
+        {
+            if (_onlinePlayers.Count >= properties.MaxPlayers && !bypassLimit)
             {
                 return false;
             }
 
-            _onlinePlayerCount++;
+            _onlinePlayers[id] = player;
             return true;
         }
     }
 
-    public void ReleaseSlot()
+    public bool TryReleaseSlot(Guid id)
     {
         lock (_capacityLock)
         {
-            if (_onlinePlayerCount <= 0)
-            {
-                LogAttemptedPlayerSlotReleaseAlthoughNoneReserved();
-                return;
-            }
-
-            _onlinePlayerCount--;
+            return _onlinePlayers.Remove(id);
         }
     }
 

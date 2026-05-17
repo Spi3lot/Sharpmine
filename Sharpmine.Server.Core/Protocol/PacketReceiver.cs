@@ -8,7 +8,7 @@ using Sharpmine.Server.Core.Protocol.Packets;
 
 namespace Sharpmine.Server.Core.Protocol;
 
-public partial class PacketReceiver(ILogger<PacketTransmitter> logger)
+public partial class PacketReceiver(ILogger<PacketReceiver> logger)
 {
 
     public async Task<(bool KeepAlive, IServerboundPacket? Packet)> ReceiveAsync(

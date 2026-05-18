@@ -6,7 +6,10 @@ using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
-public record GameProfileProperty(string Name, string Value, Option<string> Signature) : IClientboundDataType
+public readonly record struct GameProfileProperty(
+    string Name,
+    string Value,
+    Option<string> Signature) : IClientboundDataType
 {
 
     public void Serialize(IBufferWriter<byte> writer)

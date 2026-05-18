@@ -4,7 +4,10 @@ using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
-public record GameProfile(Guid Uuid, string Username, GameProfileProperty[] Properties) : IClientboundDataType
+public readonly record struct GameProfile(
+    Guid Uuid,
+    string Username,
+    GameProfileProperty[] Properties) : IClientboundDataType
 {
 
     public void Serialize(IBufferWriter<byte> writer)

@@ -42,7 +42,7 @@ public class HelloPacketHandler(
         else
         {
             var profile = new GameProfile(packet.Uuid, packet.Name, []);
-            client.SendPacket(new LoginFinishedPacket(profile));
+            client.SendPacket(new LoginFinishedPacket(in profile));
         }
     }
 

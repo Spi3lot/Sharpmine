@@ -12,7 +12,8 @@ The project aims to provide a cross-platform, high-performance, efficient server
 
 ## Project Structure
 
-* `Sharpmine.Server.Core`: Contains the core game logic, `System.IO.Pipelines` networking, and protocol implementation.
+* `Sharpmine.Domain`: Contains types that are not only relevant to the server but also to a possible future client.
+* `Sharpmine.Server.Infrastructure`: Contains the core game logic, `System.IO.Pipelines` networking and protocol implementation.
 * `Sharpmine.Server.Console`: Lightweight console application that basically just wraps `Sharpmine.Server.Core`.
 * `Sharpmine.Server.Wpf`: A Windows-native desktop application built with WPF, also wrapping `Sharpmine.Server.Core` but displaying logs in a more user-friendly way.
 * `Sharpmine.Gen`: The incremental source generator for the protocol. It automates the generation of a dedicated class for each and every Minecraft packet.

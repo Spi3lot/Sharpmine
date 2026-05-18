@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 
 using Raspite.Tags;
 
-namespace Sharpmine.Server.Core.Domain;
+namespace Sharpmine.Domain;
 
 public static class JsonToNbtConverter
 {

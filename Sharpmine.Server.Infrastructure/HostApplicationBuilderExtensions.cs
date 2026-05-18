@@ -4,14 +4,14 @@ using Microsoft.Extensions.Hosting;
 
 using Serilog;
 
-using Sharpmine.Server.Core.Configuration;
-using Sharpmine.Server.Core.Domain;
-using Sharpmine.Server.Core.Protocol;
-using Sharpmine.Server.Core.Protocol.Handlers;
-using Sharpmine.Server.Core.Protocol.Packets;
-using Sharpmine.Server.Core.Security;
+using Sharpmine.Domain;
+using Sharpmine.Server.Infrastructure.Configuration;
+using Sharpmine.Server.Infrastructure.Protocol;
+using Sharpmine.Server.Infrastructure.Protocol.Handlers;
+using Sharpmine.Server.Infrastructure.Protocol.Packets;
+using Sharpmine.Server.Infrastructure.Security;
 
-namespace Sharpmine.Server.Core;
+namespace Sharpmine.Server.Infrastructure;
 
 public static class HostApplicationBuilderExtensions
 {
@@ -26,9 +26,10 @@ public static class HostApplicationBuilderExtensions
                 optional: true,
                 reloadOnChange: true);
 
+            builder.AddDomainServices();
             builder.Services.AddSerilog();
             builder.Services.AddSingleton(builder.Configuration.Get<ServerProperties>() ?? new ServerProperties());
-            builder.Services.AddSingleton<RegistryCache>();
+            builder.Services.AddSingleton<NetworkRegistryCache>();
             builder.Services.AddSingleton<PlayerAccessManager>();
             builder.Services.AddSingleton<PacketReceiver>();
             builder.Services.AddSingleton<PacketDispatcher>();

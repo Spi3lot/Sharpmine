@@ -3,41 +3,25 @@ using System.Text.Json.Nodes;
 
 using Optional;
 
-using Sharpmine.Server.Core.Protocol.DataTypes;
-using Sharpmine.Server.Core.Protocol.Packets;
-using Sharpmine.Server.Core.Protocol.Packets.Configuration.Clientbound;
+using Raspite.Tags;
 
-namespace Sharpmine.Server.Core.Domain;
+namespace Sharpmine.Domain;
 
 public class RegistryCache
 {
 
     private static readonly string[] SynchronizedRegistryNames =
     [
-        "banner_pattern",
-        "chat_type",
-        "damage_type",
-        "dialog",
-        "dimension_type",
-        "enchantment",
-        "instrument",
-        "jukebox_song",
-        "painting_variant",
-        "trim_material",
-        "trim_pattern",
-        "worldgen/biome",
-        "cat_variant",
-        "chicken_variant",
-        "cow_variant",
-        "frog_variant",
-        "pig_variant",
-        "wolf_variant",
-        "wolf_sound_variant"
+        "banner_pattern", "chat_type", "damage_type", "dialog", "dimension_type",
+        "enchantment", "instrument", "jukebox_song", "painting_variant",
+        "trim_material", "trim_pattern", "worldgen/biome", "cat_variant",
+        "chicken_variant", "cow_variant", "frog_variant", "pig_variant",
+        "wolf_variant", "wolf_sound_variant"
     ];
 
     public RegistryCache()
     {
-        List<PreSerializedPacket> packets = [];
+        List<Registry> folders = [];
 
         foreach (var registryFolder in GetRegistryFolders())
         {
@@ -47,14 +31,13 @@ public class RegistryCache
                 let nbtTag = JsonToNbtConverter.Convert(jsonNode, string.Empty)
                 select new RegistryEntry(file.Name, Option.Some(nbtTag));
 
-            var packet = new RegistryDataPacket(registryFolder.RegistryId, entries.ToArray());
-            packets.Add(PreSerializedPacket.Generate(packet));
+            folders.Add(new Registry(registryFolder.RegistryId, entries.ToArray()));
         }
 
-        Packets = [.. packets];
+        Registries = [.. folders];
     }
 
-    public ImmutableArray<PreSerializedPacket> Packets { get; }
+    public ImmutableArray<Registry> Registries { get; }
 
     private static IEnumerable<RegistryFolderData> GetRegistryFolders()
     {
@@ -83,8 +66,12 @@ public class RegistryCache
         }
     }
 
-    private record struct RegistryFolderData(string RegistryId, RegistryFileData[] Files);
+    private readonly record struct RegistryFolderData(string RegistryId, RegistryFileData[] Files);
 
-    private record struct RegistryFileData(string Name, byte[] Bytes);
+    private readonly record struct RegistryFileData(string Name, byte[] Bytes);
 
 }
+
+public readonly record struct Registry(string RegistryId, RegistryEntry[] Entries);
+
+public readonly record struct RegistryEntry(string EntryId, Option<Tag> Data);

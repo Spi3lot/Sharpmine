@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="Sharpmine.AppHost/Sharpmine.AppHost.csproj" />
+  <Project Path="Sharpmine.Domain/Sharpmine.Domain.csproj" />
   <Project Path="Sharpmine.Gen/Sharpmine.Gen.csproj" />
   <Project Path="Sharpmine.Server.Console/Sharpmine.Server.Console.csproj" />
   <Project Path="Sharpmine.Server.Infrastructure/Sharpmine.Server.Infrastructure.csproj" />

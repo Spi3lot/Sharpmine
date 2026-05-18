@@ -9,7 +9,7 @@ using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
-public record RegistryEntry(string EntryId, Option<Tag> Data) : IClientboundDataType
+public readonly record struct RegistryEntry(string EntryId, Option<Tag> Data) : IClientboundDataType
 {
 
     public void Serialize(IBufferWriter<byte> writer)

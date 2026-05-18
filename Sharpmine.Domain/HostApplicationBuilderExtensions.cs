@@ -11,7 +11,12 @@ public static class HostApplicationBuilderExtensions
 
         public TBuilder AddDomainServices()
         {
-            builder.Services.AddSingleton<RegistryCache>();
+            builder.Services.AddSingleton(sp =>
+            {
+                var loader = sp.GetRequiredService<IRegistryLoader>();
+                return new RegistryCache(loader.Load());
+            });
+
             return builder;
         }
 

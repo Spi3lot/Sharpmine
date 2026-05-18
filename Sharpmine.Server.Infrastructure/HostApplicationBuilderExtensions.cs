@@ -29,6 +29,7 @@ public static class HostApplicationBuilderExtensions
             builder.AddDomainServices();
             builder.Services.AddSerilog();
             builder.Services.AddSingleton(builder.Configuration.Get<ServerProperties>() ?? new ServerProperties());
+            builder.Services.AddSingleton<IRegistryLoader, DiskRegistryLoader>();
             builder.Services.AddSingleton<NetworkRegistryCache>();
             builder.Services.AddSingleton<PlayerAccessManager>();
             builder.Services.AddSingleton<PacketReceiver>();

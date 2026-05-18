@@ -2,7 +2,7 @@
 
 namespace Sharpmine.Server.Core.Protocol.Packets.Login.Serverbound;
 
-public partial record LoginAcknowledgedPacket : IStateTransition, IHandlerless
+public partial record LoginAcknowledgedPacket : IStateTransition
 {
 
     public ProtocolState NextState => ProtocolState.Configuration;

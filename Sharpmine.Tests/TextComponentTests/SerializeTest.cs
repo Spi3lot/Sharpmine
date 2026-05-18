@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-using Sharpmine.Server.Core.Protocol.DataTypes;
+using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
 using static Sharpmine.Tests.TextComponentTests.ITextComponentTest;
 

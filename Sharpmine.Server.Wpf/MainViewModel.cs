@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
-using Sharpmine.Server.Core;
+using Sharpmine.Server.Infrastructure;
 
 namespace Sharpmine.Server.Wpf;
 

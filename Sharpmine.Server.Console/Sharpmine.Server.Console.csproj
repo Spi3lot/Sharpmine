@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Sharpmine.Server.Core\Sharpmine.Server.Core.csproj" />
+        <ProjectReference Include="..\Sharpmine.Server.Infrastructure\Sharpmine.Server.Infrastructure.csproj" />
         <ProjectReference Include="..\Sharpmine.ServiceDefaults\Sharpmine.ServiceDefaults.csproj" />
     </ItemGroup>
 

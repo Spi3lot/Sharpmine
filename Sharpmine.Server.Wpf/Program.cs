@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 
 using Serilog;
 
-using Sharpmine.Server.Core;
+using Sharpmine.Server.Infrastructure;
 
 namespace Sharpmine.Server.Wpf;
 

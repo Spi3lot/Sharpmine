@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Sharpmine.Server.Core\Sharpmine.Server.Core.csproj" />
+      <ProjectReference Include="..\Sharpmine.Server.Infrastructure\Sharpmine.Server.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

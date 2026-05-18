@@ -14,7 +14,7 @@ namespace Sharpmine.Gen;
 public class PacketGenerator : IIncrementalGenerator
 {
 
-    private const string ProtocolNamespace = "Sharpmine.Server.Core.Protocol";
+    private const string ProtocolNamespace = "Sharpmine.Server.Infrastructure.Protocol";
 
     private const string PacketsNamespace = $"{ProtocolNamespace}.Packets";
 

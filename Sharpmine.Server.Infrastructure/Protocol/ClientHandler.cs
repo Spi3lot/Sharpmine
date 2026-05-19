@@ -74,7 +74,7 @@ public sealed partial class ClientHandler(
         {
             LogDisconnectingClient(this, "Operation canceled");
         }
-        catch (Exception ex) when (ex is SocketException or IOException)
+        catch (Exception ex) when (ex is SocketException or { InnerException: SocketException or { InnerException: SocketException } })
         {
             LogClientDisconnected(this);
         }

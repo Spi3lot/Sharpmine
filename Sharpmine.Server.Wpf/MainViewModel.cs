@@ -28,12 +28,12 @@ public class MainViewModel : INotifyPropertyChanged
     {
         _sink = sink;
 
-        serverService.ClientConnectionEstablished += handler =>
+        serverService.ClientConnectionEstablished += (_, handler) =>
         {
             Application.Current.Dispatcher.InvokeAsync(() => ConnectedClients.Add(new ClientSession(handler.Id, handler.Ip)));
         };
 
-        serverService.ClientConnectionTerminated += handler =>
+        serverService.ClientConnectionTerminated += (_, handler) =>
         {
             Application.Current.Dispatcher.InvokeAsync(() =>
             {

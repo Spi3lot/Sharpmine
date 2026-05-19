@@ -34,7 +34,7 @@ public class NetworkRegistryCache
 
     public NetworkRegistryCache(RegistryCache cache)
     {
-        List<PreSerializedPacket> packets = [];
+        List<PreSerializedPacket<RegistryDataPacket>> packets = [];
 
         foreach (string registryId in SynchronizedRegistryIds)
         {
@@ -56,6 +56,6 @@ public class NetworkRegistryCache
         Packets = [.. packets];
     }
 
-    public ImmutableArray<PreSerializedPacket> Packets { get; }
+    public ImmutableArray<PreSerializedPacket<RegistryDataPacket>> Packets { get; }
 
 }

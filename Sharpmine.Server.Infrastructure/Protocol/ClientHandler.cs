@@ -36,7 +36,7 @@ public sealed partial class ClientHandler(
 
     private volatile bool _aborted;
 
-    public event Action? Terminated;
+    public event EventHandler? Terminated;
 
     public Guid Id { get; } = Guid.CreateVersion7();
 
@@ -240,7 +240,7 @@ public sealed partial class ClientHandler(
         _cts?.Dispose();
         _cts = null;
         serverCapacityManager.TryReleaseSlot(Id);
-        Terminated?.Invoke();
+        Terminated?.Invoke(this, EventArgs.Empty);
     }
 
     public override string ToString() => Ip;

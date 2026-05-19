@@ -18,9 +18,9 @@ public partial class ServerService(
     ILogger<ServerService> logger) : BackgroundService
 {
 
-    public event Action<ClientHandler>? ClientConnectionEstablished;
+    public event EventHandler<ClientHandler>? ClientConnectionEstablished;
 
-    public event Action<ClientHandler>? ClientConnectionTerminated;
+    public event EventHandler<ClientHandler>? ClientConnectionTerminated;
 
     public ConcurrentDictionary<Guid, ClientHandler> Clients { get; } = [];
 
@@ -108,13 +108,13 @@ public partial class ServerService(
     {
         Clients[handler.Id] = handler;
 
-        handler.Terminated += () =>
+        handler.Terminated += (_, _) =>
         {
             Clients.TryRemove(handler.Id, out _);
-            ClientConnectionTerminated?.Invoke(handler);
+            ClientConnectionTerminated?.Invoke(this, handler);
         };
 
-        ClientConnectionEstablished?.Invoke(handler);
+        ClientConnectionEstablished?.Invoke(this, handler);
     }
 
 }

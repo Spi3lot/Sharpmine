@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using Optional;
 
 using Sharpmine.Domain;
+using Sharpmine.Domain.Registries;
 
 namespace Sharpmine.Server.Infrastructure.Configuration;
 

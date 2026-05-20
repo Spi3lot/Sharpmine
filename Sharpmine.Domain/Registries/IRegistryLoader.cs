@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace Sharpmine.Domain;
+namespace Sharpmine.Domain.Registries;
 
 public interface IRegistryLoader
 {

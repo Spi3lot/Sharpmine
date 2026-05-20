@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using Sharpmine.Domain.Registries;
+using Sharpmine.Domain.Tags;
+
 namespace Sharpmine.Domain;
 
 public static class HostApplicationBuilderExtensions

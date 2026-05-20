@@ -1,7 +1,7 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 
-namespace Sharpmine.Domain;
+namespace Sharpmine.Domain.Registries;
 
 public class RegistryCache
 {

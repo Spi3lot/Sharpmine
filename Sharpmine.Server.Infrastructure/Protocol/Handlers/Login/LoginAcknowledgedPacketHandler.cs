@@ -3,7 +3,9 @@ using Sharpmine.Server.Infrastructure.Protocol.Packets.Login.Serverbound;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Handlers.Login;
 
-public class LoginAcknowledgedPacketHandler(NetworkRegistryCache registryCache) : IPacketHandler<LoginAcknowledgedPacket>
+public class LoginAcknowledgedPacketHandler(
+    NetworkRegistryCache registryCache,
+    NetworkTagCache tagCache) : IPacketHandler<LoginAcknowledgedPacket>
 {
 
     public ValueTask HandleAsync(
@@ -16,6 +18,7 @@ public class LoginAcknowledgedPacketHandler(NetworkRegistryCache registryCache) 
             client.SendPacket(registryDataPacket);
         }
 
+        client.SendPacket(tagCache.Packet);
         client.SendPacket(new FinishConfigurationPacket());
         return ValueTask.CompletedTask;
     }

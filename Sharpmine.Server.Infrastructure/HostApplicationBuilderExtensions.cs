@@ -5,6 +5,8 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 
 using Sharpmine.Domain;
+using Sharpmine.Domain.Registries;
+using Sharpmine.Domain.Tags;
 using Sharpmine.Server.Infrastructure.Configuration;
 using Sharpmine.Server.Infrastructure.Protocol;
 using Sharpmine.Server.Infrastructure.Protocol.Handlers;
@@ -27,6 +29,8 @@ public static class HostApplicationBuilderExtensions
                 reloadOnChange: true);
 
             builder.AddDomainServices();
+            builder.AddRegistryServices();
+            builder.AddTagServices();
             builder.Services.AddSerilog();
             builder.Services.AddSingleton(builder.Configuration.Get<ServerProperties>() ?? new ServerProperties());
             builder.Services.AddSingleton<IRegistryLoader, DiskRegistryLoader>();
@@ -46,6 +50,20 @@ public static class HostApplicationBuilderExtensions
                 .WithSingletonLifetime());
 
             return builder.AddFactoryServices();
+        }
+
+        public TBuilder AddRegistryServices()
+        {
+            builder.Services.AddSingleton<IRegistryLoader, DiskRegistryLoader>();
+            builder.Services.AddSingleton<NetworkRegistryCache>();
+            return builder;
+        }
+
+        public TBuilder AddTagServices()
+        {
+            builder.Services.AddSingleton<ITagLoader, DiskTagLoader>();
+            builder.Services.AddSingleton<NetworkTagCache>();
+            return builder;
         }
 
         public TBuilder AddFactoryServices()

@@ -20,6 +20,12 @@ public static class HostApplicationBuilderExtensions
                 return new RegistryCache(loader.Load());
             });
 
+            builder.Services.AddSingleton(sp =>
+            {
+                var loader = sp.GetRequiredService<ITagLoader>();
+                return new TagCache(loader.Load());
+            });
+
             return builder;
         }
 

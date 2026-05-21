@@ -9,40 +9,15 @@ namespace Sharpmine.Server.Infrastructure.Protocol;
 public class NetworkRegistryCache
 {
 
-    private static readonly string[] SynchronizedRegistryIds =
-    [
-        "minecraft:banner_pattern",
-        "minecraft:chat_type",
-        "minecraft:damage_type",
-        "minecraft:dialog",
-        "minecraft:dimension_type",
-        "minecraft:enchantment",
-        "minecraft:instrument",
-        "minecraft:jukebox_song",
-        "minecraft:painting_variant",
-        "minecraft:trim_material",
-        "minecraft:trim_pattern",
-        "minecraft:worldgen/biome",
-        "minecraft:cat_variant",
-        "minecraft:chicken_variant",
-        "minecraft:cow_variant",
-        "minecraft:frog_variant",
-        "minecraft:pig_variant",
-        "minecraft:wolf_variant",
-        "minecraft:wolf_sound_variant"
-    ];
-
-    public NetworkRegistryCache(RegistryCache cache)
+    public NetworkRegistryCache(RegistryCache registryCache, IProtocol protocol)
     {
         List<PreSerializedPacket<RegistryDataPacket>> packets = [];
 
-        foreach (string registryId in SynchronizedRegistryIds)
+        foreach (string registryId in protocol.SynchronizedRegistryIds)
         {
-            if (!cache.Registries.TryGetValue(registryId, out var registry))
+            if (!registryCache.Registries.TryGetValue(registryId, out var registry))
             {
-                throw new InvalidOperationException(
-                    $"Protocol Synchronization Error: Required registry '{registryId}' has not been loaded. " +
-                    "Verify your asset files exist on disk.");
+                throw new InvalidOperationException($"Protocol Synchronization Error: Required registry '{registryId}' has not been loaded. ");
             }
 
             var entries =

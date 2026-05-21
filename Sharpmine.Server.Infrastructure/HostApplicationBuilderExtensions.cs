@@ -11,6 +11,7 @@ using Sharpmine.Server.Infrastructure.Configuration;
 using Sharpmine.Server.Infrastructure.Protocol;
 using Sharpmine.Server.Infrastructure.Protocol.Handlers;
 using Sharpmine.Server.Infrastructure.Protocol.Packets;
+using Sharpmine.Server.Infrastructure.Protocol.Versions;
 using Sharpmine.Server.Infrastructure.Security;
 
 namespace Sharpmine.Server.Infrastructure;
@@ -33,6 +34,7 @@ public static class HostApplicationBuilderExtensions
             builder.AddTagServices();
             builder.Services.AddSerilog();
             builder.Services.AddSingleton(builder.Configuration.Get<ServerProperties>() ?? new ServerProperties());
+            builder.Services.AddSingleton<IProtocol, Protocol773>();
             builder.Services.AddSingleton<IRegistryLoader, DiskRegistryLoader>();
             builder.Services.AddSingleton<NetworkRegistryCache>();
             builder.Services.AddSingleton<PlayerAccessManager>();

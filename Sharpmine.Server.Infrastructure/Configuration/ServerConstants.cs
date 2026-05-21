@@ -3,10 +3,6 @@
 public static class ServerConstants
 {
 
-    public const int VersionProtocol = 773;
-
-    public const string VersionName = "1.21.10";
-
     public static class FileNames
     {
 

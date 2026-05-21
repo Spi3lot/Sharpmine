@@ -8,24 +8,20 @@ public static class PreSerializedPacket
 {
 
     [ThreadStatic]
-    private static readonly ArrayBufferWriter<byte> ArrayBufferWriter;
-
-    static PreSerializedPacket()
-    {
-        ArrayBufferWriter = new ArrayBufferWriter<byte>();
-    }
+    private static ArrayBufferWriter<byte>? _arrayBufferWriter;
 
     public static PreSerializedPacket<TPacket> Generate<TPacket>(TPacket packet, bool retainUnderlyingPacket = false)
         where TPacket : IClientboundPacket
     {
-        ArrayBufferWriter.Clear();
-        packet.SerializeContent(ArrayBufferWriter);
+        _arrayBufferWriter ??= new ArrayBufferWriter<byte>(1024);
+        _arrayBufferWriter.Clear();
+        packet.SerializeContent(_arrayBufferWriter);
 
         return new PreSerializedPacket<TPacket>(
             packet.SomeWhen(_ => retainUnderlyingPacket),
             packet.State,
             packet.Id,
-            ArrayBufferWriter.WrittenSpan.ToArray());
+            _arrayBufferWriter.WrittenSpan.ToArray());
     }
 
 }

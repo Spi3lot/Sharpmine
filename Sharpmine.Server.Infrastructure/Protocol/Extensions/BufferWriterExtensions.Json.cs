@@ -29,11 +29,11 @@ public static partial class BufferWriterExtensions
 
         public void WriteJsonString<T>(T value)
         {
-            var buffer = _jsonBuffer ??= new ArrayBufferWriter<byte>();
-            buffer.Clear();
-            buffer.WriteJson(value);
-            writer.WriteVarInt(buffer.WrittenCount);
-            writer.Write(buffer.WrittenSpan);
+            _jsonBuffer ??= new ArrayBufferWriter<byte>(1024);
+            _jsonBuffer.Clear();
+            _jsonBuffer.WriteJson(value);
+            writer.WriteVarInt(_jsonBuffer.WrittenCount);
+            writer.Write(_jsonBuffer.WrittenSpan);
         }
 
         public void WriteJson<T>(T value) => writer.WriteJson(value, Options);

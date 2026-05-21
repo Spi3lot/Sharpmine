@@ -14,12 +14,7 @@ public static partial class BufferWriterExtensions
     private const byte ContinueBit = 0x80;
 
     [ThreadStatic]
-    private static readonly ArrayBufferWriter<byte> ArrayBufferWriter;
-
-    static BufferWriterExtensions()
-    {
-        ArrayBufferWriter = new ArrayBufferWriter<byte>();
-    }
+    private static ArrayBufferWriter<byte>? _nbtWriter;
 
     extension(IBufferWriter<byte> writer)
     {
@@ -72,9 +67,10 @@ public static partial class BufferWriterExtensions
                 return;
             }
 
-            ArrayBufferWriter.Clear();
-            TagSerializer.Serialize(ArrayBufferWriter, value);
-            var span = ArrayBufferWriter.WrittenSpan;
+            _nbtWriter ??= new ArrayBufferWriter<byte>(1024);
+            _nbtWriter.Clear();
+            TagSerializer.Serialize(_nbtWriter, value);
+            var span = _nbtWriter.WrittenSpan;
             writer.Write(span[..1]);
             writer.Write(span[3..]);
         }

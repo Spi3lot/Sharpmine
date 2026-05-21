@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using Sharpmine.Domain.Registries;
 using Sharpmine.Server.Infrastructure.Protocol.Packets;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Clientbound;
+using Sharpmine.Server.Infrastructure.Protocol.Versions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol;
 

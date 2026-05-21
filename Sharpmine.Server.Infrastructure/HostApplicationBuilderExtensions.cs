@@ -35,8 +35,7 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddSerilog();
             builder.Services.AddSingleton(builder.Configuration.Get<ServerProperties>() ?? new ServerProperties());
             builder.Services.AddSingleton<IProtocol, Protocol773>();
-            builder.Services.AddSingleton<IRegistryLoader, DiskRegistryLoader>();
-            builder.Services.AddSingleton<NetworkRegistryCache>();
+            builder.Services.AddSingleton<RegistryProtocolIdMap>();
             builder.Services.AddSingleton<PlayerAccessManager>();
             builder.Services.AddSingleton<PacketReceiver>();
             builder.Services.AddSingleton<PacketDispatcher>();

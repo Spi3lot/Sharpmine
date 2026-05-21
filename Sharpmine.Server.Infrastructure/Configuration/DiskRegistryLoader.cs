@@ -42,7 +42,7 @@ public class DiskRegistryLoader : IRegistryLoader
             foreach (string entry in registryGroup)
             {
                 string entryPath = Path.GetRelativePath(registryDir, entry);
-                string entryName = Path.GetFileNameWithoutExtension(entryPath).Replace(Path.DirectorySeparatorChar, '/');
+                string entryName = entryPath.Replace(Path.DirectorySeparatorChar, '/').Replace(".json", string.Empty);
 
                 try
                 {

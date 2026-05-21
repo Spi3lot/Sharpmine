@@ -3,48 +3,70 @@ using System.Text.Json.Nodes;
 
 using Microsoft.Extensions.Logging;
 
+using Sharpmine.Domain.Registries;
 using Sharpmine.Domain.Tags;
 
 namespace Sharpmine.Server.Infrastructure.Configuration;
 
-public class DiskTagLoader(ILogger<DiskTagLoader> logger) : ITagLoader
+public class DiskTagLoader(RegistryCache registryCache, ILogger<DiskTagLoader> logger) : ITagLoader
 {
 
-    private static readonly Dictionary<string, string> FolderToRegistryId = new()
+    private static readonly Dictionary<string, string> RegistryIdToFolder = new()
     {
-        { "blocks", "minecraft:block" },
-        { "items", "minecraft:item" },
-        { "fluids", "minecraft:fluid" },
-        { "entity_types", "minecraft:entity_type" },
-        { "game_events", "minecraft:game_event" }
+        { "minecraft:block", "blocks" },
+        { "minecraft:item", "items" },
+        { "minecraft:fluid", "fluids" },
+        { "minecraft:entity_type", "entity_types" },
+        { "minecraft:game_event", "game_events" }
     };
 
     public ImmutableArray<TaggedRegistryData> Load()
     {
-        string tagsDir = Path.Combine(AppContext.BaseDirectory, "data", "minecraft", "tags");
+        string baseDir = AppContext.BaseDirectory;
+        string registryTagsDir = Path.Combine(baseDir, "data", "minecraft", "tags");
+        string registriesJsonPath = Path.Combine(baseDir, "generated", "reports", "registries.json");
 
-        if (!Directory.Exists(tagsDir))
+        if (!Directory.Exists(registryTagsDir))
         {
-            logger.LogWarning("Tags directory not found at {Path}. Tag loading skipped.", tagsDir);
+            logger.LogWarning("Tags directory not found at {Path}. Tag loading skipped.", registryTagsDir);
             return [];
+        }
+
+        HashSet<string> knownRegistries = [.. registryCache.Registries.Keys];
+
+        if (File.Exists(registriesJsonPath))
+        {
+            var rootNode = JsonNode.Parse(File.ReadAllBytes(registriesJsonPath))!.AsObject();
+
+            foreach (var node in rootNode)
+            {
+                knownRegistries.Add(node.Key);
+            }
         }
 
         List<TaggedRegistryData> taggedRegistries = [];
 
-        foreach (string registryDir in Directory.EnumerateDirectories(tagsDir))
+        foreach (string registryId in knownRegistries)
         {
-            string registryFolder = Path.GetFileName(registryDir);
+            string cleanId = registryId.Replace("minecraft:", "");
 
-            string registryId = FolderToRegistryId.TryGetValue(registryFolder, out string? mappedId)
-                ? mappedId
-                : "minecraft:" + registryFolder;
+            string targetFolder = (RegistryIdToFolder.TryGetValue(registryId, out string? mapped))
+                ? mapped
+                : cleanId.Replace('/', Path.DirectorySeparatorChar);
+
+            string targetRegistryTagsDir = Path.Combine(registryTagsDir, targetFolder);
+
+            if (!Directory.Exists(targetRegistryTagsDir))
+            {
+                continue;
+            }
 
             List<RegistryTagData> tags = [];
 
-            foreach (string file in Directory.EnumerateFiles(registryDir, "*.json", SearchOption.AllDirectories))
+            foreach (string file in Directory.EnumerateFiles(targetRegistryTagsDir, "*.json", SearchOption.AllDirectories))
             {
-                string tagPath = Path.GetRelativePath(registryDir, file);
-                string tagName = "minecraft:" + Path.GetFileNameWithoutExtension(tagPath).Replace(Path.DirectorySeparatorChar, '/');
+                string tagPath = Path.GetRelativePath(targetRegistryTagsDir, file);
+                string tagName = "minecraft:" + tagPath.Replace(Path.DirectorySeparatorChar, '/').Replace(".json", string.Empty);
 
                 var jsonNode = JsonNode.Parse(File.ReadAllBytes(file))!.AsObject();
                 var valuesArray = jsonNode["values"]?.AsArray();
@@ -54,8 +76,9 @@ public class DiskTagLoader(ILogger<DiskTagLoader> logger) : ITagLoader
                     continue;
                 }
 
-                List<string> tagValues = valuesArray.Select(valueNode => valueNode!.GetValue<string>())
+                var tagValues = valuesArray.Select(valueNode => valueNode!.GetValue<string>())
                     .Where(entryName => !entryName.StartsWith('#'))
+                    .Select(entryName => entryName.Contains(':') ? entryName : "minecraft:" + entryName)
                     .ToList();
 
                 if (tagValues.Count > 0)

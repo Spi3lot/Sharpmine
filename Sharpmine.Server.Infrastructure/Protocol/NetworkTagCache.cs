@@ -1,44 +1,55 @@
-﻿using Sharpmine.Domain;
-using Sharpmine.Domain.Tags;
+﻿using Sharpmine.Domain.Tags;
 using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 using Sharpmine.Server.Infrastructure.Protocol.Packets;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Clientbound;
+using Sharpmine.Server.Infrastructure.Protocol.Versions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol;
 
 public class NetworkTagCache
 {
 
-    public NetworkTagCache(TagCache cache, ProtocolIdMap idMap)
+    public NetworkTagCache(
+        TagCache tagCache,
+        IProtocol protocol,
+        RegistryProtocolIdMap registryProtocolIdMap)
     {
-        List<TaggedRegistry> protocolRegistries = [];
+        List<TaggedRegistry> registries = [];
 
-        foreach (var registry in cache.Registries.Values)
+        foreach (var (registryId, registryTags) in tagCache.Registries.Values)
         {
-            List<RegistryTag> protocolTags = [];
+            bool isSyncedDynamic = protocol.SynchronizedRegistryIds.Contains(registryId);
+            bool isStatic = registryProtocolIdMap.IsStaticRegistry(registryId);
 
-            foreach (var tag in registry.Tags)
+            if (!isSyncedDynamic && !isStatic)
+            {
+                continue;
+            }
+
+            List<RegistryTag> tags = [];
+
+            foreach (var tag in registryTags)
             {
                 List<int> protocolIds = [];
 
                 foreach (string stringValue in tag.Values)
                 {
-                    if (idMap.TryGetId(registry.RegistryId, stringValue, out int protocolId))
+                    if (registryProtocolIdMap.TryGetId(registryId, stringValue, out int protocolId))
                     {
                         protocolIds.Add(protocolId);
                     }
                 }
 
-                protocolTags.Add(new RegistryTag(tag.TagName, [.. protocolIds]));
+                tags.Add(new RegistryTag(tag.TagName, [.. protocolIds]));
             }
 
-            if (protocolTags.Count > 0)
+            if (tags.Count > 0)
             {
-                protocolRegistries.Add(new TaggedRegistry(registry.RegistryId, [.. protocolTags]));
+                registries.Add(new TaggedRegistry(registryId, [.. tags]));
             }
         }
 
-        var packet = new UpdateTagsPacket { TaggedRegistries = [.. protocolRegistries] };
+        var packet = new UpdateTagsPacket { TaggedRegistries = [.. registries] };
         Packet = PreSerializedPacket.Generate(packet);
     }
 

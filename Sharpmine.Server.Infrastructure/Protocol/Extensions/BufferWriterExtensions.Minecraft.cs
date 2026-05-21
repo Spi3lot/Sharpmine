@@ -1,6 +1,9 @@
 ﻿using System.Buffers;
 using System.Text;
 
+using Raspite;
+using Raspite.Tags;
+
 namespace Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 public static partial class BufferWriterExtensions
@@ -9,6 +12,14 @@ public static partial class BufferWriterExtensions
     private const byte SegmentBits = 0x7F;
 
     private const byte ContinueBit = 0x80;
+
+    [ThreadStatic]
+    private static readonly ArrayBufferWriter<byte> ArrayBufferWriter;
+
+    static BufferWriterExtensions()
+    {
+        ArrayBufferWriter = new ArrayBufferWriter<byte>();
+    }
 
     extension(IBufferWriter<byte> writer)
     {
@@ -51,6 +62,21 @@ public static partial class BufferWriterExtensions
             var span = writer.GetSpan(byteCount);
             Encoding.UTF8.GetBytes(value, span);
             writer.Advance(byteCount);
+        }
+
+        public void WriteNbt(Tag value, bool network = true)
+        {
+            if (!network)
+            {
+                TagSerializer.Serialize(writer, value);
+                return;
+            }
+
+            ArrayBufferWriter.Clear();
+            TagSerializer.Serialize(ArrayBufferWriter, value);
+            var span = ArrayBufferWriter.WrittenSpan;
+            writer.Write(span[..1]);
+            writer.Write(span[3..]);
         }
 
     }

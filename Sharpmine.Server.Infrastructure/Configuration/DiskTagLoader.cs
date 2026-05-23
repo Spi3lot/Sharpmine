@@ -68,16 +68,10 @@ public class DiskTagLoader(RegistryCache registryCache, ILogger<DiskTagLoader> l
                     .Select(entryName => entryName.Contains(':') ? entryName : "minecraft:" + entryName)
                     .ToList();
 
-                if (tagValues.Count > 0)
-                {
-                    tags.Add(new RegistryTagData(tagName, [.. tagValues]));
-                }
+                tags.Add(new RegistryTagData(tagName, [.. tagValues]));
             }
 
-            if (tags.Count > 0)
-            {
-                taggedRegistries.Add(new TaggedRegistryData(registryId, [.. tags]));
-            }
+            taggedRegistries.Add(new TaggedRegistryData(registryId, [.. tags]));
         }
 
         return [.. taggedRegistries];

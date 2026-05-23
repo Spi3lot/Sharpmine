@@ -11,15 +11,6 @@ namespace Sharpmine.Server.Infrastructure.Configuration;
 public class DiskTagLoader(RegistryCache registryCache, ILogger<DiskTagLoader> logger) : ITagLoader
 {
 
-    private static readonly Dictionary<string, string> RegistryIdToFolder = new()
-    {
-        { "minecraft:block", "blocks" },
-        { "minecraft:item", "items" },
-        { "minecraft:fluid", "fluids" },
-        { "minecraft:entity_type", "entity_types" },
-        { "minecraft:game_event", "game_events" }
-    };
-
     public ImmutableArray<TaggedRegistryData> Load()
     {
         string baseDir = AppContext.BaseDirectory;
@@ -48,12 +39,8 @@ public class DiskTagLoader(RegistryCache registryCache, ILogger<DiskTagLoader> l
 
         foreach (string registryId in knownRegistries)
         {
-            string cleanId = registryId.Replace("minecraft:", "");
-
-            string targetFolder = (RegistryIdToFolder.TryGetValue(registryId, out string? mapped))
-                ? mapped
-                : cleanId.Replace('/', Path.DirectorySeparatorChar);
-
+            string cleanId = registryId.Replace("minecraft:", string.Empty);
+            string targetFolder = cleanId.Replace('/', Path.DirectorySeparatorChar);
             string targetRegistryTagsDir = Path.Combine(registryTagsDir, targetFolder);
 
             if (!Directory.Exists(targetRegistryTagsDir))

@@ -19,7 +19,7 @@ public class DiskTagLoader(RegistryCache registryCache, ILogger<DiskTagLoader> l
 
         if (!Directory.Exists(registryTagsDir))
         {
-            logger.LogWarning("Tags directory not found at {Path}. Tag loading skipped.", registryTagsDir);
+            logger.LogWarning("Tags directory not found at {Path}. Skipping tag loading.", registryTagsDir);
             return [];
         }
 
@@ -45,6 +45,7 @@ public class DiskTagLoader(RegistryCache registryCache, ILogger<DiskTagLoader> l
 
             if (!Directory.Exists(targetRegistryTagsDir))
             {
+                logger.LogWarning("Tags subdirectory not found at {Path}. Skipping it.", targetRegistryTagsDir);
                 continue;
             }
 

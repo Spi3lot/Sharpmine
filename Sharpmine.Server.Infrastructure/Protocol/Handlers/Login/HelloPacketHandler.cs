@@ -29,7 +29,7 @@ public class HelloPacketHandler(
         var player = new StatusPlayer(packet.Name, packet.Uuid);
         bool bypassesPlayerLimit = playerAccessManager.BypassesPlayerLimit(packet.Uuid);
 
-        if (!serverCapacityManager.TryReserveSlot(client.Id, player, bypassesPlayerLimit))
+        if (!serverCapacityManager.TryReserveSlot(client, player, bypassesPlayerLimit))
         {
             await client.DisconnectAsync("Server is full!");
             return;

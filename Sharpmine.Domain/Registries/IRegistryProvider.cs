@@ -2,9 +2,4 @@
 
 namespace Sharpmine.Domain.Registries;
 
-public interface IRegistryLoader
-{
-
-    ImmutableArray<Registry> Load();
-
-}
+public interface IRegistryProvider : IProvider<ImmutableArray<Registry>>;

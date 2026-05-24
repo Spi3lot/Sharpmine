@@ -16,14 +16,14 @@ public static class HostApplicationBuilderExtensions
         {
             builder.Services.AddSingleton(sp =>
             {
-                var loader = sp.GetRequiredService<IRegistryLoader>();
-                return new RegistryCache(loader.Load());
+                var provider = sp.GetRequiredService<IRegistryProvider>();
+                return new RegistryCache(provider.Get());
             });
 
             builder.Services.AddSingleton(sp =>
             {
-                var loader = sp.GetRequiredService<ITagLoader>();
-                return new TagCache(loader.Load());
+                var provider = sp.GetRequiredService<ITagProvider>();
+                return new TagCache(provider.Get());
             });
 
             return builder;

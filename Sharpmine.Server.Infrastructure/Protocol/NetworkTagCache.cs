@@ -12,14 +12,14 @@ public class NetworkTagCache
     public NetworkTagCache(
         TagCache tagCache,
         IProtocol protocol,
-        RegistryProtocolIdMap registryProtocolIdMap)
+        ProtocolRegistryManifest protocolRegistryManifest)
     {
         List<TaggedRegistry> registries = [];
 
         foreach (var (registryId, registryTags) in tagCache.Registries.Values)
         {
             bool isSyncedDynamic = protocol.SynchronizedRegistryIds.Contains(registryId);
-            bool isStatic = registryProtocolIdMap.IsStaticRegistry(registryId);
+            bool isStatic = protocolRegistryManifest.IsStaticRegistry(registryId);
 
             if (!isSyncedDynamic && !isStatic)
             {
@@ -34,7 +34,7 @@ public class NetworkTagCache
 
                 foreach (string stringValue in tag.Values)
                 {
-                    if (registryProtocolIdMap.TryGetId(registryId, stringValue, out int protocolId))
+                    if (protocolRegistryManifest.TryGetId(registryId, stringValue, out int protocolId))
                     {
                         protocolIds.Add(protocolId);
                     }

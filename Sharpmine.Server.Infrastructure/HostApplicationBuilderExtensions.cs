@@ -35,7 +35,7 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddSerilog();
             builder.Services.AddSingleton(builder.Configuration.Get<ServerProperties>() ?? new ServerProperties());
             builder.Services.AddSingleton<IProtocol, Protocol773>();
-            builder.Services.AddSingleton<RegistryProtocolIdMap>();
+            builder.Services.AddSingleton<ProtocolRegistryManifest>();
             builder.Services.AddSingleton<PlayerAccessManager>();
             builder.Services.AddSingleton<PacketReceiver>();
             builder.Services.AddSingleton<PacketDispatcher>();
@@ -55,14 +55,14 @@ public static class HostApplicationBuilderExtensions
 
         public TBuilder AddRegistryServices()
         {
-            builder.Services.AddSingleton<IRegistryLoader, DiskRegistryLoader>();
+            builder.Services.AddSingleton<IRegistryProvider, RegistryFileProvider>();
             builder.Services.AddSingleton<NetworkRegistryCache>();
             return builder;
         }
 
         public TBuilder AddTagServices()
         {
-            builder.Services.AddSingleton<ITagLoader, DiskTagLoader>();
+            builder.Services.AddSingleton<ITagProvider, TagFileProvider>();
             builder.Services.AddSingleton<NetworkTagCache>();
             return builder;
         }

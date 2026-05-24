@@ -11,12 +11,12 @@ using Sharpmine.Server.Infrastructure.Protocol.Versions;
 
 namespace Sharpmine.Server.Infrastructure.Configuration;
 
-public class DiskRegistryLoader(
+public class RegistryFileProvider(
     IEnumerable<IProtocol> protocols,
-    ILogger<DiskRegistryLoader> logger) : IRegistryLoader
+    ILogger<RegistryFileProvider> logger) : IRegistryProvider
 {
 
-    public ImmutableArray<Registry> Load()
+    public ImmutableArray<Registry> Get()
     {
         string baseDir = AppContext.BaseDirectory;
         string minecraftDir = Path.Combine(baseDir, "data", "minecraft");

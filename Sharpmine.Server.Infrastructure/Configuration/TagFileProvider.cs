@@ -8,10 +8,12 @@ using Sharpmine.Server.Infrastructure.Protocol;
 
 namespace Sharpmine.Server.Infrastructure.Configuration;
 
-public class DiskTagLoader(RegistryProtocolIdMap registryProtocolIdMap, ILogger<DiskTagLoader> logger) : ITagLoader
+public class TagFileProvider(
+    ProtocolRegistryManifest protocolRegistryManifest,
+    ILogger<TagFileProvider> logger) : ITagProvider
 {
 
-    public ImmutableArray<TaggedRegistryData> Load()
+    public ImmutableArray<TaggedRegistryData> Get()
     {
         string baseDir = AppContext.BaseDirectory;
         string registryTagsDir = Path.Combine(baseDir, "data", "minecraft", "tags");
@@ -24,7 +26,7 @@ public class DiskTagLoader(RegistryProtocolIdMap registryProtocolIdMap, ILogger<
 
         List<TaggedRegistryData> taggedRegistries = [];
 
-        foreach (string registryId in registryProtocolIdMap.Map.Keys)
+        foreach (string registryId in protocolRegistryManifest.ProtocolIds.Keys)
         {
             string cleanId = registryId.Replace("minecraft:", string.Empty);
             string targetFolder = cleanId.Replace('/', Path.DirectorySeparatorChar);

@@ -7,22 +7,20 @@ using Sharpmine.Domain.Registries;
 
 namespace Sharpmine.Server.Infrastructure.Protocol;
 
-public class RegistryProtocolIdMap
+public class ProtocolRegistryManifest
 {
 
-    private readonly FrozenSet<string> _staticRegistries;
-
-    public RegistryProtocolIdMap(RegistryCache registryCache, ILogger<RegistryProtocolIdMap> logger)
+    public ProtocolRegistryManifest(RegistryCache registryCache, ILogger<ProtocolRegistryManifest> logger)
     {
-        var map = new Dictionary<string, Dictionary<string, int>>();
+        var protocolIds = new Dictionary<string, Dictionary<string, int>>();
 
         foreach (var registry in registryCache.Registries.Values)
         {
-            map[registry.RegistryId] = new Dictionary<string, int>();
+            protocolIds[registry.RegistryId] = new Dictionary<string, int>();
 
             for (int i = 0; i < registry.Entries.Length; i++)
             {
-                map[registry.RegistryId][registry.Entries[i].EntryId] = i;
+                protocolIds[registry.RegistryId][registry.Entries[i].EntryId] = i;
             }
         }
 
@@ -31,8 +29,8 @@ public class RegistryProtocolIdMap
         if (!File.Exists(registriesJsonPath))
         {
             logger.LogWarning("registries.json not found! Static tags (like blocks/items) will fail to resolve.");
-            Map = map.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToFrozenDictionary());
-            _staticRegistries = FrozenSet<string>.Empty;
+            ProtocolIds = protocolIds.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToFrozenDictionary());
+            StaticRegistries = FrozenSet<string>.Empty;
             return;
         }
 
@@ -53,10 +51,10 @@ public class RegistryProtocolIdMap
                     continue;
                 }
 
-                if (!map.TryGetValue(registryId, out Dictionary<string, int>? value))
+                if (!protocolIds.TryGetValue(registryId, out Dictionary<string, int>? value))
                 {
                     value = new Dictionary<string, int>();
-                    map[registryId] = value;
+                    protocolIds[registryId] = value;
                 }
 
                 value[entryId] = protocolIdNode.GetValue<int>();
@@ -69,20 +67,22 @@ public class RegistryProtocolIdMap
             }
         }
 
-        Map = map.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToFrozenDictionary());
-        _staticRegistries = staticRegistries.ToFrozenSet();
+        ProtocolIds = protocolIds.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToFrozenDictionary());
+        StaticRegistries = staticRegistries.ToFrozenSet();
     }
 
-    public FrozenDictionary<string, FrozenDictionary<string, int>> Map { get; }
+    public FrozenDictionary<string, FrozenDictionary<string, int>> ProtocolIds { get; }
+
+    public FrozenSet<string> StaticRegistries { get; }
 
     public bool TryGetId(string registryId, string entryId, out int id)
     {
         id = 0;
 
-        return Map.TryGetValue(registryId, out var entries)
+        return ProtocolIds.TryGetValue(registryId, out var entries)
                && entries.TryGetValue(entryId, out id);
     }
 
-    public bool IsStaticRegistry(string registryId) => _staticRegistries.Contains(registryId);
+    public bool IsStaticRegistry(string registryId) => StaticRegistries.Contains(registryId);
 
 }

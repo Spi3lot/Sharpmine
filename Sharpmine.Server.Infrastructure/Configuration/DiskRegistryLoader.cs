@@ -53,7 +53,7 @@ public class DiskRegistryLoader(
 
             if (!Directory.Exists(registryDir))
             {
-                logger.LogDebug("Registry folder not found for {RegistryId}, skipping it", registryId);
+                logger.LogTrace("Registry folder not found for {RegistryId}, skipping it", registryId);
                 continue;
             }
 

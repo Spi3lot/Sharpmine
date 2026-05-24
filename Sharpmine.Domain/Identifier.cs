@@ -5,28 +5,10 @@ namespace Sharpmine.Domain;
 public readonly partial record struct Identifier
 {
 
-    public Identifier(string value)
+    public Identifier(string value) : this(
+        (value.Contains(':')) ? value.Split(':')[0] : "minecraft",
+        (value.Contains(':')) ? value.Split(':')[1] : value)
     {
-        string[] parts = value.Split(':');
-
-        switch (parts.Length)
-        {
-            case 1:
-                Namespace = "minecraft";
-                Path = parts[0];
-                break;
-            case 2:
-                Namespace = parts[0];
-                Path = parts[1];
-                break;
-            default:
-                throw new ArgumentException($"Invalid identifier format: {value}");
-        }
-
-        if (!NamespaceRegex.IsMatch(Namespace) || !PathRegex.IsMatch(Path))
-        {
-            throw new ArgumentException($"Invalid identifier format: {value}");
-        }
     }
 
     public Identifier(string @namespace, string path)
@@ -44,10 +26,10 @@ public readonly partial record struct Identifier
 
     public string Path { get; }
 
-    [GeneratedRegex("[a-z0-9.-_]")]
+    [GeneratedRegex("^[a-z0-9_.-]$")]
     private static partial Regex NamespaceRegex { get; }
 
-    [GeneratedRegex("[a-z0-9.-_/]")]
+    [GeneratedRegex("^[a-z0-9/_.-]$")]
     private static partial Regex PathRegex { get; }
 
     public static implicit operator Identifier(string value) => new(value);

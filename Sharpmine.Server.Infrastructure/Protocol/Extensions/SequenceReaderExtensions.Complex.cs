@@ -38,28 +38,20 @@ public static partial class SequenceReaderExtensions
         {
             result = Option.None<T>();
             if (!hasValue) return true;
+            if (!reader.TryRead(out T val)) return false;
 
-            if (reader.TryRead(out T val))
-            {
-                result = Option.Some(val);
-                return true;
-            }
-
-            return false;
+            result = Option.Some(val);
+            return true;
         }
 
         public bool TryReadOptional<T>(bool hasValue, out Option<T> result, TryReadFunc<T> readFunc)
         {
             result = Option.None<T>();
             if (!hasValue) return true;
+            if (!readFunc(ref reader, out T val)) return false;
 
-            if (readFunc(ref reader, out T val))
-            {
-                result = Option.Some(val);
-                return true;
-            }
-
-            return false;
+            result = Option.Some(val);
+            return true;
         }
 
         public bool TryReadPrefixedArray<T>(out T[] result) where T : IServerboundDataType<T>

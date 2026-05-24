@@ -16,7 +16,7 @@ public class NetworkTagCache
     {
         List<TaggedRegistry> registries = [];
 
-        foreach (var (registryId, registryTags) in tagCache.Registries.Values)
+        foreach (var (registryId, registryTags) in tagCache.TagsByRegistry.Values)
         {
             bool isSyncedDynamic = protocol.SynchronizedRegistryIds.Contains(registryId);
             bool isStatic = protocolRegistryManifest.IsStaticRegistry(registryId);

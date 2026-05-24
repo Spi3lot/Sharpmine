@@ -8,9 +8,9 @@ public class TagCache
 
     public TagCache(ImmutableArray<TaggedRegistryData> registries)
     {
-        Registries = registries.ToFrozenDictionary(r => r.RegistryId, r => r);
+        TagsByRegistry = registries.ToFrozenDictionary(r => r.RegistryId, r => r);
     }
 
-    public FrozenDictionary<Identifier, TaggedRegistryData> Registries { get; }
+    public FrozenDictionary<Identifier, TaggedRegistryData> TagsByRegistry { get; }
 
 }

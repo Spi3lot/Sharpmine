@@ -27,7 +27,6 @@ public class RegistryFileProvider(
             throw new DirectoryNotFoundException($"Minecraft data directory not found at: {minecraftDir}");
         }
 
-
         if (!File.Exists(registriesJsonPath))
         {
             logger.LogWarning("registries.json not found, cannot load registries");
@@ -39,6 +38,7 @@ public class RegistryFileProvider(
         var knownRegistries = JsonNode.Parse(File.ReadAllBytes(registriesJsonPath))!
             .AsObject()
             .Select(node => node.Key)
+            .Select(id => new Identifier(id))
             .ToHashSet();
 
         foreach (var protocol in protocols)
@@ -46,10 +46,9 @@ public class RegistryFileProvider(
             knownRegistries.UnionWith(protocol.SynchronizedRegistryIds);
         }
 
-        foreach (string registryId in knownRegistries)
+        foreach (var registryId in knownRegistries)
         {
-            string cleanId = registryId.Replace("minecraft:", string.Empty);
-            string registryDir = Path.Combine(minecraftDir, cleanId.Replace('/', Path.DirectorySeparatorChar));
+            string registryDir = Path.Combine(minecraftDir, registryId.Path.Replace('/', Path.DirectorySeparatorChar));
 
             if (!Directory.Exists(registryDir))
             {
@@ -62,13 +61,13 @@ public class RegistryFileProvider(
             foreach (string entry in Directory.EnumerateFiles(registryDir, "*.json", SearchOption.AllDirectories))
             {
                 string entryPath = Path.GetRelativePath(registryDir, entry);
-                string entryName = entryPath.Replace(Path.DirectorySeparatorChar, '/').Replace(".json", string.Empty);
+                Identifier entryName = entryPath.Replace(Path.DirectorySeparatorChar, '/').Replace(".json", string.Empty);
 
                 try
                 {
                     var jsonNode = JsonNode.Parse(File.ReadAllBytes(entry));
-                    var nbtTag = JsonToNbtConverter.Convert(jsonNode, string.Empty);
-                    entries.Add(new RegistryEntry("minecraft:" + entryName, Option.Some(nbtTag)));
+                    var nbtTag = JsonToNbtConverter.Convert(jsonNode);
+                    entries.Add(new RegistryEntry(entryName, Option.Some(nbtTag)));
                 }
                 catch (Exception ex)
                 {

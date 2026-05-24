@@ -4,4 +4,4 @@ using Raspite.Tags;
 
 namespace Sharpmine.Domain.Registries;
 
-public readonly record struct RegistryEntry(string EntryId, Option<Tag> Data);
+public readonly record struct RegistryEntry(Identifier EntryId, Option<Tag> Data);

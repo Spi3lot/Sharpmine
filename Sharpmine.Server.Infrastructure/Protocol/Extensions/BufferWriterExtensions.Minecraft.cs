@@ -4,6 +4,8 @@ using System.Text;
 using Raspite;
 using Raspite.Tags;
 
+using Sharpmine.Domain;
+
 namespace Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 public static partial class BufferWriterExtensions
@@ -48,6 +50,8 @@ public static partial class BufferWriterExtensions
             span[written++] = (byte) value;
             writer.Advance(written);
         }
+
+        public void WriteIdentifier(Identifier value) => writer.WriteString(value);
 
         public void WriteString(string value)
         {

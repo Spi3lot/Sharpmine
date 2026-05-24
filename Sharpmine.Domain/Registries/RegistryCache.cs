@@ -11,6 +11,6 @@ public class RegistryCache
         Registries = registries.ToFrozenDictionary(r => r.RegistryId, r => r);
     }
 
-    public FrozenDictionary<string, Registry> Registries { get; }
+    public FrozenDictionary<Identifier, Registry> Registries { get; }
 
 }

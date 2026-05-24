@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
 
+using Sharpmine.Domain;
+
 namespace Sharpmine.Server.Infrastructure.Protocol.Versions;
 
 public interface IProtocol
@@ -9,6 +11,6 @@ public interface IProtocol
 
     string ReleaseName { get; }
 
-    ImmutableArray<string> SynchronizedRegistryIds { get; }
+    ImmutableArray<Identifier> SynchronizedRegistryIds { get; }
 
 }

@@ -1,3 +1,3 @@
 ﻿namespace Sharpmine.Domain.Registries;
 
-public readonly record struct Registry(string RegistryId, RegistryEntry[] Entries);
+public readonly record struct Registry(Identifier RegistryId, RegistryEntry[] Entries);

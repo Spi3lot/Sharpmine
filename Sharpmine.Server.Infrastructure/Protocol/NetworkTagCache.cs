@@ -32,9 +32,9 @@ public class NetworkTagCache
             {
                 List<int> protocolIds = [];
 
-                foreach (string stringValue in tag.Values)
+                foreach (var entryId in tag.Values)
                 {
-                    if (protocolRegistryManifest.TryGetId(registryId, stringValue, out int protocolId))
+                    if (protocolRegistryManifest.TryGetId(registryId, entryId, out int protocolId))
                     {
                         protocolIds.Add(protocolId);
                     }

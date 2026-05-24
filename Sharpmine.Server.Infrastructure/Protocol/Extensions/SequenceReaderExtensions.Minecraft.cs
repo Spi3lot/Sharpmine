@@ -1,6 +1,8 @@
 ﻿using System.Buffers;
 using System.Text;
 
+using Sharpmine.Domain;
+
 namespace Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 public static partial class SequenceReaderExtensions
@@ -65,6 +67,18 @@ public static partial class SequenceReaderExtensions
             }
 
             return false;
+        }
+
+        public bool TryReadIdentifier(out Identifier result)
+        {
+            if (!reader.TryReadString(out string id))
+            {
+                result = default;
+                return false;
+            }
+
+            result = id;
+            return true;
         }
 
         public bool TryReadString(out string result, short maxLength = short.MaxValue)

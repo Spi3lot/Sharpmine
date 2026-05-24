@@ -11,6 +11,6 @@ public class TagCache
         Registries = registries.ToFrozenDictionary(r => r.RegistryId, r => r);
     }
 
-    public FrozenDictionary<string, TaggedRegistryData> Registries { get; }
+    public FrozenDictionary<Identifier, TaggedRegistryData> Registries { get; }
 
 }

@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 
 using Microsoft.Extensions.Logging;
 
+using Sharpmine.Domain;
 using Sharpmine.Domain.Tags;
 using Sharpmine.Server.Infrastructure.Protocol;
 
@@ -26,10 +27,9 @@ public class TagFileProvider(
 
         List<TaggedRegistryData> taggedRegistries = [];
 
-        foreach (string registryId in protocolRegistryManifest.ProtocolIds.Keys)
+        foreach (var registryId in protocolRegistryManifest.ProtocolIds.Keys)
         {
-            string cleanId = registryId.Replace("minecraft:", string.Empty);
-            string targetFolder = cleanId.Replace('/', Path.DirectorySeparatorChar);
+            string targetFolder = registryId.Path.Replace('/', Path.DirectorySeparatorChar);
             string targetRegistryTagsDir = Path.Combine(registryTagsDir, targetFolder);
 
             if (!Directory.Exists(targetRegistryTagsDir))
@@ -43,7 +43,7 @@ public class TagFileProvider(
             foreach (string file in Directory.EnumerateFiles(targetRegistryTagsDir, "*.json", SearchOption.AllDirectories))
             {
                 string tagPath = Path.GetRelativePath(targetRegistryTagsDir, file);
-                string tagName = "minecraft:" + tagPath.Replace(Path.DirectorySeparatorChar, '/').Replace(".json", string.Empty);
+                Identifier tagName = tagPath.Replace(Path.DirectorySeparatorChar, '/').Replace(".json", string.Empty);
 
                 var jsonNode = JsonNode.Parse(File.ReadAllBytes(file))!.AsObject();
                 var valuesArray = jsonNode["values"]?.AsArray();

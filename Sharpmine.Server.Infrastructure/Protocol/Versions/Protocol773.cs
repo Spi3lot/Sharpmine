@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
 
+using Sharpmine.Domain;
+
 namespace Sharpmine.Server.Infrastructure.Protocol.Versions;
 
 public class Protocol773 : IProtocol
@@ -9,27 +11,27 @@ public class Protocol773 : IProtocol
 
     public string ReleaseName => "1.21.10";
 
-    public ImmutableArray<string> SynchronizedRegistryIds { get; } =
+    public ImmutableArray<Identifier> SynchronizedRegistryIds { get; } =
     [
-        "minecraft:banner_pattern",
-        "minecraft:chat_type",
-        "minecraft:damage_type",
-        "minecraft:dialog",
-        "minecraft:dimension_type",
-        "minecraft:enchantment",
-        "minecraft:instrument",
-        "minecraft:jukebox_song",
-        "minecraft:painting_variant",
-        "minecraft:trim_material",
-        "minecraft:trim_pattern",
-        "minecraft:worldgen/biome",
-        "minecraft:cat_variant",
-        "minecraft:chicken_variant",
-        "minecraft:cow_variant",
-        "minecraft:frog_variant",
-        "minecraft:pig_variant",
-        "minecraft:wolf_variant",
-        "minecraft:wolf_sound_variant"
+        "banner_pattern",
+        "chat_type",
+        "damage_type",
+        "dialog",
+        "dimension_type",
+        "enchantment",
+        "instrument",
+        "jukebox_song",
+        "painting_variant",
+        "trim_material",
+        "trim_pattern",
+        "worldgen/biome",
+        "cat_variant",
+        "chicken_variant",
+        "cow_variant",
+        "frog_variant",
+        "pig_variant",
+        "wolf_variant",
+        "wolf_sound_variant"
     ];
 
 }

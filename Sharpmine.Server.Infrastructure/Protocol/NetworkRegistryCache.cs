@@ -14,7 +14,7 @@ public class NetworkRegistryCache
     {
         List<PreSerializedPacket<RegistryDataPacket>> packets = [];
 
-        foreach (string registryId in protocol.SynchronizedRegistryIds)
+        foreach (var registryId in protocol.SynchronizedRegistryIds)
         {
             if (!registryCache.Registries.TryGetValue(registryId, out var registry))
             {

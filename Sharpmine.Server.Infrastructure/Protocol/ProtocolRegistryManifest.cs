@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 
 using Microsoft.Extensions.Logging;
 
+using Sharpmine.Domain;
 using Sharpmine.Domain.Registries;
 
 namespace Sharpmine.Server.Infrastructure.Protocol;
@@ -12,11 +13,11 @@ public class ProtocolRegistryManifest
 
     public ProtocolRegistryManifest(RegistryCache registryCache, ILogger<ProtocolRegistryManifest> logger)
     {
-        var protocolIds = new Dictionary<string, Dictionary<string, int>>();
+        var protocolIds = new Dictionary<Identifier, Dictionary<Identifier, int>>();
 
         foreach (var registry in registryCache.Registries.Values)
         {
-            protocolIds[registry.RegistryId] = new Dictionary<string, int>();
+            protocolIds[registry.RegistryId] = new Dictionary<Identifier, int>();
 
             for (int i = 0; i < registry.Entries.Length; i++)
             {
@@ -30,19 +31,19 @@ public class ProtocolRegistryManifest
         {
             logger.LogWarning("registries.json not found! Static tags (like blocks/items) will fail to resolve.");
             ProtocolIds = protocolIds.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToFrozenDictionary());
-            StaticRegistries = FrozenSet<string>.Empty;
+            StaticRegistries = FrozenSet<Identifier>.Empty;
             return;
         }
 
-        HashSet<string> staticRegistries = [];
+        HashSet<Identifier> staticRegistries = [];
         var rootNode = JsonNode.Parse(File.ReadAllBytes(registriesJsonPath))!.AsObject();
 
-        foreach (var (registryId, registryNode) in rootNode)
+        foreach ((Identifier registryId, var registryNode) in rootNode)
         {
             bool @static = false;
             var entries = registryNode!["entries"]!.AsObject();
 
-            foreach (var (entryId, entryNode) in entries)
+            foreach ((Identifier entryId, var entryNode) in entries)
             {
                 var protocolIdNode = entryNode?["protocol_id"];
 
@@ -51,9 +52,9 @@ public class ProtocolRegistryManifest
                     continue;
                 }
 
-                if (!protocolIds.TryGetValue(registryId, out Dictionary<string, int>? value))
+                if (!protocolIds.TryGetValue(registryId, out Dictionary<Identifier, int>? value))
                 {
-                    value = new Dictionary<string, int>();
+                    value = new Dictionary<Identifier, int>();
                     protocolIds[registryId] = value;
                 }
 
@@ -71,11 +72,11 @@ public class ProtocolRegistryManifest
         StaticRegistries = staticRegistries.ToFrozenSet();
     }
 
-    public FrozenDictionary<string, FrozenDictionary<string, int>> ProtocolIds { get; }
+    public FrozenDictionary<Identifier, FrozenDictionary<Identifier, int>> ProtocolIds { get; }
 
-    public FrozenSet<string> StaticRegistries { get; }
+    public FrozenSet<Identifier> StaticRegistries { get; }
 
-    public bool TryGetId(string registryId, string entryId, out int id)
+    public bool TryGetId(Identifier registryId, Identifier entryId, out int id)
     {
         id = 0;
 
@@ -83,6 +84,6 @@ public class ProtocolRegistryManifest
                && entries.TryGetValue(entryId, out id);
     }
 
-    public bool IsStaticRegistry(string registryId) => StaticRegistries.Contains(registryId);
+    public bool IsStaticRegistry(Identifier registryId) => StaticRegistries.Contains(registryId);
 
 }

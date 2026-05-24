@@ -35,11 +35,12 @@ public class RegistryFileProvider(
 
         List<Registry> loadedRegistries = [];
 
-        var knownRegistries = JsonNode.Parse(File.ReadAllBytes(registriesJsonPath))!
-            .AsObject()
-            .Select(node => node.Key)
-            .Select(id => new Identifier(id))
-            .ToHashSet();
+        HashSet<Identifier> knownRegistries =
+        [
+            .. JsonNode.Parse(File.ReadAllBytes(registriesJsonPath))!
+                .AsObject()
+                .Select(node => node.Key)
+        ];
 
         foreach (var protocol in protocols)
         {

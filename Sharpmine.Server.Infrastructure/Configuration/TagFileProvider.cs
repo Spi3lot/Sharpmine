@@ -48,15 +48,14 @@ public class TagFileProvider(
                 var jsonNode = JsonNode.Parse(File.ReadAllBytes(file))!.AsObject();
                 var valuesArray = jsonNode["values"]?.AsArray();
 
-                if (valuesArray == null)
+                if (valuesArray is null)
                 {
                     continue;
                 }
 
-                var tagValues = valuesArray.Select(valueNode => valueNode!.GetValue<string>())
-                    .Where(entryName => !entryName.StartsWith('#'))
-                    .Select(entryName => entryName.Contains(':') ? entryName : "minecraft:" + entryName)
-                    .ToList();
+                var tagValues = valuesArray
+                    .Select(valueNode => valueNode!.GetValue<string>())
+                    .Where(entryName => !entryName.StartsWith('#'));
 
                 tags.Add(new RegistryTagData(tagName, [.. tagValues]));
             }

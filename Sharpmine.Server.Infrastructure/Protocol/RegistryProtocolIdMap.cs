@@ -10,8 +10,6 @@ namespace Sharpmine.Server.Infrastructure.Protocol;
 public class RegistryProtocolIdMap
 {
 
-    private readonly FrozenDictionary<string, FrozenDictionary<string, int>> _map;
-
     private readonly FrozenSet<string> _staticRegistries;
 
     public RegistryProtocolIdMap(RegistryCache registryCache, ILogger<RegistryProtocolIdMap> logger)
@@ -33,7 +31,7 @@ public class RegistryProtocolIdMap
         if (!File.Exists(registriesJsonPath))
         {
             logger.LogWarning("registries.json not found! Static tags (like blocks/items) will fail to resolve.");
-            _map = map.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToFrozenDictionary());
+            Map = map.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToFrozenDictionary());
             _staticRegistries = FrozenSet<string>.Empty;
             return;
         }
@@ -71,15 +69,17 @@ public class RegistryProtocolIdMap
             }
         }
 
-        _map = map.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToFrozenDictionary());
+        Map = map.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToFrozenDictionary());
         _staticRegistries = staticRegistries.ToFrozenSet();
     }
+
+    public FrozenDictionary<string, FrozenDictionary<string, int>> Map { get; }
 
     public bool TryGetId(string registryId, string entryId, out int id)
     {
         id = 0;
 
-        return _map.TryGetValue(registryId, out var entries)
+        return Map.TryGetValue(registryId, out var entries)
                && entries.TryGetValue(entryId, out id);
     }
 

@@ -3,19 +3,18 @@ using System.Text.Json.Nodes;
 
 using Microsoft.Extensions.Logging;
 
-using Sharpmine.Domain.Registries;
 using Sharpmine.Domain.Tags;
+using Sharpmine.Server.Infrastructure.Protocol;
 
 namespace Sharpmine.Server.Infrastructure.Configuration;
 
-public class DiskTagLoader(RegistryCache registryCache, ILogger<DiskTagLoader> logger) : ITagLoader
+public class DiskTagLoader(RegistryProtocolIdMap registryProtocolIdMap, ILogger<DiskTagLoader> logger) : ITagLoader
 {
 
     public ImmutableArray<TaggedRegistryData> Load()
     {
         string baseDir = AppContext.BaseDirectory;
         string registryTagsDir = Path.Combine(baseDir, "data", "minecraft", "tags");
-        string registriesJsonPath = Path.Combine(baseDir, "generated", "reports", "registries.json");
 
         if (!Directory.Exists(registryTagsDir))
         {
@@ -23,21 +22,9 @@ public class DiskTagLoader(RegistryCache registryCache, ILogger<DiskTagLoader> l
             return [];
         }
 
-        HashSet<string> knownRegistries = [.. registryCache.Registries.Keys];
-
-        if (File.Exists(registriesJsonPath))
-        {
-            var rootNode = JsonNode.Parse(File.ReadAllBytes(registriesJsonPath))!.AsObject();
-
-            foreach (var node in rootNode)
-            {
-                knownRegistries.Add(node.Key);
-            }
-        }
-
         List<TaggedRegistryData> taggedRegistries = [];
 
-        foreach (string registryId in knownRegistries)
+        foreach (string registryId in registryProtocolIdMap.Map.Keys)
         {
             string cleanId = registryId.Replace("minecraft:", string.Empty);
             string targetFolder = cleanId.Replace('/', Path.DirectorySeparatorChar);

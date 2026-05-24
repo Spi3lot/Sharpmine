@@ -1,45 +1,65 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 
+using Microsoft.Extensions.Logging;
+
 using Optional;
 
 using Sharpmine.Domain;
 using Sharpmine.Domain.Registries;
+using Sharpmine.Server.Infrastructure.Protocol.Versions;
 
 namespace Sharpmine.Server.Infrastructure.Configuration;
 
-public class DiskRegistryLoader : IRegistryLoader
+public class DiskRegistryLoader(
+    IEnumerable<IProtocol> protocols,
+    ILogger<DiskRegistryLoader> logger) : IRegistryLoader
 {
 
     public ImmutableArray<Registry> Load()
     {
-        string minecraftDir = Path.Combine(AppContext.BaseDirectory, "data", "minecraft");
+        string baseDir = AppContext.BaseDirectory;
+        string minecraftDir = Path.Combine(baseDir, "data", "minecraft");
+        string registriesJsonPath = Path.Combine(baseDir, "generated", "reports", "registries.json");
 
         if (!Directory.Exists(minecraftDir))
         {
             throw new DirectoryNotFoundException($"Minecraft data directory not found at: {minecraftDir}");
         }
 
+
+        if (!File.Exists(registriesJsonPath))
+        {
+            logger.LogWarning("registries.json not found, cannot load registries");
+            return [];
+        }
+
         List<Registry> loadedRegistries = [];
 
-        var registryGroups = Directory.EnumerateFiles(minecraftDir, "*.json", SearchOption.AllDirectories)
-            .GroupBy(file =>
-            {
-                string? registryDir = Path.GetDirectoryName(file);
-                return (string.IsNullOrEmpty(registryDir))
-                    ? string.Empty
-                    : Path.GetRelativePath(minecraftDir, registryDir).Replace(Path.DirectorySeparatorChar, '/');
-            })
-            .Where(group => !string.IsNullOrEmpty(group.Key))
-            .ToArray();
+        var knownRegistries = JsonNode.Parse(File.ReadAllBytes(registriesJsonPath))!
+            .AsObject()
+            .Select(node => node.Key)
+            .ToHashSet();
 
-        foreach (var registryGroup in registryGroups)
+        foreach (var protocol in protocols)
         {
-            string registryName = registryGroup.Key;
-            string registryDir = Path.Combine(minecraftDir, registryName.Replace('/', Path.DirectorySeparatorChar));
+            knownRegistries.UnionWith(protocol.SynchronizedRegistryIds);
+        }
+
+        foreach (string registryId in knownRegistries)
+        {
+            string cleanId = registryId.Replace("minecraft:", string.Empty);
+            string registryDir = Path.Combine(minecraftDir, cleanId.Replace('/', Path.DirectorySeparatorChar));
+
+            if (!Directory.Exists(registryDir))
+            {
+                logger.LogDebug("Registry folder not found for {RegistryId}, skipping it", registryId);
+                continue;
+            }
+
             List<RegistryEntry> entries = [];
 
-            foreach (string entry in registryGroup)
+            foreach (string entry in Directory.EnumerateFiles(registryDir, "*.json", SearchOption.AllDirectories))
             {
                 string entryPath = Path.GetRelativePath(registryDir, entry);
                 string entryName = entryPath.Replace(Path.DirectorySeparatorChar, '/').Replace(".json", string.Empty);
@@ -56,10 +76,7 @@ public class DiskRegistryLoader : IRegistryLoader
                 }
             }
 
-            if (entries.Count > 0)
-            {
-                loadedRegistries.Add(new Registry("minecraft:" + registryName, [.. entries]));
-            }
+            loadedRegistries.Add(new Registry(registryId, [.. entries]));
         }
 
         return [.. loadedRegistries];

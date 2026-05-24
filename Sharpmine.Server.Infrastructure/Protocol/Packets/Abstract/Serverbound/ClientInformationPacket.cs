@@ -65,6 +65,8 @@ public enum ChatMode
 public enum SkinParts
 {
 
+    None = 0x00,
+
     Cape = 0x01,
 
     Jacket = 0x02,

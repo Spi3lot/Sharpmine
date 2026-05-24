@@ -4,6 +4,8 @@ namespace Sharpmine.Server.Infrastructure.Protocol.Packets.Play.Clientbound;
 public enum TeleportRelativeAxes
 {
 
+    None = 0x0000,
+
     X = 0x0001,
     Y = 0x0002,
     Z = 0x0004,

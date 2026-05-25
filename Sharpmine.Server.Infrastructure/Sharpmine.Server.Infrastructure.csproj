@@ -8,13 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="Assets\**\*.*" Link="%(RecursiveDir)%(Filename)%(Extension)">
+        <AdditionalFiles Include="Assets\**\*.*" Link="%(RecursiveDir)%(Filename)%(Extension)">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-        <AdditionalFiles Include="Assets\generated\reports\packets.json" />
+        </AdditionalFiles>
     </ItemGroup>
 
     <ItemGroup>

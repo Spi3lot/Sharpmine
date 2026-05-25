@@ -23,7 +23,7 @@ public class PacketGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var packetProvider = context.AdditionalTextsProvider
-            .Where(static file => file.Path.EndsWith("packets.json", StringComparison.OrdinalIgnoreCase))
+            .Where(static file => file.Path.Replace('\\', '/').EndsWith("/reports/packets.json", StringComparison.OrdinalIgnoreCase))
             .Select(static (text, cancellationToken) => ParsePackets(text.GetText(cancellationToken)?.ToString()))
             .SelectMany(static (packets, _) => packets)
             .Collect();

@@ -2,7 +2,7 @@
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Serverbound;
 
-public partial record FinishConfigurationPacket : IStateTransition, IHandlerless
+public partial record FinishConfigurationPacket : IStateTransition
 {
 
     public ProtocolState NextState => ProtocolState.Play;

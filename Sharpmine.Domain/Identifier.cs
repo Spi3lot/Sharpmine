@@ -26,10 +26,10 @@ public readonly partial record struct Identifier
 
     public string Path { get; }
 
-    [GeneratedRegex("^[a-z0-9_.-]$")]
+    [GeneratedRegex("^[a-z0-9_.-]+$")]
     private static partial Regex NamespaceRegex { get; }
 
-    [GeneratedRegex("^[a-z0-9/_.-]$")]
+    [GeneratedRegex("^[a-z0-9/_.-]+$")]
     private static partial Regex PathRegex { get; }
 
     public static implicit operator Identifier(string value) => new(value);

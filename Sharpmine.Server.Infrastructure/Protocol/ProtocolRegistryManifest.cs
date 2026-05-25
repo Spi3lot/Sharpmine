@@ -17,7 +17,7 @@ public class ProtocolRegistryManifest
 
         foreach (var registry in registryCache.Registries.Values)
         {
-            protocolIds[registry.RegistryId] = new Dictionary<Identifier, int>();
+            protocolIds[registry.RegistryId] = [];
 
             for (int i = 0; i < registry.Entries.Length; i++)
             {
@@ -54,7 +54,7 @@ public class ProtocolRegistryManifest
 
                 if (!protocolIds.TryGetValue(registryId, out Dictionary<Identifier, int>? value))
                 {
-                    value = new Dictionary<Identifier, int>();
+                    value = [];
                     protocolIds[registryId] = value;
                 }
 

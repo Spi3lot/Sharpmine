@@ -49,7 +49,7 @@ public class PacketGenerator : IIncrementalGenerator
 
         foreach (var stateProperty in orderedStateProperties)
         {
-            string stateName = ToPascalCase(stateProperty.Name);
+            string stateName = GeneratorUtils.ToPascalCase(stateProperty.Name);
             GenerateProtocolDirection(stateProperty, "Serverbound", stateName, builder);
             GenerateProtocolDirection(stateProperty, "Clientbound", stateName, builder);
         }
@@ -72,7 +72,7 @@ public class PacketGenerator : IIncrementalGenerator
         {
             int id = packet.Value.GetProperty("protocol_id").GetInt32();
             string rawName = packet.Name.StartsWith("minecraft:") ? packet.Name.Substring(10) : packet.Name;
-            string packetName = ToPascalCase(rawName);
+            string packetName = GeneratorUtils.ToPascalCase(rawName);
             builder.Add(new PacketModel(directionName, packetName, stateName, id));
         }
     }
@@ -303,14 +303,6 @@ public class PacketGenerator : IIncrementalGenerator
         sb.AppendLine("}");
 
         context.AddSource($"{ProtocolNamespace}/PacketDispatcher.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
-    }
-
-    private static string ToPascalCase(string input)
-    {
-        return string.Join(
-            string.Empty,
-            input.Split(['_', '/'], StringSplitOptions.RemoveEmptyEntries)
-                .Select(static word => char.ToUpper(word[0]) + word.Substring(1)));
     }
 
     private readonly record struct PacketModel(string Direction, string PacketName, string StateName, int Id)

@@ -121,8 +121,8 @@ public partial class PlayerAccessManager
                 return [];
             }
 
-            string json = File.ReadAllText(fileName);
-            return JsonSerializer.Deserialize<List<T>>(json, JsonOptions) ?? [];
+            using var fileStream = File.OpenRead(fileName);
+            return JsonSerializer.Deserialize<List<T>>(fileStream, JsonOptions) ?? [];
         }
         catch (Exception ex)
         {

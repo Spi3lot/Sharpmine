@@ -44,9 +44,14 @@ public class TagFileProvider(
             {
                 string tagPath = Path.GetRelativePath(targetRegistryTagsDir, file);
                 Identifier tagName = tagPath.Replace(Path.DirectorySeparatorChar, '/').Replace(".json", string.Empty);
+                JsonObject? jsonObject;
 
-                var jsonNode = JsonNode.Parse(File.ReadAllBytes(file))!.AsObject();
-                var valuesArray = jsonNode["values"]?.AsArray();
+                using (var fileStream = File.OpenRead(file))
+                {
+                    jsonObject = JsonNode.Parse(fileStream)!.AsObject();
+                }
+
+                var valuesArray = jsonObject["values"]?.AsArray();
 
                 if (valuesArray is null)
                 {

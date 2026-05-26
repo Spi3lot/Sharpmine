@@ -34,13 +34,17 @@ public class RegistryFileProvider(
         }
 
         List<RegistryDto> loadedRegistries = [];
+        HashSet<Identifier> knownRegistries;
 
-        HashSet<Identifier> knownRegistries =
-        [
-            .. JsonNode.Parse(File.ReadAllBytes(registriesJsonPath))!
-                .AsObject()
-                .Select(node => node.Key)
-        ];
+        using (var fileStream = File.OpenRead(registriesJsonPath))
+        {
+            knownRegistries =
+            [
+                .. JsonNode.Parse(fileStream)!
+                    .AsObject()
+                    .Select(node => node.Key)
+            ];
+        }
 
         foreach (var protocol in protocols)
         {
@@ -66,7 +70,8 @@ public class RegistryFileProvider(
 
                 try
                 {
-                    var jsonNode = JsonNode.Parse(File.ReadAllBytes(entry));
+                    using var fileStream = File.OpenRead(entry);
+                    var jsonNode = JsonNode.Parse(fileStream);
                     var nbtTag = JsonToNbtConverter.Convert(jsonNode);
                     entries.Add(new RegistryEntryDto(entryName, Option.Some(nbtTag)));
                 }

@@ -36,7 +36,12 @@ public class ProtocolRegistryManifest
         }
 
         HashSet<Identifier> staticRegistries = [];
-        var rootNode = JsonNode.Parse(File.ReadAllBytes(registriesJsonPath))!.AsObject();
+        JsonObject? rootNode;
+
+        using (var fileStream = File.OpenRead(registriesJsonPath))
+        {
+            rootNode = JsonNode.Parse(fileStream)!.AsObject();
+        }
 
         foreach ((Identifier registryId, var registryNode) in rootNode)
         {

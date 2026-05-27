@@ -12,16 +12,9 @@ public static class DomainServiceCollectionExtensions
     {
 
         public IServiceCollection AddDomainServices() => services
-            .AddSingleton(sp =>
-            {
-                var provider = sp.GetRequiredService<IRegistryProvider>();
-                return new RegistryCache(provider.Get());
-            })
-            .AddSingleton(sp =>
-            {
-                var provider = sp.GetRequiredService<ITagProvider>();
-                return new TagCache(provider.Get());
-            });
+            .AddSingleton<RegistryManager>()
+            .AddSingleton(sp => new RegistryCache(sp.GetRequiredService<IRegistryProvider>().Get()))
+            .AddSingleton(sp => new TagCache(sp.GetRequiredService<ITagProvider>().Get()));
 
     }
 

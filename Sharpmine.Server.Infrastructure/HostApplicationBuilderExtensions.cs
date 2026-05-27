@@ -29,9 +29,9 @@ public static class HostApplicationBuilderExtensions
                 optional: true,
                 reloadOnChange: true);
 
-            builder.AddDomainServices();
             builder.AddRegistryServices();
             builder.AddTagServices();
+            builder.Services.AddDomainServices();
             builder.Services.AddSerilog();
             builder.Services.AddSingleton(builder.Configuration.Get<ServerProperties>() ?? new ServerProperties());
             builder.Services.AddSingleton<IProtocol, Protocol773>();

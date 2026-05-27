@@ -1,33 +1,27 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 using Sharpmine.Domain.Registries;
 using Sharpmine.Domain.Tags;
 
 namespace Sharpmine.Domain;
 
-public static class HostApplicationBuilderExtensions
+public static class DomainServiceCollectionExtensions
 {
 
-    extension<TBuilder>(TBuilder builder) where TBuilder : IHostApplicationBuilder
+    extension(IServiceCollection services)
     {
 
-        public TBuilder AddDomainServices()
-        {
-            builder.Services.AddSingleton(sp =>
+        public IServiceCollection AddDomainServices() => services
+            .AddSingleton(sp =>
             {
                 var provider = sp.GetRequiredService<IRegistryProvider>();
                 return new RegistryCache(provider.Get());
-            });
-
-            builder.Services.AddSingleton(sp =>
+            })
+            .AddSingleton(sp =>
             {
                 var provider = sp.GetRequiredService<ITagProvider>();
                 return new TagCache(provider.Get());
             });
-
-            return builder;
-        }
 
     }
 

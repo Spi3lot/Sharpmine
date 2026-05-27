@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 
 using Sharpmine.Domain.Registries;
+using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 using Sharpmine.Server.Infrastructure.Protocol.Packets;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Clientbound;
 using Sharpmine.Server.Infrastructure.Protocol.Versions;
@@ -23,7 +24,7 @@ public class NetworkRegistryCache
 
             var entries =
                 from entry in registry.Entries
-                select new DataTypes.RegistryEntry(entry.EntryId, entry.Data);
+                select new RegistryEntry(entry.EntryId, entry.Data);
 
             var packet = new RegistryDataPacket(registryId, entries.ToArray());
             packets.Add(PreSerializedPacket.Generate(packet));

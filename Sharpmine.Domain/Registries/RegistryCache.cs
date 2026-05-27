@@ -6,11 +6,11 @@ namespace Sharpmine.Domain.Registries;
 public class RegistryCache
 {
 
-    public RegistryCache(ImmutableArray<Registry> registries)
+    public RegistryCache(ImmutableArray<RegistryDto> registries)
     {
         Registries = registries.ToFrozenDictionary(r => r.RegistryId, r => r);
     }
 
-    public FrozenDictionary<Identifier, Registry> Registries { get; }
+    public FrozenDictionary<Identifier, RegistryDto> Registries { get; }
 
 }

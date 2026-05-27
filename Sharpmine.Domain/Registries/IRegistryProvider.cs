@@ -2,4 +2,4 @@
 
 namespace Sharpmine.Domain.Registries;
 
-public interface IRegistryProvider : IProvider<ImmutableArray<Registry>>;
+public interface IRegistryProvider : IProvider<ImmutableArray<RegistryDto>>;

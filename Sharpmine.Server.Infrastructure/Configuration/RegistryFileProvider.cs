@@ -16,7 +16,7 @@ public class RegistryFileProvider(
     ILogger<RegistryFileProvider> logger) : IRegistryProvider
 {
 
-    public ImmutableArray<Registry> Get()
+    public ImmutableArray<RegistryDto> Get()
     {
         string baseDir = AppContext.BaseDirectory;
         string minecraftDir = Path.Combine(baseDir, "data", "minecraft");
@@ -33,7 +33,7 @@ public class RegistryFileProvider(
             return [];
         }
 
-        List<Registry> loadedRegistries = [];
+        List<RegistryDto> loadedRegistries = [];
 
         HashSet<Identifier> knownRegistries =
         [
@@ -57,7 +57,7 @@ public class RegistryFileProvider(
                 continue;
             }
 
-            List<RegistryEntry> entries = [];
+            List<RegistryEntryDto> entries = [];
 
             foreach (string entry in Directory.EnumerateFiles(registryDir, "*.json", SearchOption.AllDirectories))
             {
@@ -68,7 +68,7 @@ public class RegistryFileProvider(
                 {
                     var jsonNode = JsonNode.Parse(File.ReadAllBytes(entry));
                     var nbtTag = JsonToNbtConverter.Convert(jsonNode);
-                    entries.Add(new RegistryEntry(entryName, Option.Some(nbtTag)));
+                    entries.Add(new RegistryEntryDto(entryName, Option.Some(nbtTag)));
                 }
                 catch (Exception ex)
                 {
@@ -76,7 +76,7 @@ public class RegistryFileProvider(
                 }
             }
 
-            loadedRegistries.Add(new Registry(registryId, [.. entries]));
+            loadedRegistries.Add(new RegistryDto(registryId, [.. entries]));
         }
 
         return [.. loadedRegistries];

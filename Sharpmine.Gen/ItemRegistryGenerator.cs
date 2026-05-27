@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +59,7 @@ public class ItemRegistryGenerator : IIncrementalGenerator
                 }
 
                 sb.AppendLine();
-                sb.AppendLine("    public static readonly FrozenDictionary<Identifier, Item> AllItems = new Dictionary<Identifier, Item>");
+                sb.AppendLine("    public static readonly FrozenDictionary<Identifier, Item> All = new Dictionary<Identifier, Item>");
                 sb.AppendLine("    {");
                 foreach (var item in generatedItems)
                 {

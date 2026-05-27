@@ -111,9 +111,9 @@ public class BlockRegistryGenerator : IIncrementalGenerator
                     generatedBlocks.Add((propertyName, fullId));
                 }
 
-                sb.AppendLine();
-                sb.AppendLine("    public static readonly FrozenDictionary<Identifier, Block> AllBlocks = new Dictionary<Identifier, Block>");
+                sb.AppendLine("    public static readonly FrozenDictionary<Identifier, Block> All = new Dictionary<Identifier, Block>");
                 sb.AppendLine("    {");
+
                 foreach (var block in generatedBlocks)
                 {
                     sb.AppendLine($"        {{ \"{block.FullId}\", {block.PropertyName} }},");

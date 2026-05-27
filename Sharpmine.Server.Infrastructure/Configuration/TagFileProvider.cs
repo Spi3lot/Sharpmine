@@ -14,7 +14,7 @@ public class TagFileProvider(
     ILogger<TagFileProvider> logger) : ITagProvider
 {
 
-    public ImmutableArray<TaggedRegistryData> Get()
+    public ImmutableArray<TaggedRegistryDto> Get()
     {
         string baseDir = AppContext.BaseDirectory;
         string registryTagsDir = Path.Combine(baseDir, "data", "minecraft", "tags");
@@ -25,7 +25,7 @@ public class TagFileProvider(
             return [];
         }
 
-        List<TaggedRegistryData> taggedRegistries = [];
+        List<TaggedRegistryDto> taggedRegistries = [];
 
         foreach (var registryId in protocolRegistryManifest.ProtocolIds.Keys)
         {
@@ -38,7 +38,7 @@ public class TagFileProvider(
                 continue;
             }
 
-            List<RegistryTagData> tags = [];
+            List<RegistryTagDto> tags = [];
 
             foreach (string file in Directory.EnumerateFiles(targetRegistryTagsDir, "*.json", SearchOption.AllDirectories))
             {
@@ -57,10 +57,10 @@ public class TagFileProvider(
                     .Select(valueNode => valueNode!.GetValue<string>())
                     .Where(entryName => !entryName.StartsWith('#'));
 
-                tags.Add(new RegistryTagData(tagName, [.. tagValues]));
+                tags.Add(new RegistryTagDto(tagName, [.. tagValues]));
             }
 
-            taggedRegistries.Add(new TaggedRegistryData(registryId, [.. tags]));
+            taggedRegistries.Add(new TaggedRegistryDto(registryId, [.. tags]));
         }
 
         return [.. taggedRegistries];

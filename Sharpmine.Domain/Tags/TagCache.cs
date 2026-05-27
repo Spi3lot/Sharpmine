@@ -6,11 +6,11 @@ namespace Sharpmine.Domain.Tags;
 public class TagCache
 {
 
-    public TagCache(ImmutableArray<TaggedRegistryData> registries)
+    public TagCache(ImmutableArray<TaggedRegistryDto> registries)
     {
         TagsByRegistry = registries.ToFrozenDictionary(r => r.RegistryId, r => r);
     }
 
-    public FrozenDictionary<Identifier, TaggedRegistryData> TagsByRegistry { get; }
+    public FrozenDictionary<Identifier, TaggedRegistryDto> TagsByRegistry { get; }
 
 }

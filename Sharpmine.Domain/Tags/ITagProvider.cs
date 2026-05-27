@@ -2,4 +2,4 @@
 
 namespace Sharpmine.Domain.Tags;
 
-public interface ITagProvider : IProvider<ImmutableArray<TaggedRegistryData>>;
+public interface ITagProvider : IProvider<ImmutableArray<TaggedRegistryDto>>;

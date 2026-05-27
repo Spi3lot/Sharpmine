@@ -63,7 +63,7 @@ public class BlockRegistryGenerator : IIncrementalGenerator
                                 return $"{{ \"{p.Name}\", [{string.Join(", ", allowedValues)}] }}";
                             });
 
-                        possiblePropsArg = $"new() {{ {string.Join(", ", dictEntries)} }}";
+                        possiblePropsArg = $"new()\n        {{\n            {string.Join(",\n            ", dictEntries)}\n        }}";
                     }
                     else
                     {
@@ -74,12 +74,9 @@ public class BlockRegistryGenerator : IIncrementalGenerator
                     string propertyName = GeneratorUtils.ToPascalCase(fullId.Replace("minecraft:", string.Empty));
                     var statesBuilder = new StringBuilder();
                     var statesNode = blockProperty.Value.GetProperty("states");
-                    bool firstState = true;
 
                     foreach (var state in statesNode.EnumerateArray())
                     {
-                        if (!firstState) statesBuilder.Append(", ");
-
                         int id = state.GetProperty("id").GetInt32();
                         bool isDefault = state.TryGetProperty("default", out var def) && def.GetBoolean();
                         string propsArg;
@@ -90,22 +87,24 @@ public class BlockRegistryGenerator : IIncrementalGenerator
                                 .EnumerateObject()
                                 .Select(p => $"{{ \"{p.Name}\", \"{p.Value.GetString()}\" }}");
 
-                            propsArg = $"new() {{ {string.Join(", ", dictEntries)} }}";
+                            propsArg = $"new()\n            {{\n                {string.Join(",\n                ", dictEntries)}\n            }}";
                         }
                         else
                         {
                             propsArg = "[]";
                         }
 
-                        statesBuilder.Append($"new BlockState({id}, {(isDefault ? "true" : "false")}, {propsArg})");
-                        firstState = false;
+                        statesBuilder.Append($"    new BlockState({id}, {(isDefault ? "true" : "false")}, {propsArg}),\n        ");
                     }
 
                     sb.AppendLine($"""
                                        public static readonly Block {propertyName} = new Block(
-                                           "{fullId}", 
-                                           [{statesBuilder}],
-                                           {possiblePropsArg});
+                                           "{fullId}",
+                                           {possiblePropsArg},
+                                           [
+                                           {statesBuilder}]
+                                       );
+
                                    """);
 
                     generatedBlocks.Add((propertyName, fullId));

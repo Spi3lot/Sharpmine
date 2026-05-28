@@ -63,7 +63,12 @@ public class BlockRegistryGenerator : IIncrementalGenerator
                                 return $"{{ \"{p.Name}\", [{string.Join(", ", allowedValues)}] }}";
                             });
 
-                        possiblePropsArg = $"new()\n        {{\n            {string.Join(",\n            ", dictEntries)}\n        }}";
+                        possiblePropsArg = $$"""
+                                             new()
+                                                     {
+                                                         {{string.Join(",\n            ", dictEntries)}}
+                                                     }
+                                             """;
                     }
                     else
                     {
@@ -87,14 +92,22 @@ public class BlockRegistryGenerator : IIncrementalGenerator
                                 .EnumerateObject()
                                 .Select(p => $"{{ \"{p.Name}\", \"{p.Value.GetString()}\" }}");
 
-                            propsArg = $"new()\n            {{\n                {string.Join(",\n                ", dictEntries)}\n            }}";
+                            propsArg = $$"""
+                                         new()
+                                                     {
+                                                         {{string.Join(",\n                ", dictEntries)}}
+                                                     }
+                                         """;
                         }
                         else
                         {
                             propsArg = "[]";
                         }
 
-                        statesBuilder.Append($"    new BlockState({id}, {(isDefault ? "true" : "false")}, {propsArg}),\n        ");
+                        statesBuilder.Append($"""
+                                                  new BlockState({id}, {(isDefault ? "true" : "false")}, {propsArg}),
+                                                      
+                                              """);
                     }
 
                     sb.AppendLine($"""

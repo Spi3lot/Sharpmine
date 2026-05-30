@@ -31,9 +31,9 @@ public class RegistryManager
 
     public DynamicRegistry<CatVariant> CatVariants { get; } = new();
 
-    // TODO: public DynamicRegistry<ChickenVariant> ChickenVariants { get; } = new();
+    public DynamicRegistry<ChickenVariant> ChickenVariants { get; } = new();
 
-    // TODO: public DynamicRegistry<CowVariant> CowVariants { get; } = new();
+    public DynamicRegistry<CowVariant> CowVariants { get; } = new();
 
     public DynamicRegistry<FrogVariant> FrogVariants { get; } = new();
 

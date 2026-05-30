@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace Sharpmine.Gen;
 
 [Generator]
-public class UniversalRegistryGenerator : IIncrementalGenerator
+public class StaticRegistryGenerator : IIncrementalGenerator
 {
 
     public void Initialize(IncrementalGeneratorInitializationContext context)

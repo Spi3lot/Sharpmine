@@ -1,12 +1,14 @@
 ﻿using System.Text.Json;
 
+using Microsoft.Extensions.Logging;
+
 using Sharpmine.Domain;
 using Sharpmine.Domain.Registries.Dynamic;
 using Sharpmine.Domain.Registries.Dynamic.Entries;
 
 namespace Sharpmine.Server.Infrastructure.Configuration;
 
-public class DatapackLoaderService(RegistryManager registries)
+public class DatapackLoaderService(RegistryManager registries, ILogger<DatapackLoaderService> logger)
 {
 
     private readonly JsonSerializerOptions _jsonOptions = new()
@@ -46,6 +48,7 @@ public class DatapackLoaderService(RegistryManager registries)
 
         if (!Directory.Exists(searchPath))
         {
+            logger.LogWarning("Directory {SearchPath} not found.", searchPath);
             return results;
         }
 

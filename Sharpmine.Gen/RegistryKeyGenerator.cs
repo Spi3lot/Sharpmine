@@ -30,7 +30,7 @@ public class RegistryKeyGenerator : IIncrementalGenerator
 
                                        using Sharpmine.Domain;
 
-                                       namespace Sharpmine.Domain.Registries;
+                                       namespace Sharpmine.Domain.Registries.Static;
 
                                        public static class RegistryKeys
                                        {

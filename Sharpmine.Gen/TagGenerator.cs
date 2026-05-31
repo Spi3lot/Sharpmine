@@ -56,7 +56,7 @@ public class TagGenerator : IIncrementalGenerator
 
                                              using Sharpmine.Domain;
 
-                                             namespace Sharpmine.Domain.Tags.Static;
+                                             namespace Sharpmine.Domain.Tags;
 
                                              public static class {{className}}
                                              {

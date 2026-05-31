@@ -34,7 +34,13 @@ public class TagGenerator : IIncrementalGenerator
                     continue;
                 }
 
-                string registryType = parts[tagsIndex + 1]; // "block", "item"
+                string registryType = parts[tagsIndex + 1]; // "block", "item", "worldgen"
+                int tagIdStartIndex = tagsIndex + 2;
+
+                if (registryType == "worldgen" && parts.Length > tagsIndex + 3)
+                {
+                    registryType += '/' + parts[tagIdStartIndex++]; // "worldgen/biome"
+                }
 
                 if (!tagsByRegistryType.TryGetValue(registryType, out var value))
                 {
@@ -43,7 +49,7 @@ public class TagGenerator : IIncrementalGenerator
                 }
 
                 // "mineable/pickaxe"
-                string tagPath = string.Join("/", parts.Skip(tagsIndex + 2)).Replace(".json", string.Empty);
+                string tagPath = string.Join("/", parts.Skip(tagIdStartIndex)).Replace(".json", string.Empty);
                 value.Add((GeneratorUtils.ToPascalCase(tagPath), "minecraft:" + tagPath));
             }
 

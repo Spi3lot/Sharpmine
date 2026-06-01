@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 
+using Sharpmine.Domain.DataTypes;
 using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Packets.Abstract.Clientbound;

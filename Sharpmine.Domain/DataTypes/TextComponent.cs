@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+namespace Sharpmine.Domain.DataTypes;
 
 [JsonConverter(typeof(TextComponentConverter))]
 public record TextComponent

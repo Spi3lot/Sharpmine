@@ -1,9 +1,8 @@
-using Sharpmine.Domain.Registries.Dynamic.SubTypes.Structures;
+using Sharpmine.Domain.DataTypes;
 
 namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
 public record TrimMaterial(
     string AssetName,
-    Identifier Ingredient,
-    float ItemModelIndex,
-    TrimDescription Description);
+    EquipmentAssetId OverrideArmorAssets,
+    TextComponent Description);

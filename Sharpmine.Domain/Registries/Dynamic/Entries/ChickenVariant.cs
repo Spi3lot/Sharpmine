@@ -1,5 +1,8 @@
-﻿namespace Sharpmine.Domain.Registries.Dynamic.Entries;
+﻿using Sharpmine.Domain.Registries.Dynamic.SubTypes.Structures;
+
+namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
 public record ChickenVariant(
-    Identifier Id,
-    Identifier ModelAsset);
+    Identifier AssetId,
+    string Model,
+    SpawnCondition[]? SpawnConditions);

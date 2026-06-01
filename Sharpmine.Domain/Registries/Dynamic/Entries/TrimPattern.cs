@@ -1,9 +1,8 @@
-using Sharpmine.Domain.Registries.Dynamic.SubTypes.Structures;
+using Sharpmine.Domain.DataTypes;
 
 namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
 public record TrimPattern(
     Identifier AssetId,
-    Identifier TemplateItem,
-    TrimDescription Description,
+    TextComponent Description,
     bool Decal);

@@ -4,5 +4,5 @@ namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
 public record TrimMaterial(
     string AssetName,
-    EquipmentAssetId OverrideArmorAssets,
-    TextComponent Description);
+    TextComponent Description,
+    IReadOnlyDictionary<string, string>? OverrideArmorAssets);

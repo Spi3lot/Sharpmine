@@ -6,7 +6,7 @@ using Sharpmine.Server.Infrastructure.Configuration;
 namespace Sharpmine.Server.Infrastructure;
 
 public class ServerBootstrapper(
-    DatapackLoaderService datapackLoader,
+    DatapackLoader datapackLoader,
     ILogger<ServerBootstrapper> logger) : IHostedService
 {
 

@@ -41,7 +41,7 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddSingleton<PacketDispatcher>();
             builder.Services.AddTransient<PacketSerializer>();
             builder.Services.AddSingleton<ServerCapacityManager>();
-            builder.Services.AddSingleton<DatapackLoaderService>();
+            builder.Services.AddSingleton<DatapackLoader>();
             builder.Services.AddSingleton<ServerBootstrapper>();
             builder.Services.AddSingleton<ServerService>();
             builder.Services.AddHostedService<ServerService>(sp => sp.GetRequiredService<ServerService>());

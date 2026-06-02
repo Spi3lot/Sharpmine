@@ -8,7 +8,7 @@ using Sharpmine.Domain.Registries.Dynamic.Entries;
 
 namespace Sharpmine.Server.Infrastructure.Configuration;
 
-public class DatapackLoaderService(RegistryManager registries, ILogger<DatapackLoaderService> logger)
+public class DatapackLoader(RegistryManager registries, ILogger<DatapackLoader> logger)
 {
 
     private readonly JsonSerializerOptions _jsonOptions = new()

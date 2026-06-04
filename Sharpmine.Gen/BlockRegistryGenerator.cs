@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,7 @@ public class BlockRegistryGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var blockContents = context.AdditionalTextsProvider
-            .Where(static file => file.Path.Replace('\\', '/').EndsWith("/reports/blocks.json", System.StringComparison.OrdinalIgnoreCase))
+            .Where(static file => file.Path.Replace('\\', '/').EndsWith("/reports/blocks.json", StringComparison.OrdinalIgnoreCase))
             .Select(static (text, cancellationToken) => text.GetText(cancellationToken)?.ToString())
             .Collect();
 
@@ -51,6 +52,25 @@ public class BlockRegistryGenerator : IIncrementalGenerator
 
                 foreach (var blockProperty in root.EnumerateObject())
                 {
+                    string definitionTypeArg = string.Empty;
+                    string definitionJsonArg = string.Empty;
+
+                    if (blockProperty.Value.TryGetProperty("definition", out var defNode))
+                    {
+                        if (defNode.TryGetProperty("type", out var typeNode))
+                        {
+                            definitionTypeArg = $"""
+                                                 "{typeNode.GetString()}"
+                                                 """;
+                        }
+
+                        definitionJsonArg = $""""
+                                             """
+                                                     {defNode.GetRawText().Replace("\n  ", "\n      ")}
+                                                     """
+                                             """";
+                    }
+
                     string possiblePropsArg;
 
                     if (blockProperty.Value.TryGetProperty("properties", out var possiblePropsNode))
@@ -113,6 +133,8 @@ public class BlockRegistryGenerator : IIncrementalGenerator
                     sb.AppendLine($"""
                                        public static readonly Block {propertyName} = new Block(
                                            "{fullId}",
+                                           {definitionTypeArg},
+                                           {definitionJsonArg},
                                            {possiblePropsArg},
                                            [
                                            {statesBuilder}]
@@ -133,9 +155,9 @@ public class BlockRegistryGenerator : IIncrementalGenerator
 
                 sb.AppendLine("    }.ToFrozenDictionary();");
             }
-            catch
+            catch (Exception ex)
             {
-                sb.AppendLine("    // Error parsing JSON");
+                sb.AppendLine($"    #error Block generation failed: {ex.Message}");
             }
 
             sb.AppendLine("}");

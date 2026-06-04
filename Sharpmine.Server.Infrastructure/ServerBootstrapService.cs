@@ -5,9 +5,9 @@ using Sharpmine.Server.Infrastructure.Configuration;
 
 namespace Sharpmine.Server.Infrastructure;
 
-public class ServerBootstrapper(
+public class ServerBootstrapService(
     DatapackLoader datapackLoader,
-    ILogger<ServerBootstrapper> logger) : IHostedService
+    ILogger<ServerBootstrapService> logger) : IHostedService
 {
 
     public async Task StartAsync(CancellationToken cancellationToken)

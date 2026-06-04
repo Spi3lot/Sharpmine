@@ -27,7 +27,7 @@ public static class HostApplicationBuilderExtensions
         public TBuilder AddCoreServices()
         {
             builder.Configuration.AddIniFile(
-                ServerConstants.FileNames.Properties,
+                path: ServerConstants.FileNames.Properties,
                 optional: true,
                 reloadOnChange: true);
 
@@ -38,20 +38,21 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddSingleton(builder.Configuration.Get<ServerProperties>() ?? new ServerProperties());
             builder.Services.AddSingleton<IProtocol, Protocol773>();
             builder.Services.AddSingleton<ProtocolRegistryManifest>();
+            builder.Services.AddSingleton<ServerCapacityManager>();
             builder.Services.AddSingleton<PlayerAccessManager>();
             builder.Services.AddSingleton<PacketReceiver>();
             builder.Services.AddSingleton<PacketDispatcher>();
             builder.Services.AddTransient<PacketSerializer>();
-            builder.Services.AddSingleton<ServerCapacityManager>();
-            builder.Services.AddSingleton<DatapackLoader>();
-            builder.Services.AddSingleton<ServerBootstrapper>();
-            builder.Services.AddSingleton<ServerService>();
-            builder.Services.AddHostedService<ServerService>(sp => sp.GetRequiredService<ServerService>());
 
             builder.Services.AddSingleton<Registries>();
             builder.Services.AddSingleton<IRegistries>(sp => sp.GetRequiredService<Registries>());
             builder.Services.AddSingleton<IServerRegistries>(sp => sp.GetRequiredService<Registries>());
             builder.Services.AddSingleton<ISynchronizedRegistries>(sp => sp.GetRequiredService<Registries>());
+            builder.Services.AddSingleton<DatapackLoader>();
+            builder.Services.AddHostedService<ServerBootstrapService>();
+
+            builder.Services.AddSingleton<ServerService>();
+            builder.Services.AddHostedService<ServerService>(sp => sp.GetRequiredService<ServerService>());
 
             builder.Services.Scan(scan => scan
                 .FromAssemblyOf<ServerService>()

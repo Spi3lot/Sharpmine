@@ -74,7 +74,7 @@ public class TextComponentConverter : JsonConverter<TextComponent>
                 case "click_event": click = JsonSerializer.Deserialize<ClickEvent>(ref reader, options); break;
                 case "hover_event": hover = JsonSerializer.Deserialize<HoverEvent>(ref reader, options); break;
                 case "extra": extra = JsonSerializer.Deserialize<List<TextComponent>>(ref reader, options); break;
-                default: throw new JsonException($"Unexpected property name {propertyName} for ${nameof(TextComponent)}.");
+                default: throw new JsonException($"Unexpected property name {propertyName} for {nameof(TextComponent)}.");
             }
         }
 
@@ -181,8 +181,8 @@ public class TextComponentConverter : JsonConverter<TextComponent>
         // Nested
         if (value.Score is not null)
         {
-            writer.WritePropertyName("with");
-            JsonSerializer.Serialize(writer, value.With, options);
+            writer.WritePropertyName("score");
+            JsonSerializer.Serialize(writer, value.Score, options);
         }
 
         if (value.With is not null)

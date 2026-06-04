@@ -3,12 +3,13 @@
 using Microsoft.Extensions.Logging;
 
 using Sharpmine.Domain;
-using Sharpmine.Domain.Registries.Dynamic;
 using Sharpmine.Domain.Registries.Dynamic.Entries;
+using Sharpmine.Server.Domain.Registries.Dynamic;
+using Sharpmine.Server.Domain.Registries.Dynamic.Entries;
 
 namespace Sharpmine.Server.Infrastructure.Configuration;
 
-public class DatapackLoader(RegistryManager registries, ILogger<DatapackLoader> logger)
+public class DatapackLoader(IRegistries registries, ILogger<DatapackLoader> logger)
 {
 
     private readonly JsonSerializerOptions _jsonOptions = new()
@@ -38,6 +39,10 @@ public class DatapackLoader(RegistryManager registries, ILogger<DatapackLoader> 
         registries.ChickenVariants.Load(await LoadRegistryAsync<ChickenVariant>("chicken_variant"));
         registries.WolfVariants.Load(await LoadRegistryAsync<WolfVariant>("wolf_variant"));
         registries.WolfSoundVariants.Load(await LoadRegistryAsync<WolfSoundVariant>("wolf_sound_variant"));
+
+        registries.Advancements.Load(await LoadRegistryAsync<Advancement>("advancement"));
+        registries.EnchantmentProviders.Load(await LoadRegistryAsync<EnchantmentProvider>("enchantment_provider"));
+        registries.Recipes.Load(await LoadRegistryAsync<Recipe>("recipe"));
     }
 
     private async Task<Dictionary<Identifier, TDomain>> LoadRegistryAsync<TDomain>(string registryFolder)

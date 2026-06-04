@@ -2,7 +2,7 @@ using Sharpmine.Domain.Registries.Dynamic.Entries;
 
 namespace Sharpmine.Domain.Registries.Dynamic;
 
-public class RegistryManager
+public class SynchronizedRegistries : ISynchronizedRegistries
 {
 
     public DynamicRegistry<BannerPattern> BannerPatterns { get; } = new();

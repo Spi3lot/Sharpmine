@@ -13,7 +13,6 @@ public static class DomainServiceCollectionExtensions
     {
 
         public IServiceCollection AddDomainServices() => services
-            .AddSingleton<RegistryManager>()
             .AddSingleton(sp => new RegistryCache(sp.GetRequiredService<IRegistryProvider>().Get()))
             .AddSingleton(sp => new TagCache(sp.GetRequiredService<ITagProvider>().Get()));
 

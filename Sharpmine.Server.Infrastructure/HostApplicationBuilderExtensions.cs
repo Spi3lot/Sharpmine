@@ -6,7 +6,9 @@ using Serilog;
 
 using Sharpmine.Domain;
 using Sharpmine.Domain.Registries;
+using Sharpmine.Domain.Registries.Dynamic;
 using Sharpmine.Domain.Tags;
+using Sharpmine.Server.Domain.Registries.Dynamic;
 using Sharpmine.Server.Infrastructure.Configuration;
 using Sharpmine.Server.Infrastructure.Protocol;
 using Sharpmine.Server.Infrastructure.Protocol.Handlers;
@@ -45,6 +47,11 @@ public static class HostApplicationBuilderExtensions
             builder.Services.AddSingleton<ServerBootstrapper>();
             builder.Services.AddSingleton<ServerService>();
             builder.Services.AddHostedService<ServerService>(sp => sp.GetRequiredService<ServerService>());
+
+            builder.Services.AddSingleton<Registries>();
+            builder.Services.AddSingleton<IRegistries>(sp => sp.GetRequiredService<Registries>());
+            builder.Services.AddSingleton<IServerRegistries>(sp => sp.GetRequiredService<Registries>());
+            builder.Services.AddSingleton<ISynchronizedRegistries>(sp => sp.GetRequiredService<Registries>());
 
             builder.Services.Scan(scan => scan
                 .FromAssemblyOf<ServerService>()

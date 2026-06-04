@@ -14,6 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Sharpmine.Server.Domain\Sharpmine.Server.Domain.csproj" />
         <ProjectReference Include="..\Sharpmine.Domain\Sharpmine.Domain.csproj" />
         <ProjectReference Include="..\Sharpmine.Gen\Sharpmine.Gen.csproj"
                           OutputItemType="Analyzer"

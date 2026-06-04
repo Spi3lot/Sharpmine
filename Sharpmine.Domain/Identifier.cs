@@ -1,30 +1,57 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace Sharpmine.Domain;
 
+[JsonConverter(typeof(IdentifierConverter))]
 public readonly partial record struct Identifier
 {
 
-    public Identifier(string value) : this(
-        (value.Contains(':')) ? value.Split(':')[0] : "minecraft",
-        (value.Contains(':')) ? value.Split(':')[1] : value)
+    public Identifier(string value)
     {
-    }
+        IsTag = value.StartsWith('#');
+        int startIndex = (IsTag) ? 1 : 0;
+        int colonIndex = value.IndexOf(':', startIndex);
 
-    public Identifier(string @namespace, string path)
-    {
-        if (!NamespaceRegex.IsMatch(@namespace) || !PathRegex.IsMatch(path))
+        if (colonIndex == -1)
         {
-            throw new ArgumentException($"Invalid identifier format: {@namespace}:{path}");
+            Namespace = "minecraft";
+            Path = value[startIndex..];
+        }
+        else
+        {
+            Namespace = value[startIndex..colonIndex];
+            Path = value[(colonIndex + 1)..];
         }
 
+        ThrowIfInvalidFormat();
+    }
+
+    public Identifier(bool isTag, string @namespace, string path)
+    {
+        IsTag = isTag;
         Namespace = @namespace;
         Path = path;
+        ThrowIfInvalidFormat();
     }
+
+    public static Identifier Minecraft(string path) => new(false, "minecraft", path);
+
+    public static Identifier MinecraftTag(string path) => new(true, "minecraft", path);
+
+    public bool IsTag { get; }
 
     public string Namespace { get; }
 
     public string Path { get; }
+
+    private void ThrowIfInvalidFormat()
+    {
+        if (!NamespaceRegex.IsMatch(Namespace) || !PathRegex.IsMatch(Path))
+        {
+            throw new ArgumentException("Invalid identifier format: " + ToString());
+        }
+    }
 
     [GeneratedRegex("^[a-z0-9_.-]+$")]
     private static partial Regex NamespaceRegex { get; }
@@ -36,6 +63,6 @@ public readonly partial record struct Identifier
 
     public static implicit operator string(Identifier id) => id.ToString();
 
-    public override string ToString() => $"{Namespace}:{Path}";
+    public override string ToString() => $"{(IsTag ? "#" : "")}{Namespace}:{Path}";
 
 }

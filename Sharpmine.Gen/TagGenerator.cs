@@ -50,7 +50,7 @@ public class TagGenerator : IIncrementalGenerator
 
                 // "mineable/pickaxe"
                 string tagPath = string.Join("/", parts.Skip(tagIdStartIndex)).Replace(".json", string.Empty);
-                value.Add((GeneratorUtils.ToPascalCase(tagPath), "minecraft:" + tagPath));
+                value.Add((GeneratorUtils.ToPascalCase(tagPath), "#minecraft:" + tagPath));
             }
 
             foreach (var group in tagsByRegistryType)

@@ -58,10 +58,7 @@ public class TagFileProvider(
                     continue;
                 }
 
-                var tagValues = valuesArray
-                    .Select(valueNode => valueNode!.GetValue<string>())
-                    .Where(entryName => !entryName.StartsWith('#'));
-
+                var tagValues = valuesArray.Select(valueNode => new Identifier(valueNode!.GetValue<string>()));
                 tags.Add(new RegistryTagDto(tagName, [.. tagValues]));
             }
 

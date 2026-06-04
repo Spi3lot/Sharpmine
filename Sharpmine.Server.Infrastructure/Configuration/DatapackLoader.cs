@@ -60,14 +60,14 @@ public class DatapackLoader(IRegistries registries, ILogger<DatapackLoader> logg
         foreach (string file in Directory.EnumerateFiles(searchPath, "*.json", SearchOption.AllDirectories))
         {
             string relativePath = Path.GetRelativePath(searchPath, file).Replace('\\', '/');
-            string tagPath = relativePath.Replace(".json", string.Empty);
+            string entryName = relativePath.Replace(".json", string.Empty);
 
             await using var stream = File.OpenRead(file);
             var entry = await JsonSerializer.DeserializeAsync<TDomain>(stream, _jsonOptions);
 
             if (entry is not null)
             {
-                var id = new Identifier("minecraft", tagPath);
+                var id = Identifier.Minecraft(entryName);
                 results[id] = entry;
             }
         }

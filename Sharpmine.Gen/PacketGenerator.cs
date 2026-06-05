@@ -38,10 +38,9 @@ public class PacketGenerator : IIncrementalGenerator
             return ImmutableArray<PacketModel>.Empty;
         }
 
-        using var doc = JsonDocument.Parse(jsonContent!);
         var builder = ImmutableArray.CreateBuilder<PacketModel>();
 
-        var orderedStateProperties = doc.RootElement
+        var orderedStateProperties = JsonElement.Parse(jsonContent!)
             .EnumerateObject()
             .OrderBy(static prop => (prop.Value.TryGetProperty("serverbound", out var sb))
                 ? sb.GetPropertyCount()

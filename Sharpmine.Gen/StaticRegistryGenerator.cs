@@ -27,8 +27,7 @@ public class StaticRegistryGenerator : IIncrementalGenerator
 
             try
             {
-                using var document = JsonDocument.Parse(content!);
-                var root = document.RootElement;
+                var root = JsonElement.Parse(content!);
 
                 foreach (var registry in root.EnumerateObject())
                 {

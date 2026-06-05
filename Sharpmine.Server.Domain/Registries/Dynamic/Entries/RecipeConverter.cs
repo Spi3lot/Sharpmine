@@ -11,8 +11,7 @@ public class RecipeConverter : JsonConverter<Recipe>
 
     public override Recipe? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        using var doc = JsonDocument.ParseValue(ref reader);
-        var root = doc.RootElement;
+        var root = JsonElement.ParseValue(ref reader);
 
         if (!root.TryGetProperty("type", out var typeElement) || typeElement.GetString() is not { } typeStr)
         {

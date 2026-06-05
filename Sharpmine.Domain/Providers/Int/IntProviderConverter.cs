@@ -16,8 +16,7 @@ public class IntProviderConverter : JsonConverter<IIntProvider>
 
         if (reader.TokenType == JsonTokenType.StartObject)
         {
-            using var doc = JsonDocument.ParseValue(ref reader);
-            var root = doc.RootElement;
+            var root = JsonElement.ParseValue(ref reader);
 
             if (!root.TryGetProperty("type", out var typeElement))
             {

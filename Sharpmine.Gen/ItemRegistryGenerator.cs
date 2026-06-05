@@ -48,8 +48,7 @@ public class ItemRegistryGenerator : IIncrementalGenerator
 
             try
             {
-                using var document = JsonDocument.Parse(content!);
-                var root = document.RootElement;
+                var root = JsonElement.Parse(content!);
 
                 foreach (string fullId in root.EnumerateObject().Select(itemProperty => itemProperty.Name))
                 {

@@ -47,8 +47,7 @@ public class BlockRegistryGenerator : IIncrementalGenerator
 
             try
             {
-                using var document = JsonDocument.Parse(content!);
-                var root = document.RootElement;
+                var root = JsonElement.Parse(content!);
 
                 foreach (var blockProperty in root.EnumerateObject())
                 {

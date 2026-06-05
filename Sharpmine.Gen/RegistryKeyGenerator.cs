@@ -39,9 +39,9 @@ public class RegistryKeyGenerator : IIncrementalGenerator
 
             try
             {
-                using var document = JsonDocument.Parse(content!);
+                var root = JsonElement.Parse(content!);
 
-                foreach (string fullId in document.RootElement.EnumerateObject().Select(registry => registry.Name))
+                foreach (string fullId in root.EnumerateObject().Select(registry => registry.Name))
                 {
                     string propertyName = GeneratorUtils.ToPascalCase(fullId.Replace("minecraft:", string.Empty));
                     sb.AppendLine($"    public static readonly Identifier {propertyName} = \"{fullId}\";");

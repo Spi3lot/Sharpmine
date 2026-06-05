@@ -72,6 +72,7 @@ public class DatapackLoader(IRegistries registries, ILogger<DatapackLoader> logg
             }
         }
 
+        logger.LogDebug("Loaded {Registry} registry ({Count} entries)", registryFolder, results.Count);
         return results;
     }
 

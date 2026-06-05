@@ -14,7 +14,7 @@ public class ServerBootstrapService(
     {
         logger.LogInformation("Loading datapacks and filling registries...");
         await datapackLoader.ReloadAllAsync();
-        logger.LogInformation("Registries loaded successfully.");
+        logger.LogInformation("Registries loaded successfully");
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

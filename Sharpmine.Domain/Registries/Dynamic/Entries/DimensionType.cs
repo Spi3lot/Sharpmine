@@ -1,3 +1,5 @@
+using Sharpmine.Domain.Providers.Int;
+
 namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
 public record DimensionType(
@@ -15,7 +17,7 @@ public record DimensionType(
     int LogicalHeight,
     int MinY,
     int MonsterSpawnBlockLightLimit,
-    int MonsterSpawnLightLevel,
+    IIntProvider MonsterSpawnLightLevel,
     bool Natural,
     bool PiglinSafe,
     bool RespawnAnchorWorks,

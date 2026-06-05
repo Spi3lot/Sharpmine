@@ -10,7 +10,7 @@ public sealed record Recipe(
     Identifier Type,
 
     // Type is "minecraft:crafting_shaped"
-    string[]? Pattern,
+    string[]? CraftingPattern,
     JsonElement? Key,
 
     // Type is "minecraft:crafting_shapeless"
@@ -24,7 +24,10 @@ public sealed record Recipe(
     JsonElement? Dye,
     JsonElement? Target,
 
-    // Type is "minecraft:smithing_transform" or "minecraft:smithing_trim"
+    // Type is "minecraft:smithing_trim"
+    Identifier? TrimPattern,
+
+    // Type is "minecraft:smithing_trim" or "minecraft:smithing_transform"
     JsonElement? Template,
     JsonElement? Base,
     JsonElement? Addition,
@@ -35,11 +38,12 @@ public sealed record Recipe(
 
     // Type is "minecraft:smelting", "minecraft:smoking", "minecraft:campfire_cooking" or
     //         "minecraft:blasting"
-    float? Experience,
+    float Experience,
     int? Cookingtime,
 
     // Misc
     JsonElement? Result,
     string? Group,
-    string? Category,
-    bool? ShowNotification);
+    string Category,
+    bool ShowNotification
+);

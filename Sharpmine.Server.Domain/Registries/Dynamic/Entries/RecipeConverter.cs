@@ -1,65 +1,71 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+
+using Sharpmine.Domain;
 
 namespace Sharpmine.Server.Domain.Registries.Dynamic.Entries;
 
 public class RecipeConverter : JsonConverter<Recipe>
 {
 
-    private sealed record RawRecipe(
-        string? Type,
-        string[]? Pattern,
-        JsonElement? Key,
-        JsonElement? Ingredients,
-        JsonElement? Input,
-        JsonElement? Material,
-        JsonElement? Dye,
-        JsonElement? Target,
-        JsonElement? Template,
-        JsonElement? Base,
-        JsonElement? Addition,
-        JsonElement? Ingredient,
-        float? Experience,
-        int? Cookingtime,
-        JsonElement? Result,
-        string? Group,
-        string? Category,
-        bool? ShowNotification
-    );
-
     public override Recipe? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var raw = JsonSerializer.Deserialize<RawRecipe>(ref reader, options);
-        if (raw is null || string.IsNullOrWhiteSpace(raw.Type)) return null;
+        using var doc = JsonDocument.ParseValue(ref reader);
+        var root = doc.RootElement;
 
-        int? cookingTime = raw.Cookingtime ?? (raw.Type switch
+        if (!root.TryGetProperty("type", out var typeElement) || typeElement.GetString() is not { } typeStr)
         {
-            "minecraft:smelting" => 200,
-            "minecraft:campfire_cooking" or "minecraft:smoking" or "minecraft:blasting" => 100,
-            _ => null
-        });
+            return null;
+        }
 
-        float experience = raw.Experience ?? 0;
-        string category = raw.Category ?? "misc";
-        bool showNotification = raw.ShowNotification ?? true;
+        string[]? craftingPattern = null;
+        Identifier? trimPattern = null;
+
+        if (root.TryGetProperty("pattern", out var patternElement))
+        {
+            if (patternElement.ValueKind == JsonValueKind.Array)
+            {
+                craftingPattern = patternElement.Deserialize<string[]>(options);
+            }
+            else if (patternElement.ValueKind == JsonValueKind.String)
+            {
+                trimPattern = new Identifier(patternElement.GetString()!);
+            }
+        }
+
+        int? cookingtime = root.TryGetProperty("cookingtime", out var ct)
+            ? ct.GetInt32()
+            : typeStr switch
+            {
+                "minecraft:smelting" => 200,
+                "minecraft:campfire_cooking" or "minecraft:smoking" or "minecraft:blasting" => 100,
+                _ => null
+            };
+
+        float experience = root.TryGetProperty("experience", out var exp) ? exp.GetSingle() : 0;
+        string? group = root.TryGetProperty("group", out var grp) ? grp.GetString() : null;
+        string category = root.TryGetProperty("category", out var cat) ? cat.GetString()! : "misc";
+        bool showNotification = !root.TryGetProperty("show_notification", out var sn) || sn.GetBoolean();
 
         return new Recipe(
-            Type: raw.Type,
-            Pattern: raw.Pattern,
-            Key: raw.Key,
-            Ingredients: raw.Ingredients,
-            Input: raw.Input,
-            Material: raw.Material,
-            Dye: raw.Dye,
-            Target: raw.Target,
-            Template: raw.Template,
-            Base: raw.Base,
-            Addition: raw.Addition,
-            Ingredient: raw.Ingredient,
+            Type: new Identifier(typeStr),
+            CraftingPattern: craftingPattern,
+            TrimPattern: trimPattern,
+            Key: GetElement(root, "key"),
+            Ingredients: GetElement(root, "ingredients"),
+            Input: GetElement(root, "input"),
+            Material: GetElement(root, "material"),
+            Dye: GetElement(root, "dye"),
+            Target: GetElement(root, "target"),
+            Template: GetElement(root, "template"),
+            Base: GetElement(root, "base"),
+            Addition: GetElement(root, "addition"),
+            Ingredient: GetElement(root, "ingredient"),
             Experience: experience,
-            Cookingtime: cookingTime,
-            Result: raw.Result,
-            Group: raw.Group,
+            Cookingtime: cookingtime,
+            Result: GetElement(root, "result"),
+            Group: group,
             Category: category,
             ShowNotification: showNotification
         );
@@ -67,7 +73,12 @@ public class RecipeConverter : JsonConverter<Recipe>
 
     public override void Write(Utf8JsonWriter writer, Recipe value, JsonSerializerOptions options)
     {
-        JsonSerializer.Serialize(writer, value, value.GetType(), options);
+        JsonSerializer.Serialize<object>(writer, value, options);
+    }
+
+    private static JsonElement? GetElement(JsonElement root, string propName)
+    {
+        return root.TryGetProperty(propName, out var prop) ? prop : null;
     }
 
 }

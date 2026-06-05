@@ -76,7 +76,6 @@ public class PacketPropertyGenerator : IIncrementalGenerator
                         {
                         """);
 
-        sb.AppendLine();
         sb.AppendLine($"    public {first.ClassName}()");
         sb.AppendLine("    {");
 
@@ -86,6 +85,7 @@ public class PacketPropertyGenerator : IIncrementalGenerator
         }
 
         sb.AppendLine("    }");
+        sb.AppendLine();
 
         foreach (var info in fields.Select(field => field!.Value))
         {

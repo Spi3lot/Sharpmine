@@ -1,17 +1,22 @@
 namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
 public record DimensionType(
-    bool Ultrawarm,
-    bool Natural,
-    double CoordinateScale,
-    bool HasSkylight,
-    bool HasCeiling,
     float AmbientLight,
-    long? FixedTime,
-    int MonsterSpawnLightLevel,
-    int MonsterSpawnBlockLightLimit,
-    Identifier Infiniburn,
+    bool BedWorks,
+    int CloudHeight,
+    double CoordinateScale,
     Identifier Effects,
-    int MinY,
+    long? FixedTime,
+    bool HasCeiling,
+    bool HasRaids,
+    bool HasSkylight,
     int Height,
-    int LogicalHeight);
+    Identifier Infiniburn,
+    int LogicalHeight,
+    int MinY,
+    int MonsterSpawnBlockLightLimit,
+    int MonsterSpawnLightLevel,
+    bool Natural,
+    bool PiglinSafe,
+    bool RespawnAnchorWorks,
+    bool Ultrawarm);

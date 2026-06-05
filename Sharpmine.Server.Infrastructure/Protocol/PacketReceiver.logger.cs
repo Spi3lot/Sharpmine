@@ -10,7 +10,7 @@ public partial class PacketReceiver
     [LoggerMessage(LogLevel.Error, "{Packet} has no implementation for deserialization")]
     partial void LogDeserializeNotImplemented(IServerboundPacket packet);
 
-    [LoggerMessage(LogLevel.Warning, "Deserializing {Packet} caused a violation")]
+    [LoggerMessage(LogLevel.Warning, "Violation while deserializing {Packet}")]
     partial void LogDeserializeViolation(IServerboundPacket packet);
 
     [LoggerMessage(LogLevel.Warning, "Received corrupted packet length in state {State}")]

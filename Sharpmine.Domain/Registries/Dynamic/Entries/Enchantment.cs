@@ -6,7 +6,7 @@ using Sharpmine.Domain.Registries.Dynamic.SubTypes.Structures;
 
 namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
-public record Enchantment(
+public sealed record Enchantment(
     TextComponent Description,
     Identifier SupportedItems,
     int Weight,

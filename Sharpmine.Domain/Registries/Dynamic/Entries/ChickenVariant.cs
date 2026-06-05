@@ -2,7 +2,7 @@
 
 namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
-public record ChickenVariant(
+public sealed record ChickenVariant(
     Identifier AssetId,
     string Model,
     SpawnCondition[]? SpawnConditions);

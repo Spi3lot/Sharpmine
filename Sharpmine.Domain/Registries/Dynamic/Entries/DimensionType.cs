@@ -2,7 +2,7 @@ using Sharpmine.Domain.Providers.Int;
 
 namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
-public record DimensionType(
+public sealed record DimensionType(
     float AmbientLight,
     bool BedWorks,
     int CloudHeight,

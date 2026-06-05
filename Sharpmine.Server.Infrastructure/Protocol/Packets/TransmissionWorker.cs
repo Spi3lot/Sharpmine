@@ -20,7 +20,7 @@ public partial class TransmissionWorker(
             try
             {
                 int packetLength = packetSerializer.Serialize(currentItem, pipeWriter);
-                LogTransmittingPacket(currentItem, packetLength);
+                if (currentItem.Log) LogTransmittingPacket(currentItem, packetLength);
             }
             catch (NotImplementedException)
             {

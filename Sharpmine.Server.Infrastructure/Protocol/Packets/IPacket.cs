@@ -7,4 +7,6 @@ public interface IPacket
 
     int Id { get; }
 
+    bool Log => true;
+
 }

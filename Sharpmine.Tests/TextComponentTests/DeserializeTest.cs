@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 
-using Sharpmine.Domain.DataTypes;
-using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+using Sharpmine.Domain.DataTypes.Components;
 
 using static Sharpmine.Tests.TextComponentTests.ITextComponentTest;
 
@@ -13,55 +12,57 @@ public class DeserializeTest : ITextComponentTest
     [Test]
     public async Task Empty()
     {
-        await Assert.That(JsonSerializer.Deserialize<TextComponent>("{}"))
-            .IsEqualTo(new TextComponent());
+        await Assert.That(JsonSerializer.Deserialize<Component>("{}"))
+            .IsEqualTo(new TextComponent(null!));
     }
 
     [Test]
     public async Task Literal()
     {
-        var actual = JsonSerializer.Deserialize<TextComponent>(SerializedLiteral);
+        var actual = JsonSerializer.Deserialize<Component>(SerializedLiteral);
 
         using (Assert.Multiple())
         {
             await Assert.That(actual).IsNotNull();
-            await Assert.That(actual!.IsLiteral()).IsTrue();
-            await Assert.That(actual.IsList()).IsFalse();
-            await Assert.That(actual.AsLiteral()).IsEqualTo("Hello!");
+            await Assert.That(actual is TextComponent).IsTrue();
+            await Assert.That(actual.IsList).IsFalse();
+            await Assert.That(((TextComponent) actual).Text).IsEqualTo("Hello!");
         }
     }
 
     [Test]
     public async Task List()
     {
-        var actual = JsonSerializer.Deserialize<TextComponent>(SerializedList);
+        var actual = JsonSerializer.Deserialize<Component>(SerializedList);
 
         using (Assert.Multiple())
         {
             await Assert.That(actual).IsNotNull();
-            await Assert.That(actual!.IsLiteral()).IsFalse();
-            await Assert.That(actual.IsList()).IsTrue();
-            await Assert.That(actual.Text).IsEqualTo("Root");
+            await Assert.That(actual is TextComponent).IsFalse();
+            await Assert.That(actual.IsList).IsTrue();
+            await Assert.That(((TextComponent) actual).Text).IsEqualTo("Root");
 
-            await Assert.That(actual.Extra).IsEquivalentTo([
-                TextComponent.Literal("Extra1"),
-                TextComponent.Literal("Extra2")
-            ]);
+            await Assert.That(actual.Extra).IsEquivalentTo(new[]
+            {
+                new TextComponent("Extra1"),
+                new TextComponent("Extra2")
+            });
         }
     }
 
     [Test]
     public async Task Complex()
     {
-        var actual = JsonSerializer.Deserialize<TextComponent>(SerializedComplexAsObject);
+        var actual = JsonSerializer.Deserialize<Component>(SerializedComplexAsObject);
 
-        var expected = new TextComponent
+        var expected = new TextComponent("Complex")
         {
-            Type = TextComponent.ContentType.Text,
-            Text = "Complex",
-            Bold = true,
-            Italic = true,
-            Extra = [TextComponent.Literal("Literal")],
+            Style = new ComponentStyle
+            {
+                Bold = true,
+                Italic = true,
+            },
+            Extra = [new TextComponent("Literal")],
         };
 
         expected.Extra.Add(expected with { Extra = null });
@@ -69,8 +70,8 @@ public class DeserializeTest : ITextComponentTest
         using (Assert.Multiple())
         {
             await Assert.That(actual).IsNotNull();
-            await Assert.That(actual!.IsLiteral()).IsFalse();
-            await Assert.That(actual.IsList()).IsTrue();
+            await Assert.That(actual is TextComponent).IsFalse();
+            await Assert.That(actual.IsList).IsTrue();
             await Assert.That(actual with { Extra = null }).IsEqualTo(expected with { Extra = null });
             await Assert.That(actual.Extra).IsEquivalentTo(expected.Extra);
         }
@@ -79,27 +80,27 @@ public class DeserializeTest : ITextComponentTest
     [Test]
     public async Task ShadowColor()
     {
-        var expected = new TextComponent { ShadowColor = 0x72786125 };
+        var expected = new TextComponent(null!) { Style = new ComponentStyle { ShadowColor = 0x72786125 } };
 
         using (Assert.Multiple())
         {
-            await Assert.That(JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":1920491813}"""))
+            await Assert.That(JsonSerializer.Deserialize<Component>("""{"shadow_color":1920491813}"""))
                 .IsEqualTo(expected);
 
-            await Assert.That(JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0.470,0.380,0.145,0.447]}"""))
+            await Assert.That(JsonSerializer.Deserialize<Component>("""{"shadow_color":[0.470,0.380,0.145,0.447]}"""))
                 .IsEqualTo(expected);
 
-            await Assert.That(() => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0.12652, 0.6981, 1]}"""))
-                .ThrowsAsync<TextComponent, JsonException>();
+            await Assert.That(() => JsonSerializer.Deserialize<Component>("""{"shadow_color":[0.12652, 0.6981, 1]}"""))
+                .ThrowsAsync<Component, JsonException>();
 
-            await Assert.That(() => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0, 0.6981, 1, 5, 6]}"""))
-                .ThrowsAsync<TextComponent, JsonException>();
+            await Assert.That(() => JsonSerializer.Deserialize<Component>("""{"shadow_color":[0, 0.6981, 1, 5, 6]}"""))
+                .ThrowsAsync<Component, JsonException>();
 
-            await Assert.That(() => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0, 0.6981, 1, 4}"""))
-                .ThrowsAsync<TextComponent, JsonException>();
+            await Assert.That(() => JsonSerializer.Deserialize<Component>("""{"shadow_color":[0, 0.6981, 1, 4}"""))
+                .ThrowsAsync<Component, JsonException>();
 
-            await Assert.That(() => JsonSerializer.Deserialize<TextComponent>("""{"shadow_color":[0, 0.6981, 1, 4,"""))
-                .ThrowsAsync<TextComponent, JsonException>();
+            await Assert.That(() => JsonSerializer.Deserialize<Component>("""{"shadow_color":[0, 0.6981, 1, 4,"""))
+                .ThrowsAsync<Component, JsonException>();
         }
     }
 

@@ -1,12 +1,11 @@
 using System.Buffers;
 
-using Sharpmine.Domain.DataTypes;
+using Sharpmine.Domain.DataTypes.Components;
 using Sharpmine.Server.Infrastructure.Protocol.Extensions;
-using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Packets.Login.Clientbound;
 
-public partial record LoginDisconnectPacket(TextComponent Reason)
+public partial record LoginDisconnectPacket(Component Reason)
 {
 
     public void SerializeContent(IBufferWriter<byte> writer)

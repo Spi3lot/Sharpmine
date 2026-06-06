@@ -1,13 +1,13 @@
 using System.Text.Json;
 
-using Sharpmine.Domain.DataTypes;
+using Sharpmine.Domain.DataTypes.Components;
 using Sharpmine.Domain.Registries.Dynamic.SubTypes.Enums;
 using Sharpmine.Domain.Registries.Dynamic.SubTypes.Structures;
 
 namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
 public sealed record Enchantment(
-    TextComponent Description,
+    Component Description,
     Identifier SupportedItems,
     int Weight,
     int MaxLevel,

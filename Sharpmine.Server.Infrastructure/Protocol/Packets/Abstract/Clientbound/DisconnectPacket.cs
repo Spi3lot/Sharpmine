@@ -1,18 +1,18 @@
 ﻿using System.Buffers;
 
-using Sharpmine.Domain.DataTypes;
-using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+using Sharpmine.Domain.DataTypes.Components;
+using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Packets.Abstract.Clientbound;
 
 public abstract partial record DisconnectPacket
 {
 
-    public TextComponent Reason { get; init; } = null!;
+    public Component Reason { get; init; } = null!;
 
     public void SerializeContent(IBufferWriter<byte> writer)
     {
-        throw new NotImplementedException("NBT serialization");
+        writer.WriteNbt(Reason.ToNbt());
     }
 
 }

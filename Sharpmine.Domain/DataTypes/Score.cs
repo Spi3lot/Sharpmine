@@ -1,3 +1,13 @@
-﻿namespace Sharpmine.Domain.DataTypes;
+﻿using Raspite.Tags;
 
-public readonly record struct Score(string Name, string Objective);
+namespace Sharpmine.Domain.DataTypes;
+
+public readonly record struct Score(string Name, string Objective) : INbtSerializable
+{
+
+    public Tag ToNbt(string name = "")
+    {
+        return new CompoundTag([new StringTag(Name, "name"), new StringTag(Objective, "objective")], name);
+    }
+
+}

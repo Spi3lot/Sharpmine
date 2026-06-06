@@ -1,9 +1,9 @@
-using Sharpmine.Domain.DataTypes;
+using Sharpmine.Domain.DataTypes.Components;
 
 namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
 public sealed record JukeboxSong(
     Identifier SoundEvent,
-    TextComponent Description,
+    Component Description,
     float LengthInSeconds,
     int ComparatorOutput);

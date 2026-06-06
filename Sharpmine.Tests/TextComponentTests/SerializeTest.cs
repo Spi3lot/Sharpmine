@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 
-using Sharpmine.Domain.DataTypes;
-using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+using Sharpmine.Domain.DataTypes.Components;
 
 using static Sharpmine.Tests.TextComponentTests.ITextComponentTest;
 
@@ -13,7 +12,7 @@ public class SerializeTest : ITextComponentTest
     [Test]
     public async Task Empty()
     {
-        var textComponent = new TextComponent();
+        var textComponent = new TextComponent(null!);
 
         await Assert.That(JsonSerializer.Serialize(textComponent))
             .IsEqualTo("{}");
@@ -22,7 +21,7 @@ public class SerializeTest : ITextComponentTest
     [Test]
     public async Task Literal()
     {
-        var textComponent = TextComponent.Literal("Hello!");
+        var textComponent = new TextComponent("Hello!");
 
         await Assert.That(JsonSerializer.Serialize(textComponent))
             .IsEqualTo(SerializedLiteral);
@@ -31,14 +30,14 @@ public class SerializeTest : ITextComponentTest
     [Test]
     public async Task List()
     {
-        List<TextComponent> componentList =
+        List<Component> componentList =
         [
-            TextComponent.Literal("Root"),
-            TextComponent.Literal("Extra1"),
-            TextComponent.Literal("Extra2")
+            new TextComponent("Root"),
+            new TextComponent("Extra1"),
+            new TextComponent("Extra2")
         ];
 
-        var listComponent = TextComponent.List(componentList);
+        var listComponent = Component.List(componentList);
 
         using (Assert.Multiple())
         {
@@ -53,13 +52,14 @@ public class SerializeTest : ITextComponentTest
     [Test]
     public async Task Complex()
     {
-        var textComponent = new TextComponent
+        var textComponent = new TextComponent("Complex")
         {
-            Type = TextComponent.ContentType.Text,
-            Text = "Complex",
-            Bold = true,
-            Italic = true,
-            Extra = [TextComponent.Literal("Literal")],
+            Style = new ComponentStyle
+            {
+                Bold = true,
+                Italic = true,
+            },
+            Extra = [new TextComponent("Literal")],
         };
 
         textComponent.Extra.Add(textComponent with { Extra = null });
@@ -71,7 +71,7 @@ public class SerializeTest : ITextComponentTest
     [Test]
     public async Task ShadowColor()
     {
-        var textComponent = new TextComponent { ShadowColor = 0x72786125 };
+        var textComponent = new TextComponent(null!) { Style = new ComponentStyle { ShadowColor = 0x72786125 } };
 
         await Assert.That(JsonSerializer.Serialize(textComponent))
             .IsEqualTo("""{"shadow_color":1920491813}""");

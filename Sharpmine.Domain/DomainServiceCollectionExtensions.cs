@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using Sharpmine.Domain.Registries;
-using Sharpmine.Domain.Registries.Dynamic;
 using Sharpmine.Domain.Tags;
 
 namespace Sharpmine.Domain;

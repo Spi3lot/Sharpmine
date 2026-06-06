@@ -1,4 +1,4 @@
-using Sharpmine.Domain.DataTypes;
+using Sharpmine.Domain.DataTypes.Components;
 
 namespace Sharpmine.Domain.Registries.Dynamic.Entries;
 
@@ -6,4 +6,4 @@ public sealed record Instrument(
     Identifier SoundEvent,
     float UseDuration,
     float Range,
-    TextComponent Description);
+    Component Description);

@@ -15,7 +15,7 @@ public class FinishConfigurationPacketHandler(ServerProperties properties) : IPa
         ClientHandler client,
         CancellationToken cancellationToken)
     {
-        var loginPacket = new LoginPacket(
+        client.SendPacket(new LoginPacket(
             EntityId: 0,
             IsHardcore: false,
             DimensionNames: ["minecraft:overworld"],
@@ -37,9 +37,25 @@ public class FinishConfigurationPacketHandler(ServerProperties properties) : IPa
             DeathLocation: Option.None<Position>(),
             PortalCooldown: 0,
             SeaLevel: 63,
-            EnforcesSecureChat: false);
+            EnforcesSecureChat: false));
 
-        client.SendPacket(loginPacket);
+        client.SendPacket(new PlayerPositionPacket(
+            TeleportId: 1,
+            X: 0,
+            Y: 100,
+            Z: 0,
+            VelocityX: 0,
+            VelocityY: 0,
+            VelocityZ: 0,
+            Yaw: 0,
+            Pitch: 0,
+            Flags: TeleportRelativeAxes.None
+        ));
+
+        // TODO: client.SendPacket(new PlayerInfoUpdatePacket());
+        client.SendPacket(GameEventPacket.StartWaitingForLevelChunks());
+
+        client.SendPacket(new SetChunkCacheCenterPacket(0, 0));
         return ValueTask.CompletedTask;
     }
 

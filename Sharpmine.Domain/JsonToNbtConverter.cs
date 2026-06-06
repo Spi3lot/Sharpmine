@@ -16,8 +16,8 @@ public static class JsonToNbtConverter
     {
         return node switch
         {
-            JsonObject jsonObject => new CompoundTag(jsonObject.Select(kvp => Convert(kvp.Value, kvp.Key)).ToArray(), name),
-            JsonArray jsonArray => new ListTag(jsonArray.Select(item => Convert(item, string.Empty)).ToArray(), name),
+            JsonObject jsonObject => new CompoundTag([.. jsonObject.Select(kvp => Convert(kvp.Value, kvp.Key))], name),
+            JsonArray jsonArray => new ListTag([.. jsonArray.Select(item => Convert(item, string.Empty))], name),
             JsonValue jsonValue when jsonValue.TryGetValue(out bool b) => new ByteTag((byte) (b ? 1 : 0), name),
             JsonValue jsonValue when jsonValue.TryGetValue(out int i) => new IntegerTag(i, name),
             JsonValue jsonValue when jsonValue.TryGetValue(out double d) => new DoubleTag(d, name),

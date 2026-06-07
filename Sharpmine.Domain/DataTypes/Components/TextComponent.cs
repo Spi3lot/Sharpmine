@@ -22,4 +22,6 @@ public sealed record TextComponent(string Text) : Component
         return new CompoundTag([.. tags], name);
     }
 
+    public static implicit operator TextComponent(string text) => new(text);
+
 }

@@ -12,8 +12,8 @@ public class DeserializeTest : ITextComponentTest
     [Test]
     public async Task Empty()
     {
-        await Assert.That(JsonSerializer.Deserialize<Component>("{}"))
-            .IsEqualTo(new TextComponent(null!));
+        await Assert.That(JsonSerializer.Deserialize<Component>("""{"text":""}"""))
+            .IsEqualTo(new TextComponent(string.Empty));
     }
 
     [Test]
@@ -26,6 +26,7 @@ public class DeserializeTest : ITextComponentTest
             await Assert.That(actual).IsNotNull();
             await Assert.That(actual is TextComponent).IsTrue();
             await Assert.That(actual.IsList).IsFalse();
+            await Assert.That(actual.Style.IsEmpty).IsTrue();
             await Assert.That(((TextComponent) actual).Text).IsEqualTo("Hello!");
         }
     }
@@ -38,7 +39,7 @@ public class DeserializeTest : ITextComponentTest
         using (Assert.Multiple())
         {
             await Assert.That(actual).IsNotNull();
-            await Assert.That(actual is TextComponent).IsFalse();
+            await Assert.That(actual is TextComponent { IsPlain: true }).IsFalse();
             await Assert.That(actual.IsList).IsTrue();
             await Assert.That(((TextComponent) actual).Text).IsEqualTo("Root");
 
@@ -70,7 +71,7 @@ public class DeserializeTest : ITextComponentTest
         using (Assert.Multiple())
         {
             await Assert.That(actual).IsNotNull();
-            await Assert.That(actual is TextComponent).IsFalse();
+            await Assert.That(actual is TextComponent { IsPlain: true }).IsFalse();
             await Assert.That(actual.IsList).IsTrue();
             await Assert.That(actual with { Extra = null }).IsEqualTo(expected with { Extra = null });
             await Assert.That(actual.Extra).IsEquivalentTo(expected.Extra);
@@ -80,7 +81,7 @@ public class DeserializeTest : ITextComponentTest
     [Test]
     public async Task ShadowColor()
     {
-        var expected = new TextComponent(null!) { Style = new ComponentStyle { ShadowColor = 0x72786125 } };
+        var expected = new TextComponent(string.Empty) { Style = new ComponentStyle { ShadowColor = 0x72786125 } };
 
         using (Assert.Multiple())
         {

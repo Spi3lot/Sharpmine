@@ -12,10 +12,10 @@ public class SerializeTest : ITextComponentTest
     [Test]
     public async Task Empty()
     {
-        var textComponent = new TextComponent(null!);
+        var textComponent = new TextComponent(string.Empty);
 
-        await Assert.That(JsonSerializer.Serialize(textComponent))
-            .IsEqualTo("{}");
+        await Assert.That(JsonSerializer.Serialize<Component>(textComponent))
+            .IsEqualTo("\"\"");
     }
 
     [Test]
@@ -23,7 +23,7 @@ public class SerializeTest : ITextComponentTest
     {
         var textComponent = new TextComponent("Hello!");
 
-        await Assert.That(JsonSerializer.Serialize(textComponent))
+        await Assert.That(JsonSerializer.Serialize<Component>(textComponent))
             .IsEqualTo(SerializedLiteral);
     }
 
@@ -64,17 +64,17 @@ public class SerializeTest : ITextComponentTest
 
         textComponent.Extra.Add(textComponent with { Extra = null });
 
-        await Assert.That(JsonSerializer.Serialize(textComponent))
+        await Assert.That(JsonSerializer.Serialize<Component>(textComponent))
             .IsEqualTo(SerializedComplexAsList);
     }
 
     [Test]
     public async Task ShadowColor()
     {
-        var textComponent = new TextComponent(null!) { Style = new ComponentStyle { ShadowColor = 0x72786125 } };
+        var textComponent = new TextComponent(string.Empty) { Style = new ComponentStyle { ShadowColor = 0x72786125 } };
 
-        await Assert.That(JsonSerializer.Serialize(textComponent))
-            .IsEqualTo("""{"shadow_color":1920491813}""");
+        await Assert.That(JsonSerializer.Serialize<Component>(textComponent))
+            .IsEqualTo("""{"text":"","shadow_color":1920491813}""");
     }
 
 }

@@ -99,6 +99,12 @@ public class ComponentConverter : JsonConverter<Component>
             return;
         }
 
+        if (value.IsList)
+        {
+            JsonSerializer.Serialize(writer, value.AsList(), options);
+            return;
+        }
+
         writer.WriteStartObject();
 
         switch (value)
@@ -196,12 +202,14 @@ public class ComponentConverter : JsonConverter<Component>
     {
         if (!root.TryGetProperty("shadow_color", out var sc)) return null;
         if (sc.ValueKind == JsonValueKind.Number) return sc.GetInt32();
+        if (sc.ValueKind != JsonValueKind.Array) throw new JsonException("Invalid shadow_color format.");
+        if (sc.GetArrayLength() != 4) throw new JsonException("shadow_color array must have exactly 4 elements.");
 
         var elements = sc.EnumerateArray();
-        elements.MoveNext(); byte r = (byte) (elements.Current.GetSingle() * 255);
-        elements.MoveNext(); byte g = (byte) (elements.Current.GetSingle() * 255);
-        elements.MoveNext(); byte b = (byte) (elements.Current.GetSingle() * 255);
-        elements.MoveNext(); byte a = (byte) (elements.Current.GetSingle() * 255);
+        elements.MoveNext(); byte r = Convert.ToByte(elements.Current.GetSingle() * 255);
+        elements.MoveNext(); byte g = Convert.ToByte(elements.Current.GetSingle() * 255);
+        elements.MoveNext(); byte b = Convert.ToByte(elements.Current.GetSingle() * 255);
+        elements.MoveNext(); byte a = Convert.ToByte(elements.Current.GetSingle() * 255);
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
 

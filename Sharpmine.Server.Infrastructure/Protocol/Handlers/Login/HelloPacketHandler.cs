@@ -1,4 +1,5 @@
-﻿using Sharpmine.Server.Infrastructure.Configuration;
+﻿using Sharpmine.Domain.DataTypes;
+using Sharpmine.Server.Infrastructure.Configuration;
 using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Login.Clientbound;
 using Sharpmine.Server.Infrastructure.Security;

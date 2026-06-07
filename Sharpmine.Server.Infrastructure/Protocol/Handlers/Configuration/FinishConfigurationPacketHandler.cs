@@ -1,5 +1,6 @@
 ﻿using Optional;
 
+using Sharpmine.Domain.DataTypes;
 using Sharpmine.Server.Infrastructure.Configuration;
 using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Serverbound;

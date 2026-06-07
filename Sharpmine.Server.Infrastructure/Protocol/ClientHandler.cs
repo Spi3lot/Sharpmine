@@ -77,7 +77,7 @@ public sealed partial class ClientHandler(
 
             await DisconnectAsync(new TextComponent("Server closed")
             {
-                Style = new ComponentStyle { Color = "yellow" }
+                Style = new ComponentStyle { Color = "gold" }
             });
         }
         catch (Exception ex) when (ex is SocketException or ObjectDisposedException or { InnerException: SocketException or ObjectDisposedException or { InnerException: SocketException or ObjectDisposedException } })

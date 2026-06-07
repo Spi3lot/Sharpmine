@@ -1,8 +1,13 @@
-﻿using Optional;
+﻿using System.Buffers;
 
-using Sharpmine.Domain.DataTypes;
+using Optional;
+
+using Raspite.Tags;
+
 using Sharpmine.Server.Infrastructure.Configuration;
 using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+using Sharpmine.Server.Infrastructure.Protocol.Extensions;
+using Sharpmine.Server.Infrastructure.Protocol.Packets;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Serverbound;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Play.Clientbound;
 
@@ -29,8 +34,8 @@ public class FinishConfigurationPacketHandler(ServerProperties properties) : IPa
             DimensionType: 0,
             DimensionName: "minecraft:overworld",
             HashedSeed: 0000,
-            GameMode: GameMode.Creative,
-            PreviousGameMode: GameMode.Undefined,
+            GameMode: client.Player!.GameMode,
+            PreviousGameMode: client.Player.PreviousGameMode,
             IsDebug: false,
             IsFlat: true,
             HasDeathLocation: false,
@@ -53,9 +58,15 @@ public class FinishConfigurationPacketHandler(ServerProperties properties) : IPa
             Flags: TeleportRelativeAxes.None
         ));
 
-        // TODO: client.SendPacket(new PlayerInfoUpdatePacket());
-        client.SendPacket(GameEventPacket.StartWaitingForLevelChunks());
+        var entry = new PlayerInfoEntry(
+            Uuid: client.Player!.Profile.Uuid,
+            Name: client.Player.Profile.Username,
+            Properties: client.Player.Profile.Properties
+            // TODO: More actions
+        );
 
+        client.SendPacket(new PlayerInfoUpdatePacket(PlayerActions.AddPlayer, [entry]));
+        client.SendPacket(GameEventPacket.StartWaitingForLevelChunks());
         client.SendPacket(new SetChunkCacheCenterPacket(0, 0));
         return ValueTask.CompletedTask;
     }

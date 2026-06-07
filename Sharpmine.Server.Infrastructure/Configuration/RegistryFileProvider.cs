@@ -19,31 +19,29 @@ public class RegistryFileProvider(
     public ImmutableArray<RegistryDto> Get()
     {
         string baseDir = AppContext.BaseDirectory;
-        string minecraftDir = Path.Combine(baseDir, "data", "minecraft");
+        string dataDir = Path.Combine(baseDir, "data");
         string registriesJsonPath = Path.Combine(baseDir, "generated", "reports", "registries.json");
 
-        if (!Directory.Exists(minecraftDir))
+        if (!Directory.Exists(dataDir))
         {
-            throw new DirectoryNotFoundException($"Minecraft data directory not found at: {minecraftDir}");
+            throw new DirectoryNotFoundException($"Data directory not found at: {dataDir}");
         }
 
-        if (!File.Exists(registriesJsonPath))
+        HashSet<Identifier> knownRegistries = [];
+
+        if (File.Exists(registriesJsonPath))
         {
-            logger.LogWarning("registries.json not found, cannot load registries");
-            return [];
+            using var fileStream = File.OpenRead(registriesJsonPath);
+            var jsonNode = JsonNode.Parse(fileStream);
+
+            if (jsonNode is not null)
+            {
+                knownRegistries.UnionWith(jsonNode.AsObject().Select(node => new Identifier(node.Key)));
+            }
         }
-
-        List<RegistryDto> loadedRegistries = [];
-        HashSet<Identifier> knownRegistries;
-
-        using (var fileStream = File.OpenRead(registriesJsonPath))
+        else
         {
-            knownRegistries =
-            [
-                .. JsonNode.Parse(fileStream)!
-                    .AsObject()
-                    .Select(node => node.Key)
-            ];
+            logger.LogWarning("registries.json not found, falling back to protocol requirements only.");
         }
 
         foreach (var protocol in protocols)
@@ -51,33 +49,42 @@ public class RegistryFileProvider(
             knownRegistries.UnionWith(protocol.SynchronizedRegistryIds);
         }
 
+        List<RegistryDto> loadedRegistries = [];
+
         foreach (var registryId in knownRegistries)
         {
-            string registryDir = Path.Combine(minecraftDir, registryId.Path.Replace('/', Path.DirectorySeparatorChar));
-
-            if (!Directory.Exists(registryDir))
-            {
-                logger.LogTrace("Registry folder not found for {RegistryId}, skipping it", registryId);
-                continue;
-            }
-
             List<RegistryEntryDto> entries = [];
 
-            foreach (string entry in Directory.EnumerateFiles(registryDir, "*.json", SearchOption.AllDirectories))
+            foreach (string namespaceDir in Directory.EnumerateDirectories(dataDir))
             {
-                string entryPath = Path.GetRelativePath(registryDir, entry);
-                Identifier entryName = entryPath.Replace(Path.DirectorySeparatorChar, '/').Replace(".json", string.Empty);
+                string namespaceName = Path.GetFileName(namespaceDir);
 
-                try
+                // e.g. data/minecraft/worldgen/biome
+                string registryDir = Path.Combine(namespaceDir, registryId.Path.Replace('/', Path.DirectorySeparatorChar));
+
+                if (!Directory.Exists(registryDir))
                 {
-                    using var fileStream = File.OpenRead(entry);
-                    var jsonNode = JsonNode.Parse(fileStream);
-                    var nbtTag = JsonToNbtConverter.Convert(jsonNode);
-                    entries.Add(new RegistryEntryDto(entryName, Option.Some(nbtTag)));
+                    logger.LogTrace("Registry folder not found for {RegistryId}, skipping it", registryId);
+                    continue;
                 }
-                catch (Exception ex)
+
+                foreach (string entry in Directory.EnumerateFiles(registryDir, "*.json", SearchOption.AllDirectories))
                 {
-                    throw new InvalidDataException($"Failed to parse registry file: {entry}", ex);
+                    string entryPath = Path.GetRelativePath(registryDir, entry);
+                    string entryName = entryPath.Replace(Path.DirectorySeparatorChar, '/').Replace(".json", string.Empty);
+                    Identifier entryId = new Identifier(false, namespaceName, entryName);
+
+                    try
+                    {
+                        using var fileStream = File.OpenRead(entry);
+                        var jsonNode = JsonNode.Parse(fileStream);
+                        var nbtTag = JsonToNbtConverter.Convert(jsonNode!);
+                        entries.Add(new RegistryEntryDto(entryId, nbtTag!.SomeNotNull()));
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Failed to parse registry file: {Entry}", entry);
+                    }
                 }
             }
 

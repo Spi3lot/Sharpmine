@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Serilog.Context;
 
 using Sharpmine.Domain.DataTypes.Components;
+using Sharpmine.Server.Domain.Entities;
 using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 using Sharpmine.Server.Infrastructure.Protocol.Packets;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Abstract.Clientbound;
@@ -48,6 +49,8 @@ public sealed partial class ClientHandler(
     public ProtocolState State { get; private set; } = ProtocolState.Handshake;
 
     public ClientInformationPacket? Information { get; internal set; }
+
+    public Player? Player { get; internal set; }
 
     public async Task HandleAsync(CancellationToken cancellationToken)
     {

@@ -1,4 +1,5 @@
 ﻿using Sharpmine.Domain.DataTypes;
+using Sharpmine.Server.Domain.Entities;
 using Sharpmine.Server.Infrastructure.Configuration;
 using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Login.Clientbound;
@@ -43,6 +44,7 @@ public class HelloPacketHandler(
         else
         {
             var profile = new GameProfile(packet.Uuid, packet.Name, []);
+            client.Player = await Player.LoadAsync(profile, properties.LevelName);
             client.SendPacket(new LoginFinishedPacket(in profile));
         }
     }

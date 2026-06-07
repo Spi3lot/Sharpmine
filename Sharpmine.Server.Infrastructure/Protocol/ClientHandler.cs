@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 
 using Serilog.Context;
 
+using Sharpmine.Domain.DataTypes.Components;
 using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 using Sharpmine.Server.Infrastructure.Protocol.Packets;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Abstract.Clientbound;
@@ -72,7 +73,12 @@ public sealed partial class ClientHandler(
         }
         catch (OperationCanceledException)
         {
-            LogDisconnectingClient(this, "Operation canceled");
+            LogDisconnectingClient(this, "Server closed");
+
+            await DisconnectAsync(new TextComponent("Server closed")
+            {
+                Style = new ComponentStyle { Color = "yellow" }
+            });
         }
         catch (Exception ex) when (ex is SocketException or ObjectDisposedException or { InnerException: SocketException or ObjectDisposedException or { InnerException: SocketException or ObjectDisposedException } })
         {
@@ -81,7 +87,11 @@ public sealed partial class ClientHandler(
         catch (Exception ex)
         {
             LogErrorWhileHandling(ex);
-            await DisconnectAsync("Internal server error");
+
+            await DisconnectAsync(new TextComponent("Internal server error")
+            {
+                Style = new ComponentStyle { Color = "dark_red" }
+            });
         }
         finally
         {
@@ -145,7 +155,7 @@ public sealed partial class ClientHandler(
         }
     }
 
-    public Task DisconnectAsync(string reason)
+    public Task DisconnectAsync(Component reason)
     {
         if (State == ProtocolState.Login)
         {

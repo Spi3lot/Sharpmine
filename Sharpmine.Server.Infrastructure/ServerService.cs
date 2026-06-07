@@ -66,11 +66,6 @@ public partial class ServerService(
         }
 
         LogStoppingServer();
-
-        var disconnectTasks = Clients.Values
-            .Select(clientHandler => clientHandler.DisconnectAsync("Server is shutting down."));
-
-        await Task.WhenAll(disconnectTasks);
         await Task.WhenAll(handleTasks.Keys);
     }
 

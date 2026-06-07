@@ -30,6 +30,12 @@ public static partial class BufferWriterExtensions
             writer.WriteOptional(value, writeAction);
         }
 
+        public void WritePrefixedOptional<T, TState>(Option<T> value, TState state, Action<IBufferWriter<byte>, T, TState> writeAction)
+        {
+            writer.WriteBoolean(value.HasValue);
+            writer.WriteOptional(value, state, writeAction);
+        }
+
         public void WriteOptional<T>(Option<T> value) where T : IClientboundDataType
         {
             if (value.HasValue)
@@ -46,6 +52,14 @@ public static partial class BufferWriterExtensions
             }
         }
 
+        public void WriteOptional<T, TState>(Option<T> value, TState state, Action<IBufferWriter<byte>, T, TState> writeAction)
+        {
+            if (value.HasValue)
+            {
+                writeAction(writer, value.ValueOrFailure(), state);
+            }
+        }
+
         public void WritePrefixedArray<T>(ReadOnlySpan<T> value) where T : IClientboundDataType
         {
             writer.WriteVarInt(value.Length);
@@ -56,6 +70,12 @@ public static partial class BufferWriterExtensions
         {
             writer.WriteVarInt(value.Length);
             writer.WriteArray(value, writeElementAction);
+        }
+
+        public void WritePrefixedArray<T, TState>(ReadOnlySpan<T> value, TState state, Action<IBufferWriter<byte>, T, TState> writeElementAction)
+        {
+            writer.WriteVarInt(value.Length);
+            writer.WriteArray(value, state, writeElementAction);
         }
 
         public void WriteArray<T>(ReadOnlySpan<T> value) where T : IClientboundDataType
@@ -71,6 +91,14 @@ public static partial class BufferWriterExtensions
             foreach (T element in value)
             {
                 writeElementAction(writer, element);
+            }
+        }
+
+        public void WriteArray<T, TState>(ReadOnlySpan<T> value, TState state, Action<IBufferWriter<byte>, T, TState> writeElementAction)
+        {
+            foreach (T element in value)
+            {
+                writeElementAction(writer, element, state);
             }
         }
 

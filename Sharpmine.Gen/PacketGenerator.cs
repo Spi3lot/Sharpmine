@@ -124,7 +124,7 @@ public class PacketGenerator : IIncrementalGenerator
 
                           namespace {{containingNamespace}};
 
-                          public partial record {{packet.ClassName}} : {{inheritance}} 
+                          public sealed partial record {{packet.ClassName}} : {{inheritance}} 
                           {
                               public {{modifier}}ProtocolState State => ProtocolState.{{packet.StateName}};
                               public {{modifier}}int Id => 0x{{packet.Id:X2}};

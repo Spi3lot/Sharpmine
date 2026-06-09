@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Buffers;
+using System.ComponentModel;
 
 using Raspite;
 using Raspite.Tags;
@@ -38,16 +39,19 @@ public class Player : INbtSerializable
         return player;
     }
 
-    public async Task SaveAsync(string levelName)
+    public Task SaveAsync(string levelName)
     {
         string filePath = Path.Combine(levelName, "playerdata", $"{Profile.Uuid}.dat");
 
         if (File.Exists(filePath))
         {
-            File.Move(filePath, $"{filePath}_old");
+            File.Move(filePath, $"{filePath}_old", overwrite: true);
         }
 
-        // TODO: TagSerializer.Serialize(..., ToNbt());
+        // TODO: Check how big playerdata files are on average to get a better estimate for initialCapacity
+        var arrayBufferWriter = new ArrayBufferWriter<byte>(1024);
+        TagSerializer.Serialize(arrayBufferWriter, ToNbt());
+        return File.WriteAllBytesAsync(filePath, arrayBufferWriter.WrittenMemory);
     }
 
     public Tag ToNbt(string name = "")

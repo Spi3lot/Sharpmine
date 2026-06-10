@@ -9,7 +9,10 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
       <PackageReference Include="Optional" Version="4.0.0" />
-      <PackageReference Include="Raspite" Version="1.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Raspite\Raspite\Raspite.csproj" />
     </ItemGroup>
 
 </Project>

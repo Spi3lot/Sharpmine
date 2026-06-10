@@ -12,7 +12,7 @@ public abstract partial record DisconnectPacket
 
     public void SerializeContent(IBufferWriter<byte> writer)
     {
-        writer.WriteNbt(Reason.ToNbt());
+        writer.WriteNbt(Reason.ToNbt(), network: true);
     }
 
 }

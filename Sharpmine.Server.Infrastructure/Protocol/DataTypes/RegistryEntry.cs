@@ -15,7 +15,7 @@ public readonly record struct RegistryEntry(Identifier EntryId, Option<Tag> Data
     public void Serialize(IBufferWriter<byte> writer)
     {
         writer.WriteIdentifier(EntryId);
-        writer.WritePrefixedOptional(Data, static (writer, data) => writer.WriteNbt(data));
+        writer.WritePrefixedOptional(Data, static (writer, data) => writer.WriteNbt(data, network: true));
     }
 
 }

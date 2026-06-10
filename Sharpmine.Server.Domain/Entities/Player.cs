@@ -48,8 +48,7 @@ public class Player : INbtSerializable
             File.Move(filePath, $"{filePath}_old", overwrite: true);
         }
 
-        // TODO: Check how big playerdata files are on average to get a better estimate for initialCapacity
-        var arrayBufferWriter = new ArrayBufferWriter<byte>(1024);
+        var arrayBufferWriter = new ArrayBufferWriter<byte>(4096);
         TagSerializer.Serialize(arrayBufferWriter, ToNbt());
         return File.WriteAllBytesAsync(filePath, arrayBufferWriter.WrittenMemory);
     }

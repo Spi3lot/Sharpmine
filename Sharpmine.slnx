@@ -8,6 +8,4 @@
   <Project Path="Sharpmine.Server.Wpf/Sharpmine.Server.Wpf.csproj" />
   <Project Path="Sharpmine.ServiceDefaults/Sharpmine.ServiceDefaults.csproj" />
   <Project Path="Sharpmine.Tests/Sharpmine.Tests.csproj" />
-  <Project Path="SharpNBT/SharpNBT/SharpNBT.csproj" />
-  <Project Path="SharpNBT/SharpNBT.Tests/SharpNBT.Tests.csproj" />
 </Solution>

@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 
+using Sharpmine.Domain.Registries.Dynamic.Entries;
 using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
@@ -7,15 +8,24 @@ namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 public class LightData : IClientboundDataType
 {
 
-    public const int MaskBitCount = (64 + 320) / 16 + 2; // 24 + 2 (1 below min height + 1 above max height)
+    public LightData(DimensionType dimensionType)
+    {
+        MaskBitCount = dimensionType.Height / 16 + 2; // + 1 below min height + 1 above max height
+        SkyLightMask = new BitSet(MaskBitCount);
+        BlockLightMask = new BitSet(MaskBitCount);
+        EmptySkyLightMask = new BitSet(MaskBitCount);
+        EmptyBlockLightMask = new BitSet(MaskBitCount);
+    }
 
-    public BitSet SkyLightMask { get; set; } = new(MaskBitCount);
+    public int MaskBitCount { get; }
 
-    public BitSet BlockLightMask { get; set; } = new(MaskBitCount);
+    public BitSet SkyLightMask { get; }
 
-    public BitSet EmptySkyLightMask { get; set; } = new(MaskBitCount);
+    public BitSet BlockLightMask { get; }
 
-    public BitSet EmptyBlockLightMask { get; set; } = new(MaskBitCount);
+    public BitSet EmptySkyLightMask { get; }
+
+    public BitSet EmptyBlockLightMask { get; }
 
     public byte[][] SkyLightArrays { get; set; } = [];
 

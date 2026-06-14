@@ -102,6 +102,12 @@ public static partial class BufferWriterExtensions
             }
         }
 
+        public void WritePrefixed(ReadOnlySpan<byte> value)
+        {
+            writer.WriteVarInt(value.Length);
+            writer.Write(value);
+        }
+
     }
 
 }

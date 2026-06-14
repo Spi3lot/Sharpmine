@@ -1,5 +1,4 @@
 ﻿using System.Buffers;
-using System.Collections;
 
 using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
@@ -8,13 +7,15 @@ namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 public class LightData : IClientboundDataType
 {
 
-    public BitArray SkyLightMask { get; set; } = new(0);
+    public const int MaskBitCount = (64 + 320) / 16 + 2; // 24 + 2 (1 below min height + 1 above max height)
 
-    public BitArray BlockLightMask { get; set; } = new(0);
+    public BitSet SkyLightMask { get; set; } = new(MaskBitCount);
 
-    public BitArray EmptySkyLightMask { get; set; } = new(0);
+    public BitSet BlockLightMask { get; set; } = new(MaskBitCount);
 
-    public BitArray EmptyBlockLightMask { get; set; } = new(0);
+    public BitSet EmptySkyLightMask { get; set; } = new(MaskBitCount);
+
+    public BitSet EmptyBlockLightMask { get; set; } = new(MaskBitCount);
 
     public byte[][] SkyLightArrays { get; set; } = [];
 
@@ -26,8 +27,8 @@ public class LightData : IClientboundDataType
         writer.Write(BlockLightMask);
         writer.Write(EmptySkyLightMask);
         writer.Write(EmptyBlockLightMask);
-        writer.WritePrefixedArray(SkyLightArrays, static (writer, skyLightArray) => writer.WritePrefixedArray(skyLightArray, static (writer, skyLight) => writer.WriteByte(skyLight)));
-        writer.WritePrefixedArray(BlockLightArrays, static (writer, blockLightArray) => writer.WritePrefixedArray(blockLightArray, static (writer, blockLight) => writer.WriteByte(blockLight)));
+        writer.WritePrefixedArray(SkyLightArrays, static (writer, skyLightArray) => writer.WritePrefixed(skyLightArray));
+        writer.WritePrefixedArray(BlockLightArrays, static (writer, blockLightArray) => writer.WritePrefixed(blockLightArray));
     }
 
 }

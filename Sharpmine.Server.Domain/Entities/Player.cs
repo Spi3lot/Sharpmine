@@ -31,9 +31,9 @@ public class Player : INbtSerializable
         var player = new Player(in profile);
         string filePath = Path.Combine(levelName, "playerdata", $"{profile.Uuid}.dat");
 
-        if (File.Exists(filePath) && TagSerializer.TryParse(await File.ReadAllBytesAsync(filePath), out var tag))
+        if (File.Exists(filePath) && TagSerializer.TryParse<CompoundTag>(await File.ReadAllBytesAsync(filePath), out var tag))
         {
-            // TODO: player.GameMode = (GameMode) tag.GetInt("playerGameType");
+            player.GameMode = (GameMode) tag.GetValue<int>("playerGameType");
         }
 
         return player;

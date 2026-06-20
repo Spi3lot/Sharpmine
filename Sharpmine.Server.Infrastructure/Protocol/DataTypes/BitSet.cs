@@ -7,6 +7,8 @@ namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 public readonly struct BitSet(int bitCapacity) : IClientboundDataType
 {
 
+    public int BitCapacity { get; } = bitCapacity;
+
     public long[] Data { get; } = new long[(bitCapacity + 63) / 64];
 
     public bool this[int index]
@@ -17,6 +19,11 @@ public readonly struct BitSet(int bitCapacity) : IClientboundDataType
             if (value) Data[index / 64] |= 1L << (index % 64);
             else Data[index / 64] &= ~(1L << (index % 64));
         }
+    }
+
+    public void SetAll(bool value)
+    {
+        Array.Fill(Data, (value) ? ~0 : 0);
     }
 
     public void Serialize(IBufferWriter<byte> writer)

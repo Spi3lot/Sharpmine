@@ -8,37 +8,85 @@ namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 public class LightData : IClientboundDataType
 {
 
+    private readonly BitSet _skyLightMask;
+
+    private readonly BitSet _blockLightMask;
+
+    private readonly BitSet _emptySkyLightMask;
+
+    private readonly BitSet _emptyBlockLightMask;
+
+    private readonly List<byte[]> _skyLightArrays = [];
+    
+    private readonly List<byte[]> _blockLightArrays = [];
+
     public LightData(DimensionType dimensionType)
     {
         MaskBitCount = dimensionType.Height / 16 + 2; // + 1 below min height + 1 above max height
-        SkyLightMask = new BitSet(MaskBitCount);
-        BlockLightMask = new BitSet(MaskBitCount);
-        EmptySkyLightMask = new BitSet(MaskBitCount);
-        EmptyBlockLightMask = new BitSet(MaskBitCount);
+        _skyLightMask = new BitSet(MaskBitCount);
+        _blockLightMask = new BitSet(MaskBitCount);
+        _emptySkyLightMask = new BitSet(MaskBitCount);
+        _emptyBlockLightMask = new BitSet(MaskBitCount);
+        _emptySkyLightMask.SetAll(true);
+        _emptyBlockLightMask.SetAll(true);
     }
 
     public int MaskBitCount { get; }
 
-    public BitSet SkyLightMask { get; }
+    public static void SetLightLevel(byte[] lightData, int x, int y, int z, byte lightLevel)
+    {
+        int blockIndex = (y << 8) | (z << 4) | x; 
+        int byteIndex = blockIndex / 2;
 
-    public BitSet BlockLightMask { get; }
+        lightData[byteIndex] = (blockIndex % 2 == 0)
+            ? (byte) ((lightData[byteIndex] & 0xF0) | (lightLevel & 0x0F))
+            : (byte) ((lightData[byteIndex] & 0x0F) | ((lightLevel & 0x0F) << 4));
+    }
+    
+    public void SetBlockLight(int sectionIndex, byte[] lightData)
+    {
+        if (lightData.Length != 2048)
+        {
+            throw new ArgumentException("Minecraft light arrays must be exactly 2048 bytes.");
+        }
 
-    public BitSet EmptySkyLightMask { get; }
+        _blockLightMask[sectionIndex] = true;
+        _emptyBlockLightMask[sectionIndex] = false;
+        _blockLightArrays.Add(lightData);
+    }
 
-    public BitSet EmptyBlockLightMask { get; }
+    public void ClearBlockLight(int sectionIndex)
+    {
+        _blockLightMask[sectionIndex] = false;
+        _emptyBlockLightMask[sectionIndex] = true;
+    }
 
-    public byte[][] SkyLightArrays { get; set; } = [];
+    public void SetSkyLight(int sectionIndex, byte[] lightData)
+    {
+        if (lightData.Length != 2048)
+        {
+            throw new ArgumentException("Minecraft light arrays must be exactly 2048 bytes.");
+        }
 
-    public byte[][] BlockLightArrays { get; set; } = [];
+        _skyLightMask[sectionIndex] = true;
+        _emptySkyLightMask[sectionIndex] = false;
+        _skyLightArrays.Add(lightData);
+    }
+
+    public void ClearSkyLight(int sectionIndex)
+    {
+        _skyLightMask[sectionIndex] = false;
+        _emptySkyLightMask[sectionIndex] = true;
+    }
 
     public void Serialize(IBufferWriter<byte> writer)
     {
-        writer.Write(SkyLightMask);
-        writer.Write(BlockLightMask);
-        writer.Write(EmptySkyLightMask);
-        writer.Write(EmptyBlockLightMask);
-        writer.WritePrefixedArray(SkyLightArrays, static (writer, skyLightArray) => writer.WritePrefixed(skyLightArray));
-        writer.WritePrefixedArray(BlockLightArrays, static (writer, blockLightArray) => writer.WritePrefixed(blockLightArray));
+        writer.Write(_skyLightMask);
+        writer.Write(_blockLightMask);
+        writer.Write(_emptySkyLightMask);
+        writer.Write(_emptyBlockLightMask);
+        writer.WritePrefixedArray(_skyLightArrays.ToArray(), static (writer, skyLightArray) => writer.WritePrefixed(skyLightArray));
+        writer.WritePrefixedArray(_blockLightArrays.ToArray(), static (writer, blockLightArray) => writer.WritePrefixed(blockLightArray));
     }
 
 }

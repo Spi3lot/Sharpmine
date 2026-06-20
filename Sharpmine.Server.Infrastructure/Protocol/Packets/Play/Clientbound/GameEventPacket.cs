@@ -24,11 +24,11 @@ public partial record GameEventPacket
         writer.WriteSingle(Value);
     }
 
-    public static GameEventPacket NoRespawnBlockAvailable() => new(0);
+    public static GameEventPacket NoRespawnBlockAvailable { get; } = new(0);
 
-    public static GameEventPacket BeginRaining() => new(1);
+    public static GameEventPacket BeginRaining { get; } = new(1);
 
-    public static GameEventPacket EndRaining() => new(2);
+    public static GameEventPacket EndRaining { get; } = new(2);
 
     public static GameEventPacket ChangeGameMode(GameMode gameMode) => new(3, (float) gameMode);
 
@@ -36,20 +36,20 @@ public partial record GameEventPacket
 
     public static GameEventPacket Demo(DemoEvent demoEvent) => new(5, (float) demoEvent);
 
-    public static GameEventPacket ArrowHitPlayer() => new(6);
+    public static GameEventPacket ArrowHitPlayer { get; } = new(6);
 
     public static GameEventPacket RainLevelChange(float level) => new(7, level);
 
     public static GameEventPacket ThunderLevelChange(float level) => new(8, level);
 
-    public static GameEventPacket PlayPufferfishStingSound() => new(9);
+    public static GameEventPacket PlayPufferfishStingSound { get; } = new(9);
 
-    public static GameEventPacket PlayerElderGuardianMobAppearance() => new(10);
+    public static GameEventPacket PlayerElderGuardianMobAppearance { get; } = new(10);
 
     public static GameEventPacket EnableRespawnScreen(bool value) => new(11, (value) ? 1 : 0);
 
     public static GameEventPacket LimitedCrafting(bool value) => new(12, (value) ? 1 : 0);
 
-    public static GameEventPacket StartWaitingForLevelChunks() => new(13);
+    public static GameEventPacket StartWaitingForLevelChunks { get; } = new(13);
 
 }

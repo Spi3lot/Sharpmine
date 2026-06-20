@@ -66,7 +66,7 @@ public class FinishConfigurationPacketHandler(ServerProperties properties) : IPa
         );
 
         client.SendPacket(new PlayerInfoUpdatePacket(PlayerActions.AddPlayer, [entry]));
-        client.SendPacket(GameEventPacket.StartWaitingForLevelChunks());
+        client.SendPacket(GameEventPacket.StartWaitingForLevelChunks);
         client.SendPacket(new SetChunkCacheCenterPacket(0, 0));
         return ValueTask.CompletedTask;
     }

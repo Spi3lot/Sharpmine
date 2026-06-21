@@ -1,9 +1,15 @@
-﻿using Sharpmine.Domain.Registries.Dynamic.Entries;
+﻿using System.Buffers;
+
+using Sharpmine.Domain.Registries.Dynamic.Entries;
+using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
-public sealed class Chunk
+public sealed class Chunk : IClientboundDataType
 {
+
+    [ThreadStatic]
+    private static ArrayBufferWriter<byte>? _chunkDataWriter;
 
     private readonly int _minY;
 
@@ -20,6 +26,12 @@ public sealed class Chunk
 
     public ChunkSection[] Sections { get; }
 
-    public ChunkSection GetSection(int blockY) => Sections[(blockY - _minY) / 16];
+    public ref readonly ChunkSection GetSection(int blockY) => ref Sections[(blockY - _minY) / 16];
+
+    public void Serialize(IBufferWriter<byte> writer)
+    {
+        _chunkDataWriter ??= new ArrayBufferWriter<byte>(131_072);
+        _chunkDataWriter.WriteArray(Sections);
+    }
 
 }

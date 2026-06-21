@@ -6,7 +6,7 @@ using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
-public sealed class ChunkSection : IClientboundDataType
+public struct ChunkSection() : IClientboundDataType
 {
 
     private static readonly ImmutableArray<int> AirStateIds =

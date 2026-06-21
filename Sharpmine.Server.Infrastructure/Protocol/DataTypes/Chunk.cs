@@ -26,7 +26,7 @@ public sealed class Chunk : IClientboundDataType
 
     public ChunkSection[] Sections { get; }
 
-    public ref readonly ChunkSection GetSection(int blockY) => ref Sections[(blockY - _minY) / 16];
+    public ref ChunkSection GetSection(int blockY) => ref Sections[(blockY - _minY) / 16];
 
     public void Serialize(IBufferWriter<byte> writer)
     {

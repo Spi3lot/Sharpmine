@@ -31,7 +31,9 @@ public sealed class Chunk : IClientboundDataType
     public void Serialize(IBufferWriter<byte> writer)
     {
         _chunkDataWriter ??= new ArrayBufferWriter<byte>(131_072);
+        _chunkDataWriter.Clear();
         _chunkDataWriter.WriteArray(Sections);
+        writer.WritePrefixed(_chunkDataWriter.WrittenSpan);
     }
 
 }

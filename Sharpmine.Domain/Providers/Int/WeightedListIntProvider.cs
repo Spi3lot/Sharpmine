@@ -9,7 +9,7 @@ public sealed record WeightedListIntProvider(ImmutableArray<WeightedDistribution
 
     public int Sample(Random random)
     {
-        if (Distribution.Length == 0)
+        if (Distribution.IsDefaultOrEmpty)
         {
             return 0;
         }

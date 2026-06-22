@@ -29,9 +29,9 @@ public abstract record Component : INbtSerializable
 
     public static implicit operator Component(string text) => new TextComponent(text);
 
-    public abstract Tag ToNbt(string name = "");
+    public abstract ITag ToNbt(string name = "");
 
-    protected void ApplyStyleToNbt(List<Tag> tags)
+    protected void ApplyStyleToNbt(List<ITag> tags)
     {
         if (Style.Color is not null) tags.Add(new StringTag(Style.Color, "color"));
         if (Style.Font is not null) tags.Add(new StringTag(Style.Font, "font"));
@@ -48,7 +48,7 @@ public abstract record Component : INbtSerializable
 
         if (Extra is { Count: > 0 })
         {
-            tags.Add(new ListTag([.. Extra.Select(extra => extra.ToNbt(""))], "extra"));
+            tags.Add(ListTag.Create([.. Extra.Select(extra => extra.ToNbt())], "extra"));
         }
     }
 

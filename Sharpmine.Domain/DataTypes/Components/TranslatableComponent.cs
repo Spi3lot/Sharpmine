@@ -8,9 +8,9 @@ public sealed record TranslatableComponent(
     List<Component>? With = null) : Component
 {
 
-    public override Tag ToNbt(string name = "")
+    public override ITag ToNbt(string name = "")
     {
-        List<Tag> tags = [new StringTag(Translate, "translate")];
+        List<ITag> tags = [new StringTag(Translate, "translate")];
 
         if (Fallback is not null)
         {
@@ -19,7 +19,7 @@ public sealed record TranslatableComponent(
 
         if (With is { Count: > 0 })
         {
-            tags.Add(new ListTag([.. With.Select(with => with.ToNbt())], "with"));
+            tags.Add(ListTag.Create([.. With.Select(with => with.ToNbt())], "with"));
         }
 
         ApplyStyleToNbt(tags);

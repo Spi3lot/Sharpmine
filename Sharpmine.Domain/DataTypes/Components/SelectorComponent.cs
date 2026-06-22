@@ -5,9 +5,9 @@ namespace Sharpmine.Domain.DataTypes.Components;
 public sealed record SelectorComponent(string Selector, Component? Separator = null) : Component
 {
 
-    public override Tag ToNbt(string name = "")
+    public override ITag ToNbt(string name = "")
     {
-        List<Tag> tags = [new StringTag(Selector, "selector")];
+        List<ITag> tags = [new StringTag(Selector, "selector")];
 
         if (Separator is not null)
         {

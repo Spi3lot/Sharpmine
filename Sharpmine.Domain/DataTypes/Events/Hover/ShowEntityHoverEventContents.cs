@@ -10,9 +10,9 @@ public sealed record ShowEntityHoverEventContents(
     Component? Name = null) : IHoverEventContents
 {
 
-    public Tag ToNbt(string name = "")
+    public ITag ToNbt(string name = "")
     {
-        List<Tag> tags = [new StringTag(Type, "type"), new StringTag(Id, "id")];
+        List<ITag> tags = [new StringTag(Type, "type"), new StringTag(Id, "id")];
         if (Name is not null) tags.Add(Name.ToNbt("name"));
         return new CompoundTag([.. tags], name);
     }

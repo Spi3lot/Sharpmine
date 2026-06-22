@@ -5,9 +5,9 @@ namespace Sharpmine.Domain.DataTypes.Components;
 public sealed record ScoreComponent(Score Score) : Component
 {
 
-    public override Tag ToNbt(string name = "")
+    public override ITag ToNbt(string name = "")
     {
-        List<Tag> tags = [Score.ToNbt("score")]; 
+        List<ITag> tags = [Score.ToNbt("score")]; 
         ApplyStyleToNbt(tags);
         return new CompoundTag([.. tags], name);
     }

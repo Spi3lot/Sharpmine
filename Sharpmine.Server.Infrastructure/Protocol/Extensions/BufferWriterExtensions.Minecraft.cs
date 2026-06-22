@@ -60,7 +60,7 @@ public static partial class BufferWriterExtensions
             writer.Advance(byteCount);
         }
 
-        public void WriteNbt(Tag value, bool network)
+        public void WriteNbt(ITag value, bool network)
         {
             TagSerializer.Serialize(writer, value, new TagSerializerOptions { Network = network });
         }

@@ -33,7 +33,8 @@ public class Player : INbtSerializable
 
         if (File.Exists(filePath) && TagSerializer.TryParse<CompoundTag>(await File.ReadAllBytesAsync(filePath), out var tag))
         {
-            player.GameMode = (GameMode) tag.GetValue<int>("playerGameType");
+            player.GameMode = (GameMode) tag.GetInteger("playerGameType")!;
+            player.PreviousGameMode = (GameMode) tag.GetInteger("previousPlayerGameType")!;
         }
 
         return player;
@@ -53,7 +54,7 @@ public class Player : INbtSerializable
         return File.WriteAllBytesAsync(filePath, arrayBufferWriter.WrittenMemory);
     }
 
-    public Tag ToNbt(string name = "")
+    public ITag ToNbt(string name = "")
     {
         throw new NotImplementedException();
     }

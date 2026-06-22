@@ -8,6 +8,6 @@ namespace Sharpmine.Domain.DataTypes.Events.Click;
 public abstract record ClickEvent(string Action) : INbtSerializable
 {
 
-    public abstract Tag ToNbt(string name = "");
+    public abstract ITag ToNbt(string name = "");
 
 }

@@ -10,14 +10,14 @@ public sealed record TextComponent(string Text) : Component
                            && HoverEvent is null
                            && !IsList;
 
-    public override Tag ToNbt(string name = "")
+    public override ITag ToNbt(string name = "")
     {
         if (IsPlain)
         {
             return new StringTag(Text, name);
         }
 
-        List<Tag> tags = [new StringTag(Text, "text")];
+        List<ITag> tags = [new StringTag(Text, "text")];
         ApplyStyleToNbt(tags);
         return new CompoundTag([.. tags], name);
     }

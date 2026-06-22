@@ -13,9 +13,9 @@ public sealed record NbtComponent(
     string? Storage = null) : Component
 {
 
-    public override Tag ToNbt(string name = "")
+    public override ITag ToNbt(string name = "")
     {
-        List<Tag> tags = [new StringTag(Nbt, "nbt")];
+        List<ITag> tags = [new StringTag(Nbt, "nbt")];
         if (Source is not null) tags.Add(new StringTag(Source, "source"));
         if (Interpret is not null) tags.Add(new ByteTag((byte) (Interpret.Value ? 1 : 0), "interpret"));
         if (Plain is not null) tags.Add(new ByteTag((byte) (Plain.Value ? 1 : 0), "plain"));

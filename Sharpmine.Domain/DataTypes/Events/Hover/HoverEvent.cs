@@ -8,7 +8,7 @@ namespace Sharpmine.Domain.DataTypes.Events.Hover;
 public sealed record HoverEvent(string Action, IHoverEventContents Contents) : INbtSerializable
 {
 
-    public Tag ToNbt(string name = "")
+    public ITag ToNbt(string name = "")
     {
         return new CompoundTag([new StringTag(Action, "action"), Contents.ToNbt("contents")], name);
     }

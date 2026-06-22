@@ -7,9 +7,9 @@ namespace Sharpmine.Domain.DataTypes.Events.Click;
 public sealed record ShowDialogClickEvent(JsonElement Dialog) : ClickEvent("show_dialog")
 {
 
-    public override Tag ToNbt(string name = "")
+    public override ITag ToNbt(string name = "")
     {
-        List<Tag> tags = [new StringTag(Action, "action")];
+        List<ITag> tags = [new StringTag(Action, "action")];
         var dialogTag = JsonToNbtConverter.Convert(Dialog, "dialog");
         if (dialogTag is not null) tags.Add(dialogTag);
         return new CompoundTag([.. tags], name);

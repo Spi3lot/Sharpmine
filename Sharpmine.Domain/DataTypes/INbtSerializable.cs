@@ -5,6 +5,6 @@ namespace Sharpmine.Domain.DataTypes;
 public interface INbtSerializable
 {
 
-    Tag ToNbt(string name = "");
+    ITag ToNbt(string name = "");
 
 }

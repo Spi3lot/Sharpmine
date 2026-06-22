@@ -1,19 +1,16 @@
-﻿using System.Buffers;
+﻿using Optional;
 
-using Optional;
-
-using Raspite.Tags;
-
+using Sharpmine.Server.Domain.Registries.Dynamic;
 using Sharpmine.Server.Infrastructure.Configuration;
 using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
-using Sharpmine.Server.Infrastructure.Protocol.Extensions;
-using Sharpmine.Server.Infrastructure.Protocol.Packets;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Serverbound;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Play.Clientbound;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Handlers.Configuration;
 
-public class FinishConfigurationPacketHandler(ServerProperties properties) : IPacketHandler<FinishConfigurationPacket>
+public class FinishConfigurationPacketHandler(
+    ServerProperties properties,
+    IRegistries registries) : IPacketHandler<FinishConfigurationPacket>
 {
 
     public ValueTask HandleAsync(
@@ -65,9 +62,14 @@ public class FinishConfigurationPacketHandler(ServerProperties properties) : IPa
             // TODO: More actions
         );
 
+        var overworld = registries.DimensionTypes["overworld"];
+        var heightmaps = Array.Empty<Heightmap>();
+        var chunk = new Chunk(overworld);
+        var lightData = new LightData(overworld);
         client.SendPacket(new PlayerInfoUpdatePacket(PlayerActions.AddPlayer, [entry]));
         client.SendPacket(GameEventPacket.StartWaitingForLevelChunks);
         client.SendPacket(new SetChunkCacheCenterPacket(0, 0));
+        client.SendPacket(new LevelChunkWithLightPacket(0, 0, heightmaps, chunk, [], lightData));
         return ValueTask.CompletedTask;
     }
 

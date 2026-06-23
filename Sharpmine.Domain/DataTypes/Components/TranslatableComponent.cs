@@ -19,7 +19,7 @@ public sealed record TranslatableComponent(
 
         if (With is { Count: > 0 })
         {
-            tags.Add(ListTag.Create([.. With.Select(with => with.ToNbt())], "with"));
+            tags.Add(ListTag.Create(With.Select(with => with.ToNbt()), "with"));
         }
 
         ApplyStyleToNbt(tags);

@@ -18,10 +18,10 @@ public static class JsonToNbtConverter
     {
         return element.ValueKind switch
         {
-            JsonValueKind.Object => new CompoundTag([.. element.EnumerateObject().Select(prop => Convert(prop.Value, prop.Name)).OfType<ITag>()], name),
-            JsonValueKind.Array => ListTag.Create([.. element.EnumerateArray().Select(item => Convert(item, string.Empty)).OfType<ITag>()], name),
-            JsonValueKind.True => new ByteTag(1, name),
-            JsonValueKind.False => new ByteTag(0, name),
+            JsonValueKind.Object => CompoundTag.Create(element.EnumerateObject().Select(prop => Convert(prop.Value, prop.Name)).OfType<ITag>(), name),
+            JsonValueKind.Array => ListTag.Create(element.EnumerateArray().Select(item => Convert(item, string.Empty)).OfType<ITag>(), name),
+            JsonValueKind.True => new ByteTag(true, name),
+            JsonValueKind.False => new ByteTag(false, name),
             JsonValueKind.Number => (element.TryGetInt32(out int i))
                 ? new IntegerTag(i, name)
                 : new DoubleTag(element.GetDouble(), name),
@@ -39,8 +39,8 @@ public static class JsonToNbtConverter
     {
         return node switch
         {
-            JsonObject jsonObject => new CompoundTag([.. jsonObject.Select(kvp => Convert(kvp.Value, kvp.Key)).OfType<ITag>()], name),
-            JsonArray jsonArray => ListTag.Create([.. jsonArray.Select(item => Convert(item, string.Empty)).OfType<ITag>()], name),
+            JsonObject jsonObject => CompoundTag.Create(jsonObject.Select(kvp => Convert(kvp.Value, kvp.Key)).OfType<ITag>(), name),
+            JsonArray jsonArray => ListTag.Create(jsonArray.Select(item => Convert(item, string.Empty)).OfType<ITag>(), name),
             JsonValue jsonValue when jsonValue.TryGetValue(out bool b) => new ByteTag((byte) (b ? 1 : 0), name),
             JsonValue jsonValue when jsonValue.TryGetValue(out int i) => new IntegerTag(i, name),
             JsonValue jsonValue when jsonValue.TryGetValue(out double d) => new DoubleTag(d, name),

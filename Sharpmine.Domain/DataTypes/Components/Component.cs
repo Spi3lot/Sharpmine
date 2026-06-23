@@ -48,7 +48,7 @@ public abstract record Component : INbtSerializable
 
         if (Extra is { Count: > 0 })
         {
-            tags.Add(ListTag.Create([.. Extra.Select(extra => extra.ToNbt())], "extra"));
+            tags.Add(ListTag.Create(Extra.Select(extra => extra.ToNbt()), "extra"));
         }
     }
 

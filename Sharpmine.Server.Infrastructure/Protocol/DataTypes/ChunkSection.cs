@@ -1,5 +1,5 @@
 ﻿using System.Buffers;
-using System.Collections.Immutable;
+using System.Collections.Frozen;
 
 using Sharpmine.Domain.Registries.Static;
 using Sharpmine.Server.Infrastructure.Protocol.Extensions;
@@ -9,13 +9,10 @@ namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 public struct ChunkSection() : IClientboundDataType
 {
 
-    private static readonly ImmutableArray<int> AirStateIds =
-    [
-        .. Blocks.All.Values
-            .Where(block => block.Type == BlockTypes.Air)
-            .SelectMany(block => block.States)
-            .Select(state => state.Id)
-    ];
+    private static readonly FrozenSet<int> AirStateIds = Blocks.All.Values
+        .Where(block => block.Type == BlockTypes.Air)
+        .Select(state => state.DefaultState.Id)
+        .ToFrozenSet();
 
     public short BlockCount { get; private set; }
 

@@ -28,6 +28,11 @@ public sealed class Chunk : IClientboundDataType
 
     public ref ChunkSection GetSection(int blockY) => ref Sections[(blockY - _minY) / 16];
 
+    public void SetBlock(int x, int y, int z, int stateId)
+    {
+        GetSection(y).SetBlock(x, y & 15, z, stateId);
+    }
+
     public void Serialize(IBufferWriter<byte> writer)
     {
         _chunkDataWriter ??= new ArrayBufferWriter<byte>(131_072);

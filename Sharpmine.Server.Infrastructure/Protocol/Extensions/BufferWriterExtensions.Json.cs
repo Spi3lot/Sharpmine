@@ -2,13 +2,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using Sharpmine.Domain;
+
 namespace Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 public static partial class BufferWriterExtensions
 {
-
-    [ThreadStatic]
-    private static ArrayBufferWriter<byte>? _jsonBuffer;
 
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -29,11 +28,10 @@ public static partial class BufferWriterExtensions
 
         public void WriteJsonString<T>(T value)
         {
-            _jsonBuffer ??= new ArrayBufferWriter<byte>(1024);
-            _jsonBuffer.Clear();
-            _jsonBuffer.WriteJson(value);
-            writer.WriteVarInt(_jsonBuffer.WrittenCount);
-            writer.Write(_jsonBuffer.WrittenSpan);
+            using var pooledWriter = new PooledByteBufferWriter(1024);
+            pooledWriter.WriteJson(value);
+            writer.WriteVarInt(pooledWriter.WrittenCount);
+            writer.Write(pooledWriter.WrittenSpan);
         }
 
         public void WriteJson<T>(T value) => writer.WriteJson(value, Options);

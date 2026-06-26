@@ -1,27 +1,23 @@
-﻿using System.Buffers;
+﻿using Optional;
 
-using Optional;
+using Sharpmine.Domain;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Packets;
 
 public static class PreSerializedPacket
 {
 
-    [ThreadStatic]
-    private static ArrayBufferWriter<byte>? _arrayBufferWriter;
-
     public static PreSerializedPacket<TPacket> Generate<TPacket>(TPacket packet, bool retainUnderlyingPacket = false)
         where TPacket : IClientboundPacket
     {
-        _arrayBufferWriter ??= new ArrayBufferWriter<byte>(1024);
-        _arrayBufferWriter.Clear();
-        packet.SerializeContent(_arrayBufferWriter);
+        using var pooledWriter = new PooledByteBufferWriter(1024);
+        packet.SerializeContent(pooledWriter);
 
         return new PreSerializedPacket<TPacket>(
             packet.SomeWhen(_ => retainUnderlyingPacket),
             packet.State,
             packet.Id,
-            _arrayBufferWriter.WrittenSpan.ToArray());
+            pooledWriter.WrittenSpan.ToArray());
     }
 
 }

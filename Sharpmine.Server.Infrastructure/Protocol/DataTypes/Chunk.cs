@@ -2,6 +2,7 @@
 
 using Raspite.Tags;
 
+using Sharpmine.Domain;
 using Sharpmine.Domain.Registries.Dynamic.Entries;
 using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
@@ -9,9 +10,6 @@ namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
 public sealed class Chunk : IClientboundDataType
 {
-
-    [ThreadStatic]
-    private static ArrayBufferWriter<byte>? _chunkDataWriter;
 
     private readonly Heightmap _motionBlockingHeightmap;
 
@@ -86,10 +84,9 @@ public sealed class Chunk : IClientboundDataType
 
     public void Serialize(IBufferWriter<byte> writer)
     {
-        _chunkDataWriter ??= new ArrayBufferWriter<byte>(131_072);
-        _chunkDataWriter.Clear();
-        _chunkDataWriter.WriteArray(Sections);
-        writer.WritePrefixed(_chunkDataWriter.WrittenSpan);
+        using var pooledWriter = new PooledByteBufferWriter(131_072);
+        pooledWriter.WriteArray(Sections);
+        writer.WritePrefixed(pooledWriter.WrittenSpan);
     }
 
     private static int PackChunkPos(int x, int y, int z) => ((x & 15) << 20) | ((z & 15) << 16) | (y & 0xFFFF);

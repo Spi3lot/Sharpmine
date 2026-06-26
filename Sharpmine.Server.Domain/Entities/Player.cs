@@ -3,7 +3,9 @@ using System.ComponentModel;
 
 using Raspite;
 using Raspite.Tags;
+using Raspite.Tags.Building;
 
+using Sharpmine.Domain;
 using Sharpmine.Domain.DataTypes;
 
 namespace Sharpmine.Server.Domain.Entities;
@@ -49,9 +51,9 @@ public class Player : INbtSerializable
             File.Move(filePath, $"{filePath}_old", overwrite: true);
         }
 
-        var arrayBufferWriter = new ArrayBufferWriter<byte>(4096);
-        TagSerializer.Serialize(arrayBufferWriter, ToNbt());
-        return File.WriteAllBytesAsync(filePath, arrayBufferWriter.WrittenMemory);
+        using var pooledWriter = new PooledByteBufferWriter(4096);
+        TagSerializer.Serialize(pooledWriter, ToNbt());
+        return File.WriteAllBytesAsync(filePath, pooledWriter.WrittenMemory);
     }
 
     public ITag ToNbt(string name = "")

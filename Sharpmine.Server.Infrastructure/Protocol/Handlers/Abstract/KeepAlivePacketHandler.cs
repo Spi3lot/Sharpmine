@@ -1,4 +1,5 @@
-﻿using Sharpmine.Server.Infrastructure.Protocol.Packets.Abstract.Serverbound;
+﻿using Sharpmine.Domain.DataTypes.Components;
+using Sharpmine.Server.Infrastructure.Protocol.Packets.Abstract.Serverbound;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Handlers.Abstract;
 
@@ -10,7 +11,18 @@ public class KeepAlivePacketHandler : IPacketHandler<KeepAlivePacket>
         ClientHandler client,
         CancellationToken cancellationToken)
     {
-        // TODO: Check whether the client responded with the same packet
+        if (client.CurrentKeepAliveId == packet.KeepAliveId)
+        {
+            client.WaitingForKeepAlive = false;
+        }
+        else
+        {
+            client.DisconnectAsync(new TextComponent("Invalid KeepAliveId")
+            {
+                Style = new ComponentStyle { Color = "red" }
+            });
+        }
+
         return ValueTask.CompletedTask;
     }
 

@@ -14,6 +14,8 @@ using Sharpmine.Server.Infrastructure.Protocol.Packets.Abstract.Serverbound;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Login.Clientbound;
 using Sharpmine.Server.Infrastructure.Security;
 
+using KeepAlivePacket = Sharpmine.Server.Infrastructure.Protocol.Packets.Abstract.Clientbound.KeepAlivePacket;
+
 namespace Sharpmine.Server.Infrastructure.Protocol;
 
 public sealed partial class ClientHandler(
@@ -52,6 +54,10 @@ public sealed partial class ClientHandler(
 
     public Player? Player { get; internal set; }
 
+    public long CurrentKeepAliveId { get; private set; }
+
+    public bool WaitingForKeepAlive { get; set; }
+
     public async Task HandleAsync(CancellationToken cancellationToken)
     {
         await using var stream = Client.GetStream();
@@ -71,6 +77,7 @@ public sealed partial class ClientHandler(
             _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             _transmissionTask = transmissionWorkerFactory.Create(_clientboundChannel, this, writer).StartAsync(CancellationToken.None);
             dispatchTask = dispatchWorkerFactory.Create(_serverboundChannel, this).StartAsync(_cts.Token);
+            StartKeepAliveLoopAsync(_cts.Token);
 
             while (await TryReceivePacketAsync(reader, _cts.Token)) ;
         }
@@ -138,6 +145,38 @@ public sealed partial class ClientHandler(
         }
 
         return true;
+    }
+
+    private async Task StartKeepAliveLoopAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                if (WaitingForKeepAlive)
+                {
+                    await DisconnectAsync(new TextComponent("Timed out")
+                    {
+                        Style = new ComponentStyle { Color = "red" }
+                    });
+
+                    break;
+                }
+
+                if (KeepAlivePacket.Exists(State))
+                {
+                    WaitingForKeepAlive = true;
+                    CurrentKeepAliveId = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    SendPacket(KeepAlivePacket.Create(State) with { KeepAliveId = CurrentKeepAliveId });
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Connection closed, timer canceled
+        }
     }
 
     public void SendPacket(IClientboundPacket packet)

@@ -201,6 +201,29 @@ public class PacketGenerator : IIncrementalGenerator
 
             if (group.Key.Direction == "Clientbound")
             {
+                sb.AppendLine("""
+
+                                  public static bool Exists(ProtocolState state)
+                                  {
+                                      return state
+                              """);
+
+                bool first = true;
+
+                foreach (string packetStateName in group.Select(packet => packet.StateName))
+                {
+                    sb.Append(first
+                        ? $"                is ProtocolState.{packetStateName}"
+                        : $"\n                or ProtocolState.{packetStateName}");
+
+                    first = false;
+                }
+
+                sb.AppendLine("""
+                              ;
+                                  }
+                              """);
+
                 sb.AppendLine($$"""
 
                                     public static {{group.Key.ClassName}} Create(ProtocolState state)

@@ -165,15 +165,13 @@ public sealed partial class ClientHandler(
             return DisconnectAsync(new LoginDisconnectPacket(reason));
         }
 
-        try
+        if (DisconnectPacket.Exists(State))
         {
             return DisconnectAsync(DisconnectPacket.Create(State) with { Reason = reason });
         }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            LogDisconnectRequestedInInvalidState(ex, State);
-            return AbortForcefullyAsync();
-        }
+
+        LogDisconnectRequestedInInvalidState(State);
+        return AbortForcefullyAsync();
     }
 
     public async Task DisconnectAsync(IClientboundPacket disconnectPacket)

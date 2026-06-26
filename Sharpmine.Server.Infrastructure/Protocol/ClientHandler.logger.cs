@@ -14,7 +14,7 @@ public partial class ClientHandler
     partial void LogErrorWhileHandling(Exception error);
 
     [LoggerMessage(LogLevel.Warning, "Disconnect requested in state {State}, aborting forcefully")]
-    partial void LogDisconnectRequestedInInvalidState(Exception ex, ProtocolState state);
+    partial void LogDisconnectRequestedInInvalidState(ProtocolState state);
 
     [LoggerMessage(LogLevel.Information, "{Handler} connected")]
     partial void LogClientConnected(ClientHandler handler);

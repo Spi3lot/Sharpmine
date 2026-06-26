@@ -56,7 +56,10 @@ public class Player : INbtSerializable
 
     public ITag ToNbt(string name = "")
     {
-        throw new NotImplementedException();
+        return CompoundTagBuilder.Create(name)
+            .AddInteger((int) GameMode, "playerGameType")
+            .AddInteger((int) PreviousGameMode, "previousPlayerGameType")
+            .Build();
     }
 
 }

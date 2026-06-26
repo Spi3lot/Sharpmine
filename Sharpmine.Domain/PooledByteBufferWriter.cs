@@ -33,7 +33,7 @@ public sealed class PooledByteBufferWriter(
 
     public void Advance(int count)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(count, FreeCapacity);
         WrittenCount += count;
     }
@@ -52,9 +52,11 @@ public sealed class PooledByteBufferWriter(
 
     private void CheckAndResizeBuffer(int sizeHint)
     {
+        ArgumentOutOfRangeException.ThrowIfNegative(sizeHint);
+
         if (sizeHint == 0)
         {
-            sizeHint = 1;
+            sizeHint = DefaultInitialBufferSize;
         }
 
         if (sizeHint > FreeCapacity)
@@ -81,7 +83,7 @@ public sealed class PooledByteBufferWriter(
             }
 
             byte[] newBuffer = ArrayPool<byte>.Shared.Rent(newSize);
-            Array.Copy(_buffer!, newBuffer, WrittenCount);
+            WrittenSpan.CopyTo(newBuffer);
             ArrayPool<byte>.Shared.Return(_buffer!, clearBufferOnDispose);
             _buffer = newBuffer;
         }

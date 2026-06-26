@@ -1,5 +1,7 @@
 ﻿using Optional;
 
+using Sharpmine.Domain;
+using Sharpmine.Domain.Registries.Static;
 using Sharpmine.Server.Domain.Registries.Dynamic;
 using Sharpmine.Server.Infrastructure.Configuration;
 using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
@@ -62,14 +64,14 @@ public class FinishConfigurationPacketHandler(
             // TODO: More actions
         );
 
-        var overworld = registries.DimensionTypes["overworld"];
-        var heightmaps = Array.Empty<Heightmap>();
+        var overworld = registries.DimensionTypes[Identifier.Minecraft("overworld")];
         var chunk = new Chunk(overworld);
-        var lightData = new LightData(overworld);
+        chunk.SetBlock(0, 0, 0, Blocks.AcaciaLog.DefaultState.Id);
+
         client.SendPacket(new PlayerInfoUpdatePacket(PlayerActions.AddPlayer, [entry]));
         client.SendPacket(GameEventPacket.StartWaitingForLevelChunks);
-        client.SendPacket(new SetChunkCacheCenterPacket(0, 0));
-        client.SendPacket(new LevelChunkWithLightPacket(0, 0, heightmaps, chunk, [], lightData));
+        client.SendPacket(new SetChunkCacheCenterPacket(0, 0)); // TODO: Send on every chunk border crossing
+        client.SendPacket(new LevelChunkWithLightPacket(0, 0, chunk, new LightData(overworld)));
         return ValueTask.CompletedTask;
     }
 

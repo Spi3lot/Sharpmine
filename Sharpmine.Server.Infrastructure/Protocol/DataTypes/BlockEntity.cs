@@ -6,11 +6,11 @@ using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
-public sealed record BlockEntity(byte PackedXz, short Y, int TypeId, CompoundTag Data)
+public readonly record struct BlockEntity(byte PackedXz, short Y, int TypeId, CompoundTag Data)
 {
 
-    public BlockEntity(int blockX, short y, int blockZ, int typeId, CompoundTag data)
-        : this((byte) ((blockX & 15) << 4 | (blockZ & 15)), y, typeId, data)
+    public BlockEntity(int x, int y, int z, int typeId, CompoundTag data)
+        : this((byte) (((x & 15) << 4) | (z & 15)), (short) y, typeId, data)
     {
     }
 

@@ -34,7 +34,7 @@ public sealed class PooledByteBufferWriter(
     public void Advance(int count)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(WrittenCount, Capacity - count);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(count, FreeCapacity);
         WrittenCount += count;
     }
 

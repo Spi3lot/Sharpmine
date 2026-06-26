@@ -20,6 +20,8 @@ public struct ChunkSection() : IClientboundDataType
 
     public PalettedContainer Biomes { get; } = new(PalettedContainerType.Biomes);
 
+    public int GetBlock(int x, int y, int z) => BlockStates.Get(x, y, z);
+
     public void SetBlock(int x, int y, int z, int stateId)
     {
         int oldStateId = BlockStates.Get(x, y, z);

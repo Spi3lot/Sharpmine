@@ -14,6 +14,11 @@ public partial record LevelChunkWithLightPacket(
     LightData LightData)
 {
 
+    public LevelChunkWithLightPacket(int chunkX, int chunkZ, Chunk column, LightData lightData)
+        : this(chunkX, chunkZ, column.Heightmaps, column, column.BlockEntities, lightData)
+    {
+    }
+
     public void SerializeContent(IBufferWriter<byte> writer)
     {
         writer.WriteInt32(ChunkX);

@@ -40,7 +40,7 @@ public class NetworkTagCache
                     }
                 }
 
-                tags.Add(new RegistryTag(tag.TagName, [.. protocolIds]));
+                tags.Add(new RegistryTag(tag.Id, [.. protocolIds]));
             }
 
             if (tags.Count > 0)

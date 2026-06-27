@@ -2,4 +2,4 @@
 
 namespace Sharpmine.Domain.Tags;
 
-public readonly record struct RegistryTagDto(Identifier TagName, ImmutableArray<Identifier> Values);
+public readonly record struct RegistryTagDto(Identifier Id, ImmutableArray<Identifier> Values);

@@ -17,10 +17,10 @@ public readonly record struct Heightmap : IClientboundDataType
 
     public HeightmapType Type { get; }
 
-    public int this[int index]
+    public int this[int x, int z]
     {
-        get => _bitStorage[index];
-        set => _bitStorage[index] = value;
+        get => _bitStorage[(z << 4) | x];
+        set => _bitStorage[(z << 4) | x] = value;
     }
 
     public void Serialize(IBufferWriter<byte> writer)

@@ -28,8 +28,9 @@ public struct ChunkSection() : IClientboundDataType
         if (oldStateId == stateId) return;
 
         BlockStates.Set(x, y, z, stateId);
-        bool wasAir = AirStateIds.Contains(oldStateId);
-        bool isAir = AirStateIds.Contains(stateId);
+        var airStates = BlockTags.GetStates(BlockTags.Air);
+        bool wasAir = airStates.Contains(oldStateId);
+        bool isAir = airStates.Contains(stateId);
 
         if (wasAir && !isAir) BlockCount++;
         else if (!wasAir && isAir) BlockCount--;

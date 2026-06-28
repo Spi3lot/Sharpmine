@@ -1,5 +1,8 @@
 ﻿using System.Buffers;
+using System.Collections.Frozen;
 
+using Sharpmine.Domain.Registries.Static;
+using Sharpmine.Domain.Tags;
 using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
@@ -28,5 +31,33 @@ public readonly record struct Heightmap : IClientboundDataType
         writer.WriteVarInt((int) Type);
         writer.WritePrefixedArray(_bitStorage.Data, static (writer, @long) => writer.WriteInt64(@long));
     }
+
+    public bool SatisfiesCriteria(int checkStateId) => Type switch
+    {
+        HeightmapType.WorldSurface => IsWorldSurface(checkStateId),
+        HeightmapType.MotionBlocking => IsMotionBlocking(checkStateId),
+        HeightmapType.MotionBlockingNoLeaves => IsMotionBlockingNoLeaves(checkStateId),
+        _ => false
+    };
+
+    private static readonly RegistryTagDto MotionBlocking = new(
+        "#sharpmine:motion_blocking",
+        [
+            .. Blocks.All.Values
+                .Where(b => b.IsFluid || b is { IsSolid: true, Type.Path: not ("bamboo_sapling" or "cactus") })
+                .Select(b => b.Id)
+        ]);
+
+    private static readonly FrozenSet<int> AirStates = BlockTags.GetStates(BlockTags.Air);
+
+    private static readonly FrozenSet<int> LeaveStates = BlockTags.GetStates(BlockTags.Leaves);
+
+    private static readonly FrozenSet<int> MotionBlockingStates = BlockTags.GetStates(MotionBlocking);
+
+    private static bool IsWorldSurface(int stateId) => !AirStates.Contains(stateId);
+
+    private static bool IsMotionBlocking(int stateId) => MotionBlockingStates.Contains(stateId);
+
+    private static bool IsMotionBlockingNoLeaves(int stateId) => MotionBlockingStates.Contains(stateId) && !LeaveStates.Contains(stateId);
 
 }

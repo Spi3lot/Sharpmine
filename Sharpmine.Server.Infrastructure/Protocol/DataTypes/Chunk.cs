@@ -11,16 +11,22 @@ namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 public sealed class Chunk : IClientboundDataType
 {
 
+    private readonly int _minY;
+
+    private readonly Heightmap _worldSurfaceHeightmap;
+
     private readonly Heightmap _motionBlockingHeightmap;
 
-    private readonly int _minY;
+    private readonly Heightmap _motionBlockingNoLeavesHeightmap;
 
     private readonly Dictionary<int, BlockEntity> _blockEntities = [];
 
     public Chunk(DimensionType dimension)
     {
         _minY = dimension.MinY;
+        _worldSurfaceHeightmap = new Heightmap(HeightmapType.WorldSurface, dimension.Height);
         _motionBlockingHeightmap = new Heightmap(HeightmapType.MotionBlocking, dimension.Height);
+        _motionBlockingNoLeavesHeightmap = new Heightmap(HeightmapType.MotionBlockingNoLeaves, dimension.Height);
         Sections = new ChunkSection[dimension.Height / 16];
 
         for (int i = 0; i < Sections.Length; i++)
@@ -31,7 +37,12 @@ public sealed class Chunk : IClientboundDataType
 
     public ChunkSection[] Sections { get; }
 
-    public Heightmap[] Heightmaps => [_motionBlockingHeightmap];
+    public Heightmap[] Heightmaps =>
+    [
+        _worldSurfaceHeightmap,
+        _motionBlockingHeightmap,
+        _motionBlockingNoLeavesHeightmap
+    ];
 
     public BlockEntity[] BlockEntities =>
     [
@@ -52,13 +63,37 @@ public sealed class Chunk : IClientboundDataType
     public void SetBlock(int x, int y, int z, int stateId)
     {
         GetSection(y).SetBlock(x, y & 15, z, stateId);
-        int heightmapIndex = (z * 16) + x;
-        int heightValue = y - _minY + 1;
+        UpdateHeightmap(in _worldSurfaceHeightmap, x, y, z, stateId);
+        UpdateHeightmap(in _motionBlockingHeightmap, x, y, z, stateId);
+        UpdateHeightmap(in _motionBlockingNoLeavesHeightmap, x, y, z, stateId);
+    }
 
-        // TODO: Check if block is air
-        if (_motionBlockingHeightmap[heightmapIndex] < heightValue)
+    private void UpdateHeightmap(in Heightmap heightmap, int x, int y, int z, int stateId)
+    {
+        int height = y - _minY + 1;
+        int currentPeak = heightmap[x, z];
+
+        if (heightmap.SatisfiesCriteria(stateId))
         {
-            _motionBlockingHeightmap[heightmapIndex] = heightValue;
+            if (height > currentPeak)
+            {
+                heightmap[x, z] = height;
+            }
+        }
+        else if (height == currentPeak)
+        {
+            int newPeak = 0;
+
+            for (int scanY = y - 1; scanY >= _minY; scanY--)
+            {
+                if (heightmap.SatisfiesCriteria(GetBlock(x, scanY, z)))
+                {
+                    newPeak = scanY - _minY + 1;
+                    break;
+                }
+            }
+
+            heightmap[x, z] = newPeak;
         }
     }
 

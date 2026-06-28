@@ -4,24 +4,76 @@ using System.Text.Json;
 
 namespace Sharpmine.Domain.Blocks;
 
-public class Block(
-    Identifier id,
-    Identifier type,
-    string rawDefinitionJson,
-    Dictionary<string, ImmutableArray<string>> possibleProperties,
-    ImmutableArray<BlockState> states)
+public class Block
 {
 
-    public Identifier Id { get; } = id;
+    public Block(Identifier id,
+        Identifier type,
+        string rawDefinitionJson,
+        Dictionary<string, ImmutableArray<string>> possibleProperties,
+        ImmutableArray<BlockState> states)
+    {
+        Id = id;
+        Type = type;
+        Definition = JsonElement.Parse(rawDefinitionJson);
+        PossibleProperties = possibleProperties.ToFrozenDictionary();
+        States = states;
+        DefaultState = states.SingleOrDefault(state => state.IsDefault) ?? states.First();
+        IsFluid = Type.Path is "liquid" or "bubble_column";
+        IsSolid = DetermineSolidity();
+    }
 
-    public Identifier Type { get; } = type;
+    public Identifier Id { get; }
 
-    public JsonElement Definition { get; } = JsonElement.Parse(rawDefinitionJson);
+    public Identifier Type { get; }
 
-    public FrozenDictionary<string, ImmutableArray<string>> PossibleProperties { get; } = possibleProperties.ToFrozenDictionary();
+    public JsonElement Definition { get; }
 
-    public ImmutableArray<BlockState> States { get; } = states;
+    public FrozenDictionary<string, ImmutableArray<string>> PossibleProperties { get; }
 
-    public BlockState DefaultState { get; } = states.SingleOrDefault(state => state.IsDefault) ?? states.First();
+    public ImmutableArray<BlockState> States { get; }
+
+    public BlockState DefaultState { get; }
+
+    public bool IsFluid { get; }
+
+    public bool IsSolid { get; }
+
+    private bool DetermineSolidity() => Type.Path is not (
+        "air"
+        or "liquid"
+        or "bubble_column"
+        or "tall_flower"
+
+        // Flora
+        or "flower"
+        or "sapling"
+        or "kelp"
+        or "tall_seagrass"
+        or "seagrass"
+        or "sweet_berry_bush"
+        or "dead_bush"
+        or "glow_lichen"
+        or "sculk_vein"
+
+        // Decor
+        or "vine"
+        or "wall_torch"
+        or "torch"
+        or "wall_hanging_sign"
+        or "hanging_sign"
+        or "wall_sign"
+        or "sign"
+        or "wall_banner"
+        or "banner"
+        or "fire"
+        or "cobweb"
+
+        // Redstone
+        or "tripwire_hook"
+        or "tripwire"
+        or "redstone_wire"
+        or "lever"
+        or "button");
 
 }

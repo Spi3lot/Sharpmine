@@ -1,18 +1,12 @@
 ﻿using System.Buffers;
-using System.Collections.Frozen;
 
-using Sharpmine.Domain.Registries.Static;
+using Sharpmine.Domain.Tags;
 using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
 public struct ChunkSection() : IClientboundDataType
 {
-
-    private static readonly FrozenSet<int> AirStateIds = Blocks.All.Values
-        .Where(block => block.Type == BlockTypes.Air)
-        .Select(state => state.DefaultState.Id)
-        .ToFrozenSet();
 
     public short BlockCount { get; private set; }
 
@@ -22,10 +16,10 @@ public struct ChunkSection() : IClientboundDataType
 
     public int GetBlock(int x, int y, int z) => BlockStates.Get(x, y, z);
 
-    public void SetBlock(int x, int y, int z, int stateId)
+    public int SetBlock(int x, int y, int z, int stateId)
     {
         int oldStateId = BlockStates.Get(x, y, z);
-        if (oldStateId == stateId) return;
+        if (oldStateId == stateId) return oldStateId;
 
         BlockStates.Set(x, y, z, stateId);
         var airStates = BlockTags.GetStates(BlockTags.Air);
@@ -34,6 +28,8 @@ public struct ChunkSection() : IClientboundDataType
 
         if (wasAir && !isAir) BlockCount++;
         else if (!wasAir && isAir) BlockCount--;
+
+        return oldStateId;
     }
 
     public void Serialize(IBufferWriter<byte> writer)

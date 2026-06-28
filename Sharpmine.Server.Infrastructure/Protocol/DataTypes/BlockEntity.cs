@@ -10,7 +10,7 @@ public readonly record struct BlockEntity(byte PackedXz, short Y, int TypeId, Co
 {
 
     public BlockEntity(int x, int y, int z, int typeId, CompoundTag data)
-        : this((byte) (((x & 15) << 4) | (z & 15)), (short) y, typeId, data)
+        : this((byte) ((x << 4) | z), (short) y, typeId, data)
     {
     }
 

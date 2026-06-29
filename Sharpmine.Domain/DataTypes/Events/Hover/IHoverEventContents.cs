@@ -1,3 +1,5 @@
-﻿namespace Sharpmine.Domain.DataTypes.Events.Hover;
+﻿using Raspite.Tags;
 
-public interface IHoverEventContents : IConvertibleToNbt;
+namespace Sharpmine.Domain.DataTypes.Events.Hover;
+
+public interface IHoverEventContents : IConvertibleToNbt<ITag>;

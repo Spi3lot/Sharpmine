@@ -2,9 +2,9 @@
 
 namespace Sharpmine.Domain.DataTypes;
 
-public interface IConvertibleToNbt
+public interface IConvertibleToNbt<out TTag> where TTag : ITag
 {
 
-    ITag ToNbt(string name = "");
+    TTag ToNbt(string name = "");
 
 }

@@ -4,6 +4,7 @@ namespace Sharpmine.Domain.DataTypes.Events.Hover;
 
 public sealed record ShowItemHoverEventContents(string Id, int? Count = null, string? Tag = null) : IHoverEventContents
 {
+
     public ITag ToNbt(string name = "")
     {
         List<ITag> tags = [new StringTag(Id, "id")];
@@ -11,4 +12,5 @@ public sealed record ShowItemHoverEventContents(string Id, int? Count = null, st
         if (Tag is not null) tags.Add(new StringTag(Tag, "tag"));
         return new CompoundTag([.. tags], name);
     }
+
 }

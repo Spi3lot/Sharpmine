@@ -5,7 +5,7 @@ namespace Sharpmine.Domain.DataTypes.Events.Click;
 public sealed record CustomClickEvent(Identifier Id, string? Payload = null) : ClickEvent("custom")
 {
 
-    public override ITag ToNbt(string name = "")
+    public override CompoundTag ToNbt(string name = "")
     {
         List<ITag> tags = [new StringTag(Action, "action"), new StringTag(Id, "id")];
         if (Payload is not null) tags.Add(new StringTag(Payload, "payload"));

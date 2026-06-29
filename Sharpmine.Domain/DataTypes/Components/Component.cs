@@ -8,7 +8,7 @@ using Sharpmine.Domain.DataTypes.Events.Hover;
 namespace Sharpmine.Domain.DataTypes.Components;
 
 [JsonConverter(typeof(ComponentConverter))]
-public abstract record Component : IConvertibleToNbt
+public abstract record Component : IConvertibleToNbt<ITag>
 {
 
     public ComponentStyle Style { get; init; }

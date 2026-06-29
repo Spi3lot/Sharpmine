@@ -1,8 +1,8 @@
 ﻿using System.Collections.Immutable;
 
+using Sharpmine.Domain.DataTypes;
 using Sharpmine.Server.Infrastructure.Configuration;
 using Sharpmine.Server.Infrastructure.Protocol;
-using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 
 namespace Sharpmine.Server.Infrastructure.Security;
 

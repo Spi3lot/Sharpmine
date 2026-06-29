@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+namespace Sharpmine.Domain.DataTypes;
 
 public record ServerStatus(
     StatusVersion Version,

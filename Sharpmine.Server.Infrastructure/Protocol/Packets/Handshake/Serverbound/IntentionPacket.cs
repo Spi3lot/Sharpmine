@@ -1,6 +1,6 @@
 ﻿using System.Buffers;
 
-using Sharpmine.Server.Infrastructure.Protocol.Extensions;
+using Sharpmine.Domain.Extensions;
 using Sharpmine.Server.Infrastructure.Protocol.Attributes;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Packets.Handshake.Serverbound;

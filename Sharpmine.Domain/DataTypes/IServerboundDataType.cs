@@ -1,6 +1,6 @@
 ﻿using System.Buffers;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+namespace Sharpmine.Domain.DataTypes;
 
 public interface IServerboundDataType<TSelf> where TSelf : IServerboundDataType<TSelf>
 {

@@ -1,7 +1,7 @@
 using System.Buffers;
 using System.Buffers.Binary;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.Extensions;
+namespace Sharpmine.Domain.Extensions;
 
 public static partial class BufferWriterExtensions
 {

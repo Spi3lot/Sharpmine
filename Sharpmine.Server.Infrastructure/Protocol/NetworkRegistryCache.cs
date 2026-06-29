@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 
+using Sharpmine.Domain.DataTypes;
 using Sharpmine.Domain.Registries;
-using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 using Sharpmine.Server.Infrastructure.Protocol.Packets;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Clientbound;
 using Sharpmine.Server.Infrastructure.Protocol.Versions;

@@ -1,9 +1,9 @@
 ﻿using System.Buffers;
 
+using Sharpmine.Domain.Extensions;
 using Sharpmine.Domain.Registries.Dynamic.Entries;
-using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+namespace Sharpmine.Domain.DataTypes;
 
 public class LightData : IClientboundDataType
 {

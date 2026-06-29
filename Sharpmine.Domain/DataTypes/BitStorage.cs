@@ -1,4 +1,4 @@
-namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+namespace Sharpmine.Domain.DataTypes;
 
 public readonly struct BitStorage
 {

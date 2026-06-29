@@ -2,7 +2,7 @@ using System.Buffers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.Extensions;
+namespace Sharpmine.Domain.Extensions;
 
 public static partial class SequenceReaderExtensions
 {

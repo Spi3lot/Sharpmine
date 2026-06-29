@@ -2,9 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using Sharpmine.Domain;
-
-namespace Sharpmine.Server.Infrastructure.Protocol.Extensions;
+namespace Sharpmine.Domain.Extensions;
 
 public static partial class BufferWriterExtensions
 {

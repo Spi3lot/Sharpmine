@@ -1,7 +1,7 @@
 using System.Buffers;
 
+using Sharpmine.Domain.Extensions;
 using Sharpmine.Server.Infrastructure.Protocol.Attributes;
-using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Packets.Play.Serverbound;
 

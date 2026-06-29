@@ -1,8 +1,8 @@
 using System.Buffers;
 
 using Sharpmine.Domain;
-using Sharpmine.Server.Infrastructure.Protocol.Extensions;
-using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+using Sharpmine.Domain.DataTypes;
+using Sharpmine.Domain.Extensions;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Clientbound;
 

@@ -2,11 +2,10 @@
 
 using Raspite.Tags;
 
-using Sharpmine.Domain;
+using Sharpmine.Domain.Extensions;
 using Sharpmine.Domain.Registries.Dynamic.Entries;
-using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+namespace Sharpmine.Domain.DataTypes;
 
 public sealed class Chunk : IClientboundDataType
 {

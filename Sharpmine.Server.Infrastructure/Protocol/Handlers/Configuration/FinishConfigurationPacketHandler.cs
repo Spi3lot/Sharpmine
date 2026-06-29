@@ -1,10 +1,10 @@
 ﻿using Optional;
 
 using Sharpmine.Domain;
+using Sharpmine.Domain.DataTypes;
 using Sharpmine.Domain.Registries.Static;
 using Sharpmine.Server.Domain.Registries.Dynamic;
 using Sharpmine.Server.Infrastructure.Configuration;
-using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Serverbound;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Play.Clientbound;
 

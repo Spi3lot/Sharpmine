@@ -1,9 +1,8 @@
 ﻿using System.Buffers;
 
-using Sharpmine.Domain;
-using Sharpmine.Server.Infrastructure.Protocol.Extensions;
+using Sharpmine.Domain.Extensions;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+namespace Sharpmine.Domain.DataTypes;
 
 public readonly record struct RegistryTag(Identifier TagName, int[] Entries) : IClientboundDataType
 {

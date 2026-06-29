@@ -1,4 +1,4 @@
-﻿namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+﻿namespace Sharpmine.Domain.DataTypes;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Chunk_format#Heightmap_structure
 // https://gist.github.com/ByteZ1337/31f10b0052f44acfc177f40a0f0fe9cd

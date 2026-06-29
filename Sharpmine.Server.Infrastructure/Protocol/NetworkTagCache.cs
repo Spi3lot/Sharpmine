@@ -1,5 +1,5 @@
-﻿using Sharpmine.Domain.Tags;
-using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+﻿using Sharpmine.Domain.DataTypes;
+using Sharpmine.Domain.Tags;
 using Sharpmine.Server.Infrastructure.Protocol.Packets;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Clientbound;
 using Sharpmine.Server.Infrastructure.Protocol.Versions;

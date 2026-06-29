@@ -2,9 +2,9 @@
 
 using Raspite.Tags;
 
-using Sharpmine.Server.Infrastructure.Protocol.Extensions;
+using Sharpmine.Domain.Extensions;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+namespace Sharpmine.Domain.DataTypes;
 
 public readonly record struct BlockEntity(byte PackedXz, short Y, int TypeId, CompoundTag Data)
 {

@@ -1,11 +1,11 @@
 ﻿using System.Buffers;
 using System.Collections.Frozen;
 
+using Sharpmine.Domain.Extensions;
 using Sharpmine.Domain.Registries.Static;
 using Sharpmine.Domain.Tags;
-using Sharpmine.Server.Infrastructure.Protocol.Extensions;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+namespace Sharpmine.Domain.DataTypes;
 
 public readonly record struct Heightmap : IClientboundDataType
 {

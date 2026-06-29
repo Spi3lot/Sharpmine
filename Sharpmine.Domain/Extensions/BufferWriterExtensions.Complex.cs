@@ -3,9 +3,9 @@
 using Optional;
 using Optional.Unsafe;
 
-using Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+using Sharpmine.Domain.DataTypes;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.Extensions;
+namespace Sharpmine.Domain.Extensions;
 
 public static partial class BufferWriterExtensions
 {

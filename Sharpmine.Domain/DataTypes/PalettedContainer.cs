@@ -1,8 +1,8 @@
 ﻿using System.Buffers;
 
-using Sharpmine.Server.Infrastructure.Protocol.Extensions;
+using Sharpmine.Domain.Extensions;
 
-namespace Sharpmine.Server.Infrastructure.Protocol.DataTypes;
+namespace Sharpmine.Domain.DataTypes;
 
 public sealed class PalettedContainer : IClientboundDataType
 {

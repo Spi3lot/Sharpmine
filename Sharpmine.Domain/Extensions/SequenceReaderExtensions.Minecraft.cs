@@ -1,9 +1,7 @@
 ﻿using System.Buffers;
 using System.Text;
 
-using Sharpmine.Domain;
-
-namespace Sharpmine.Server.Infrastructure.Protocol.Extensions;
+namespace Sharpmine.Domain.Extensions;
 
 public static partial class SequenceReaderExtensions
 {

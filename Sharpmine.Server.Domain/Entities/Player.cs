@@ -52,7 +52,7 @@ public class Player : ILoadableFromNbt<CompoundTag>, IConvertibleToNbt<CompoundT
         }
 
         using var pooledWriter = new PooledByteBufferWriter(4096);
-        TagSerializer.Serialize(pooledWriter, ToNbt());
+        pooledWriter.WriteNbt(ToNbt("Player"), network: false);
         return File.WriteAllBytesAsync(filePath, pooledWriter.WrittenMemory);
     }
 

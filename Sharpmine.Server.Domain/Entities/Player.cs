@@ -10,7 +10,7 @@ using Sharpmine.Domain.DataTypes;
 
 namespace Sharpmine.Server.Domain.Entities;
 
-public class Player : INbtSerializable
+public class Player : IConvertibleToNbt
 {
 
     private Player(in GameProfile profile)

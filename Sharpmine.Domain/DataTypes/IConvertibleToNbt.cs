@@ -2,7 +2,7 @@
 
 namespace Sharpmine.Domain.DataTypes;
 
-public interface INbtSerializable
+public interface IConvertibleToNbt
 {
 
     ITag ToNbt(string name = "");

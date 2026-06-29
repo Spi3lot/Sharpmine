@@ -1,3 +1,3 @@
 ﻿namespace Sharpmine.Domain.DataTypes.Events.Hover;
 
-public interface IHoverEventContents : INbtSerializable;
+public interface IHoverEventContents : IConvertibleToNbt;

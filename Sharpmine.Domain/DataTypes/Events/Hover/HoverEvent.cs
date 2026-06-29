@@ -5,7 +5,7 @@ using Raspite.Tags;
 namespace Sharpmine.Domain.DataTypes.Events.Hover;
 
 [JsonConverter(typeof(HoverEventConverter))]
-public sealed record HoverEvent(string Action, IHoverEventContents Contents) : INbtSerializable
+public sealed record HoverEvent(string Action, IHoverEventContents Contents) : IConvertibleToNbt
 {
 
     public ITag ToNbt(string name = "")

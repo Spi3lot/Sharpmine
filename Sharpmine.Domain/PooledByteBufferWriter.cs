@@ -1,6 +1,6 @@
-namespace Sharpmine.Domain;
-
 using System.Buffers;
+
+namespace Sharpmine.Domain;
 
 public sealed class PooledByteBufferWriter(
     int initialCapacity = PooledByteBufferWriter.DefaultInitialBufferSize,

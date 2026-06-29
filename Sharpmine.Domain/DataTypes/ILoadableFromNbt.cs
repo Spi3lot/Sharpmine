@@ -2,7 +2,7 @@
 
 namespace Sharpmine.Domain.DataTypes;
 
-public interface ILoadableFromNbt<in TTag> where TTag : ITag
+public interface ILoadableFromNbt<in TTag> where TTag : class, ITag
 {
 
     void LoadFromNbt(TTag tag);

@@ -1,11 +1,8 @@
-﻿using Raspite;
-using Raspite.Tags;
+﻿using Raspite.Tags;
 using Raspite.Tags.Building;
 
-using Sharpmine.Domain;
 using Sharpmine.Domain.DataTypes;
 using Sharpmine.Domain.DataTypes.Components;
-using Sharpmine.Domain.Extensions;
 
 namespace Sharpmine.Server.Domain.Entities;
 
@@ -33,27 +30,17 @@ public class Player : ILoadableFromNbt<CompoundTag>, IConvertibleToNbt<CompoundT
     {
         var player = new Player(in profile);
         string filePath = Path.Combine(levelName, "playerdata", $"{profile.Uuid}.dat");
-
-        if (File.Exists(filePath) && TagSerializer.TryParse<CompoundTag>(await File.ReadAllBytesAsync(filePath), out var tag))
-        {
-            player.LoadFromNbt(tag);
-        }
-
+        await player.TryLoadFromNbtFileAsync(filePath);
         return player;
     }
 
     public Task SaveAsync(string levelName)
     {
-        string filePath = Path.Combine(levelName, "playerdata", $"{Profile.Uuid}.dat");
-
-        if (File.Exists(filePath))
-        {
-            File.Move(filePath, $"{filePath}_old", overwrite: true);
-        }
-
-        using var pooledWriter = new PooledByteBufferWriter(4096);
-        pooledWriter.WriteNbt(ToNbt("Player"), network: false);
-        return File.WriteAllBytesAsync(filePath, pooledWriter.WrittenMemory);
+        return this.WriteToNbtFileAsync(
+            path: Path.Combine(levelName, "playerdata", $"{Profile.Uuid}.dat"),
+            rootName: "Player",
+            initialBufferSize: 4096,
+            backupExisting: true);
     }
 
     public void LoadFromNbt(CompoundTag tag)

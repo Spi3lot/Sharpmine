@@ -8,15 +8,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <AdditionalFiles Include="Assets\**\*.*" Link="%(RecursiveDir)%(Filename)%(Extension)">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </AdditionalFiles>
+        <AdditionalFiles Include="..\Assets\**\*.json" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Sharpmine.Server.Domain\Sharpmine.Server.Domain.csproj" />
         <ProjectReference Include="..\Sharpmine.Domain\Sharpmine.Domain.csproj" />
-        <ProjectReference Include="..\Sharpmine.Gen\Sharpmine.Gen.csproj"
+        <ProjectReference Include="..\Sharpmine.Domain.Gen\Sharpmine.Domain.Gen.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\Sharpmine.Server.Infrastructure.Gen\Sharpmine.Server.Infrastructure.Gen.csproj"
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false" />
     </ItemGroup>

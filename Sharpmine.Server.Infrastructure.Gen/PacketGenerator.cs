@@ -8,7 +8,9 @@ using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Sharpmine.Gen;
+using Sharpmine.Gen;
+
+namespace Sharpmine.Server.Infrastructure.Gen;
 
 [Generator]
 public class PacketGenerator : IIncrementalGenerator

@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Sharpmine.Gen;
+namespace Sharpmine.Server.Infrastructure.Gen;
 
 [Generator]
 public class PacketPropertyGenerator : IIncrementalGenerator

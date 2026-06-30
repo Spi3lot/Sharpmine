@@ -8,7 +8,9 @@ using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Sharpmine.Gen;
+using Sharpmine.Gen;
+
+namespace Sharpmine.Domain.Gen;
 
 [Generator]
 public class ItemRegistryGenerator : IIncrementalGenerator

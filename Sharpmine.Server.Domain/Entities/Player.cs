@@ -30,7 +30,7 @@ public class Player : ILoadableFromNbt<CompoundTag>, IConvertibleToNbt<CompoundT
     {
         var player = new Player(in profile);
         string filePath = Path.Combine(levelName, "playerdata", $"{profile.Uuid}.dat");
-        await player.TryLoadFromNbtFileAsync(filePath);
+        await player.LoadFromNbtFileAsync(filePath);
         return player;
     }
 

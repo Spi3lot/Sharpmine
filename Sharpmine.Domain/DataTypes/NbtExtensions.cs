@@ -8,46 +8,81 @@ namespace Sharpmine.Domain.DataTypes;
 public static class NbtExtensions
 {
 
-    public static async Task<bool> TryLoadFromNbtFileAsync<TTag>(this ILoadableFromNbt<TTag> loadable, string path)
-        where TTag : class, ITag
+    extension<TTag>(ILoadableFromNbt<TTag> loadable) where TTag : class, ITag
     {
-        try
+
+        public async Task<bool> LoadFromNbtFileAsync(string path)
         {
-            if (File.Exists(path) && TagSerializer.TryParse(await File.ReadAllBytesAsync(path), out TTag? tag))
+            if (!File.Exists(path))
             {
-                loadable.LoadFromNbt(tag);
-                return true;
+                return false;
             }
 
-            return false;
+            if (!TagSerializer.TryParse(await File.ReadAllBytesAsync(path), out TTag? tag))
+            {
+                throw new InvalidDataException($"Failed to parse NBT data from file: {path}");
+            }
+
+            loadable.LoadFromNbt(tag);
+            return true;
         }
-        catch
-        {
-            return false;
-        }
+
     }
 
-    public static Task WriteToNbtFileAsync<TTag>(this IConvertibleToNbt<TTag> convertible,
-        string path,
-        string rootName = "",
-        int initialBufferSize = PooledByteBufferWriter.DefaultInitialBufferSize,
-        bool backupExisting = false) where TTag : class, ITag
+    extension<TTag>(IConvertibleToNbt<TTag> convertible) where TTag : class, ITag
     {
-        try
-        {
-            if (backupExisting && File.Exists(path))
-            {
-                File.Move(path, $"{path}_old", overwrite: true);
-            }
 
-            using var pooledWriter = new PooledByteBufferWriter(initialBufferSize);
-            pooledWriter.WriteNbt(convertible.ToNbt(rootName), network: false);
-            return File.WriteAllBytesAsync(path, pooledWriter.WrittenMemory);
-        }
-        catch (Exception ex)
+        public Task WriteToNbtFileAsync(
+            string path,
+            string rootName = "",
+            int initialBufferSize = PooledByteBufferWriter.DefaultInitialBufferSize,
+            bool backupExisting = false)
         {
-            return Task.FromException(ex);
+            return convertible.WriteToNbtFileAsync(
+                path,
+                rootName,
+                initialBufferSize,
+                (backupExisting) ? path + "_old" : null);
         }
+
+        public async Task WriteToNbtFileAsync(
+            string path,
+            string rootName = "",
+            int initialBufferSize = PooledByteBufferWriter.DefaultInitialBufferSize,
+            string? backupPath = null)
+        {
+            string tempPath = $"{path}.{Guid.CreateVersion7():N}.tmp";
+
+            try
+            {
+                using (var pooledWriter = new PooledByteBufferWriter(initialBufferSize))
+                {
+                    pooledWriter.WriteNbt(convertible.ToNbt(rootName), network: false);
+                    await File.WriteAllBytesAsync(tempPath, pooledWriter.WrittenMemory);
+                }
+
+                if (File.Exists(path))
+                {
+                    File.Replace(
+                        sourceFileName: tempPath,
+                        destinationFileName: path,
+                        destinationBackupFileName: backupPath,
+                        ignoreMetadataErrors: true);
+                }
+                else
+                {
+                    File.Move(tempPath, path);
+                }
+            }
+            finally
+            {
+                if (File.Exists(tempPath))
+                {
+                    File.Delete(tempPath);
+                }
+            }
+        }
+
     }
 
 }

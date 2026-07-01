@@ -1,4 +1,5 @@
 ﻿using Raspite.Tags;
+using Raspite.Tags.Building;
 
 namespace Sharpmine.Domain.DataTypes.Components;
 
@@ -10,16 +11,14 @@ public sealed record TextComponent(string Text) : Component
                            && HoverEvent is null
                            && !IsList;
 
-    public override ITag ToNbt(string name = "")
-    {
-        if (IsPlain)
-        {
-            return new StringTag(Text, name);
-        }
+    public override ITag ToNbt(string name = "") => (IsPlain)
+        ? new StringTag(Text, name)
+        : ToCompoundNbtBuilder(name).Build();
 
-        List<ITag> tags = [new StringTag(Text, "text")];
-        ApplyStyleToNbt(tags);
-        return new CompoundTag([.. tags], name);
+    public override CompoundTagBuilder ToCompoundNbtBuilder(string name = "")
+    {
+        return base.ToCompoundNbtBuilder(name)
+            .AddString(Text, "text");
     }
 
     public static implicit operator TextComponent(string text) => new(text);

@@ -1,21 +1,15 @@
-﻿using Raspite.Tags;
+﻿using Raspite.Tags.Building;
 
 namespace Sharpmine.Domain.DataTypes.Components;
 
 public sealed record SelectorComponent(string Selector, Component? Separator = null) : Component
 {
 
-    public override ITag ToNbt(string name = "")
+    public override CompoundTagBuilder ToCompoundNbtBuilder(string name = "")
     {
-        List<ITag> tags = [new StringTag(Selector, "selector")];
-
-        if (Separator is not null)
-        {
-            tags.Add(Separator.ToNbt("separator"));
-        }
-
-        ApplyStyleToNbt(tags);
-        return new CompoundTag([.. tags], name);
+        return base.ToCompoundNbtBuilder(name)
+            .AddString(Selector, "selector")
+            .Add(Separator?.ToNbt("separator"));
     }
 
 }

@@ -1,4 +1,5 @@
 ﻿using Raspite.Tags;
+using Raspite.Tags.Building;
 
 namespace Sharpmine.Domain.DataTypes.Components;
 
@@ -13,18 +14,17 @@ public sealed record NbtComponent(
     string? Storage = null) : Component
 {
 
-    public override ITag ToNbt(string name = "")
+    public override CompoundTagBuilder ToCompoundNbtBuilder(string name = "")
     {
-        List<ITag> tags = [new StringTag(Nbt, "nbt")];
-        if (Source is not null) tags.Add(new StringTag(Source, "source"));
-        if (Interpret is not null) tags.Add(new ByteTag((byte) (Interpret.Value ? 1 : 0), "interpret"));
-        if (Plain is not null) tags.Add(new ByteTag((byte) (Plain.Value ? 1 : 0), "plain"));
-        if (Separator is not null) tags.Add(Separator.ToNbt("separator"));
-        if (Entity is not null) tags.Add(new StringTag(Entity, "entity"));
-        if (Block is not null) tags.Add(new StringTag(Block, "block"));
-        if (Storage is not null) tags.Add(new StringTag(Storage, "storage"));
-        ApplyStyleToNbt(tags);
-        return new CompoundTag([.. tags], name);
+        return base.ToCompoundNbtBuilder(name)
+            .AddString(Nbt, "nbt")
+            .AddString(Source, "source")
+            .AddBoolean(Interpret, "interpret")
+            .AddBoolean(Plain, "plain")
+            .Add(Separator?.ToNbt("separator"))
+            .AddString(Entity, "entity")
+            .AddString(Block, "block")
+            .AddString(Storage, "storage");
     }
 
 }

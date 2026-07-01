@@ -1,15 +1,14 @@
-﻿using Raspite.Tags;
+﻿using Raspite.Tags.Building;
 
 namespace Sharpmine.Domain.DataTypes.Components;
 
 public sealed record ScoreComponent(Score Score) : Component
 {
 
-    public override ITag ToNbt(string name = "")
+    public override CompoundTagBuilder ToCompoundNbtBuilder(string name = "")
     {
-        List<ITag> tags = [Score.ToNbt("score")]; 
-        ApplyStyleToNbt(tags);
-        return new CompoundTag([.. tags], name);
+        return base.ToCompoundNbtBuilder(name)
+            .Add(Score.ToNbt("score"));
     }
 
 }

@@ -6,18 +6,12 @@ using Sharpmine.Domain.Tags;
 
 namespace Sharpmine.Domain.DataTypes;
 
-public readonly record struct Heightmap : IClientboundDataType
+public readonly struct Heightmap(HeightmapType type, int dimensionHeight) : IClientboundDataType
 {
 
-    private readonly BitStorage _bitStorage;
+    private readonly BitStorage _bitStorage = new((int) Math.Ceiling(Math.Log2(dimensionHeight + 1)), 16 * 16);
 
-    public Heightmap(HeightmapType type, int dimensionHeight)
-    {
-        Type = type;
-        _bitStorage = new BitStorage((int) Math.Ceiling(Math.Log2(dimensionHeight + 1)), 16 * 16);
-    }
-
-    public HeightmapType Type { get; }
+    public HeightmapType Type { get; } = type;
 
     public int this[int x, int z]
     {

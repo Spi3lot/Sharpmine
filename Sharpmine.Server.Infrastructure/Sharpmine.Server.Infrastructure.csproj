@@ -8,7 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <AdditionalFiles Include="..\Assets\**\*.json" />
+        <AdditionalFiles Include="..\Assets\**\*.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AdditionalFiles>
     </ItemGroup>
 
     <ItemGroup>

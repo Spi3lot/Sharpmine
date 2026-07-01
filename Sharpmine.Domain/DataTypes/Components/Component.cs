@@ -4,6 +4,7 @@ using Raspite.Tags;
 
 using Sharpmine.Domain.DataTypes.Events.Click;
 using Sharpmine.Domain.DataTypes.Events.Hover;
+using Sharpmine.Domain.DataTypes.Nbt;
 
 namespace Sharpmine.Domain.DataTypes.Components;
 

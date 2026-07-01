@@ -1,6 +1,8 @@
 using Raspite.Tags;
 using Raspite.Tags.Building;
 
+using Sharpmine.Domain.DataTypes.Nbt;
+
 namespace Sharpmine.Domain.DataTypes;
 
 public readonly record struct PlayerPosition(double X, double FeetY, double Z)

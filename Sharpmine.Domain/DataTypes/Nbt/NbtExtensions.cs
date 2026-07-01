@@ -3,7 +3,7 @@ using Raspite.Tags;
 
 using Sharpmine.Domain.Extensions;
 
-namespace Sharpmine.Domain.DataTypes;
+namespace Sharpmine.Domain.DataTypes.Nbt;
 
 public static class NbtExtensions
 {

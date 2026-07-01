@@ -2,6 +2,8 @@
 
 using Raspite.Tags;
 
+using Sharpmine.Domain.DataTypes.Nbt;
+
 namespace Sharpmine.Domain.DataTypes.Events.Hover;
 
 [JsonConverter(typeof(HoverEventConverter))]

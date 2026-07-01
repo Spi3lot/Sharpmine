@@ -1,6 +1,6 @@
 ﻿using Raspite.Tags;
 
-namespace Sharpmine.Domain.DataTypes;
+namespace Sharpmine.Domain.DataTypes.Nbt;
 
 public interface ICreatableFromNbt<out TSelf, in TTag>
     where TSelf : ICreatableFromNbt<TSelf, TTag>

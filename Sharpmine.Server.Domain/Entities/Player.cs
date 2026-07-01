@@ -3,6 +3,7 @@ using Raspite.Tags.Building;
 
 using Sharpmine.Domain.DataTypes;
 using Sharpmine.Domain.DataTypes.Components;
+using Sharpmine.Domain.DataTypes.Nbt;
 
 namespace Sharpmine.Server.Domain.Entities;
 

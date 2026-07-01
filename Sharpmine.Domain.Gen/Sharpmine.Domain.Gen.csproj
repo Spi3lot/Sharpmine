@@ -15,7 +15,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Sharpmine.Gen\Sharpmine.Gen.csproj" />
+        <Compile Include="..\Sharpmine.Gen\**\*.cs"
+                 Exclude="..\Sharpmine.Gen\obj\**;..\Sharpmine.Gen\bin\**"
+                 Link="Sharpmine.Gen\%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
 </Project>

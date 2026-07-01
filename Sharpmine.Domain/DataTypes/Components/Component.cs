@@ -13,7 +13,9 @@ namespace Sharpmine.Domain.DataTypes.Components;
 public abstract record Component : IConvertibleToNbt<ITag>, ICompoundNbtBuildable
 {
 
-    public ComponentStyle Style { get; init; }
+    private ComponentStyle _style;
+
+    public ref ComponentStyle Style => ref _style;
 
     public ClickEvent? ClickEvent { get; init; }
 
@@ -36,15 +38,15 @@ public abstract record Component : IConvertibleToNbt<ITag>, ICompoundNbtBuildabl
     public virtual CompoundTagBuilder ToCompoundNbtBuilder(string name = "")
     {
         var builder = CompoundTagBuilder.Create(name)
-            .AddString(Style.Color, "color")
-            .AddString(Style.Font, "font")
-            .AddBoolean(Style.Bold, "bold")
-            .AddBoolean(Style.Italic, "italic")
-            .AddBoolean(Style.Underlined, "underlined")
-            .AddBoolean(Style.Strikethrough, "strikethrough")
-            .AddBoolean(Style.Obfuscated, "obfuscated")
-            .AddInteger(Style.ShadowColor, "shadow_color")
-            .AddString(Style.Insertion, "insertion")
+            .AddString(_style.Color, "color")
+            .AddString(_style.Font, "font")
+            .AddBoolean(_style.Bold, "bold")
+            .AddBoolean(_style.Italic, "italic")
+            .AddBoolean(_style.Underlined, "underlined")
+            .AddBoolean(_style.Strikethrough, "strikethrough")
+            .AddBoolean(_style.Obfuscated, "obfuscated")
+            .AddInteger(_style.ShadowColor, "shadow_color")
+            .AddString(_style.Insertion, "insertion")
             .Add(ClickEvent?.ToNbt("click_event"))
             .Add(HoverEvent?.ToNbt("hover_event"));
 

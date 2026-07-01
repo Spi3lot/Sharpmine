@@ -10,7 +10,11 @@
   <Project Path="Sharpmine.Server.Wpf/Sharpmine.Server.Wpf.csproj" />
   <Project Path="Sharpmine.ServiceDefaults/Sharpmine.ServiceDefaults.csproj" />
   <Project Path="Sharpmine.Tests/Sharpmine.Tests.csproj" />
-  <Project Path="Raspite/Raspite/Raspite.csproj" />
+  <Project Path="Raspite/Raspite/Raspite.csproj">
+    <BuildType Project="Release" />
+  </Project>
+  <Project Path="Raspite/Raspite.Benchmarks/Raspite.Benchmarks.csproj">
+    <BuildType Project="Release" />
+  </Project>
   <Project Path="Raspite/Raspite.Tests/Raspite.Tests.csproj" />
-  <Project Path="Raspite/Raspite.Benchmarks/Raspite.Benchmarks.csproj" />
 </Solution>

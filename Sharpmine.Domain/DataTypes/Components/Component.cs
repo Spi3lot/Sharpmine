@@ -21,7 +21,7 @@ public abstract record Component : IConvertibleToNbt<ITag>, ICompoundNbtBuildabl
 
     public List<Component>? Extra { get; init; }
 
-    public bool IsList => Extra is not null;
+    public bool IsList => Extra is { Count: > 0 };
 
     public List<Component> AsList() => [this with { Extra = null }, .. Extra ?? []];
 
@@ -48,9 +48,9 @@ public abstract record Component : IConvertibleToNbt<ITag>, ICompoundNbtBuildabl
             .Add(ClickEvent?.ToNbt("click_event"))
             .Add(HoverEvent?.ToNbt("hover_event"));
 
-        if (Extra is { Count: > 0 })
+        if (IsList)
         {
-            builder.Add(ListTag.Create(Extra.Select(extra => extra.ToNbt()), "extra"));
+            builder.Add(ListTag.Create(Extra!.Select(extra => extra.ToNbt()), "extra"));
         }
 
         return builder;

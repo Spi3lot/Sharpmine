@@ -2,7 +2,6 @@
 using System.Collections.Frozen;
 
 using Sharpmine.Domain.Extensions;
-using Sharpmine.Domain.Registries.Static;
 using Sharpmine.Domain.Tags;
 
 namespace Sharpmine.Domain.DataTypes;
@@ -43,7 +42,7 @@ public readonly record struct Heightmap : IClientboundDataType
     private static readonly RegistryTagDto MotionBlocking = new(
         "#sharpmine:motion_blocking",
         [
-            .. Blocks.All.Values
+            .. Registries.Static.Blocks.All.Values
                 .Where(b => b.IsFluid || b is { IsSolid: true, Type.Path: not ("bamboo_sapling" or "cactus") })
                 .Select(b => b.Id)
         ]);

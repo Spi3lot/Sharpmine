@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 
 using Sharpmine.Domain.Extensions;
+using Sharpmine.Domain.Tags;
 
 namespace Sharpmine.Domain.DataTypes;
 

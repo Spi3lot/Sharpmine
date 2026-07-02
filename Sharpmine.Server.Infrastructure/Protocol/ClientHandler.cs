@@ -126,11 +126,8 @@ public sealed partial class ClientHandler(
     private async Task<bool> TryReceivePacketAsync(PipeReader pipeReader, CancellationToken cancellationToken)
     {
         var (keepAlive, packet) = await packetReceiver.ReceiveAsync(State, pipeReader, cancellationToken);
-
-        if (!keepAlive)
-        {
-            return false;
-        }
+        if (!keepAlive) return false;
+        if (packet is null) return true;
 
         if (packet is IStateTransition transition)
         {
@@ -138,9 +135,17 @@ public sealed partial class ClientHandler(
             State = transition.NextState;
         }
 
-        if (packet is not null && !_serverboundChannel.Writer.TryWrite(packet) && !_disconnecting)
+        if (await _serverboundChannel.Writer.WaitToWriteAsync(_cts!.Token))
         {
-            LogDisconnectingClient(this, "Too many serverbound packets queued");
+            if (!_serverboundChannel.Writer.TryWrite(packet) && !_disconnecting)
+            {
+                LogDisconnectingClient(this, "Channel write failed");
+                return false;
+            }
+        }
+        else if (!_disconnecting)
+        {
+            LogDisconnectingClient(this, "Channel no longer accepting packets");
             return false;
         }
 

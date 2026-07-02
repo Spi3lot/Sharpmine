@@ -27,7 +27,6 @@ public static class Program
             builder.AddInfrastructureServices();
 
             using var host = builder.Build();
-            host.PreloadCaches();
             host.Run();
         }
         catch (Exception ex)

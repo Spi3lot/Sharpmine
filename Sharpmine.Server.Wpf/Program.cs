@@ -33,7 +33,6 @@ public static class Program
             builder.Services.AddSingleton<MainViewModel>();
 
             using var host = builder.Build();
-            host.PreloadCaches();
             host.Start();
 
             var app = new System.Windows.Application();

@@ -12,7 +12,7 @@ public static class ChannelExtensions
 
         public static Channel<IClientboundPacket> CreateClientbound()
         {
-            return Channel.CreateBounded<IClientboundPacket>(new BoundedChannelOptions(10000)
+            return Channel.CreateBounded<IClientboundPacket>(new BoundedChannelOptions(8192)
             {
                 FullMode = BoundedChannelFullMode.Wait,
                 SingleWriter = false,
@@ -23,7 +23,7 @@ public static class ChannelExtensions
 
         public static Channel<IServerboundPacket> CreateServerbound()
         {
-            return Channel.CreateBounded<IServerboundPacket>(new BoundedChannelOptions(100)
+            return Channel.CreateBounded<IServerboundPacket>(new BoundedChannelOptions(1024)
             {
                 FullMode = BoundedChannelFullMode.Wait,
                 SingleWriter = true,

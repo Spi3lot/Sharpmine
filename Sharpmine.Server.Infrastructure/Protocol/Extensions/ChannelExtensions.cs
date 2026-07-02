@@ -15,7 +15,7 @@ public static class ChannelExtensions
             return Channel.CreateBounded<IClientboundPacket>(new BoundedChannelOptions(10000)
             {
                 FullMode = BoundedChannelFullMode.Wait,
-                SingleWriter = true,
+                SingleWriter = false,
                 SingleReader = true,
                 AllowSynchronousContinuations = false
             });

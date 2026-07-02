@@ -18,13 +18,14 @@ public class ServerBootstrapService(
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await datapackLoader.ReloadAllAsync();
-        logger.LogInformation("Registries filled successfully");
+        logger.LogInformation("Dynamic registries filled successfully");
 
+        // TODO: Add more registries to speed up initial connection even further
         _ = Blocks.Air;
         _ = BlockTags.Air;
         serviceProvider.GetRequiredService<NetworkRegistryCache>();
         serviceProvider.GetRequiredService<NetworkTagCache>();
-        logger.LogInformation("Caches preloaded successfully");
+        logger.LogInformation("Registry caches preloaded successfully");
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

@@ -27,7 +27,7 @@ public static class Program
                 .WriteTo.Sink(sink)
                 .CreateLogger();
 
-            builder.AddCoreServices();
+            builder.AddInfrastructureServices();
             builder.Services.AddSingleton(sink);
             builder.Services.AddSingleton<MainWindow>();
             builder.Services.AddSingleton<MainViewModel>();

@@ -24,7 +24,7 @@ public static class Program
                 .CreateLogger();
 
             builder.AddServiceDefaults();
-            builder.AddCoreServices();
+            builder.AddInfrastructureServices();
 
             using var host = builder.Build();
             host.Run();

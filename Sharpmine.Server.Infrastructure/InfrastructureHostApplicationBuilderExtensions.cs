@@ -18,13 +18,13 @@ using Sharpmine.Server.Infrastructure.Security;
 
 namespace Sharpmine.Server.Infrastructure;
 
-public static class HostApplicationBuilderExtensions
+public static class InfrastructureHostApplicationBuilderExtensions
 {
 
     extension<TBuilder>(TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
 
-        public TBuilder AddCoreServices()
+        public TBuilder AddInfrastructureServices()
         {
             builder.Configuration.AddIniFile(
                 path: ServerConstants.FileNames.Properties,

@@ -68,10 +68,17 @@ public class FinishConfigurationPacketHandler(
         var chunk = new Chunk(overworld);
         chunk.SetBlock(0, 0, 0, Blocks.AcaciaLog.DefaultState.Id);
 
+        // TODO: Abstract away
+        var lightData = new LightData(overworld);
+        var lightBytes = new byte[2048];
+        LightData.SetLightLevel(lightBytes, 0, 0, 0, 15);
+        lightData.SetBlockLight(0, lightBytes);
+        lightData.SetSkyLight(0, lightBytes);
+
         client.SendPacket(new PlayerInfoUpdatePacket(PlayerActions.AddPlayer, [entry]));
         client.SendPacket(GameEventPacket.StartWaitingForLevelChunks);
         client.SendPacket(new SetChunkCacheCenterPacket(0, 0)); // TODO: Send on every chunk border crossing
-        client.SendPacket(new LevelChunkWithLightPacket(0, 0, chunk, new LightData(overworld)));
+        client.SendPacket(new LevelChunkWithLightPacket(0, 0, chunk, lightData));
         return ValueTask.CompletedTask;
     }
 

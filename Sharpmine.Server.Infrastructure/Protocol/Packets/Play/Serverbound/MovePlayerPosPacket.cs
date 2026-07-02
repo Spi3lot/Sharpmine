@@ -20,6 +20,8 @@ public partial record MovePlayerPosPacket
     [PacketProperty]
     private MovementStates _flags;
 
+    public bool Log => false;
+
     public bool DeserializeContent(ref SequenceReader<byte> reader)
     {
         return reader.TryReadDouble(out _x)

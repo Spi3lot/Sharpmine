@@ -26,6 +26,8 @@ public partial record MovePlayerPosRotPacket
     [PacketProperty]
     private MovementStates _flags;
 
+    public bool Log => false;
+
     public bool DeserializeContent(ref SequenceReader<byte> reader)
     {
         return reader.TryReadDouble(out _x)

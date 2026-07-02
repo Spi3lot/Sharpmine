@@ -43,6 +43,8 @@ public class LightData : IClientboundDataType
             : (byte) ((lightData[byteIndex] & 0x0F) | ((lightLevel & 0x0F) << 4));
     }
 
+    // TODO: Add getters?
+
     public void SetBlockLight(int sectionIndex, byte[] lightData)
     {
         if (lightData.Length != 2048)
@@ -52,9 +54,10 @@ public class LightData : IClientboundDataType
 
         _blockLightMask[sectionIndex] = true;
         _emptyBlockLightMask[sectionIndex] = false;
-        _blockLightArrays.Add(lightData);
+        _blockLightArrays.Add(lightData); // TODO: Rethink
     }
 
+    // TODO: Rethink
     public void ClearBlockLight(int sectionIndex)
     {
         _blockLightMask[sectionIndex] = false;
@@ -70,9 +73,10 @@ public class LightData : IClientboundDataType
 
         _skyLightMask[sectionIndex] = true;
         _emptySkyLightMask[sectionIndex] = false;
-        _skyLightArrays.Add(lightData);
+        _skyLightArrays.Add(lightData); // TODO: Rethink
     }
 
+    // TODO: Rethink
     public void ClearSkyLight(int sectionIndex)
     {
         _skyLightMask[sectionIndex] = false;

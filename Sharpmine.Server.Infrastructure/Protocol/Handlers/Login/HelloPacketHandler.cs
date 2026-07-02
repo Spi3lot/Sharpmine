@@ -1,4 +1,5 @@
 ﻿using Sharpmine.Domain.DataTypes;
+using Sharpmine.Domain.DataTypes.Components;
 using Sharpmine.Server.Domain.Entities;
 using Sharpmine.Server.Infrastructure.Configuration;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Login.Clientbound;
@@ -39,6 +40,10 @@ public class HelloPacketHandler(
         if (properties.OnlineMode)
         {
             // TODO
+            await client.DisconnectAsync(new TextComponent("Online mode is not supported yet!")
+            {
+                Style = new ComponentStyle { Color = "dark_red" }
+            });
         }
         else
         {

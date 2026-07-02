@@ -17,7 +17,7 @@ public class LightData : IClientboundDataType
     private readonly BitSet _emptyBlockLightMask;
 
     private readonly List<byte[]> _skyLightArrays = [];
-    
+
     private readonly List<byte[]> _blockLightArrays = [];
 
     public LightData(DimensionType dimensionType)
@@ -35,14 +35,14 @@ public class LightData : IClientboundDataType
 
     public static void SetLightLevel(byte[] lightData, int x, int y, int z, byte lightLevel)
     {
-        int blockIndex = (y << 8) | (z << 4) | x; 
+        int blockIndex = (y << 8) | (z << 4) | x;
         int byteIndex = blockIndex / 2;
 
         lightData[byteIndex] = (blockIndex % 2 == 0)
             ? (byte) ((lightData[byteIndex] & 0xF0) | (lightLevel & 0x0F))
             : (byte) ((lightData[byteIndex] & 0x0F) | ((lightLevel & 0x0F) << 4));
     }
-    
+
     public void SetBlockLight(int sectionIndex, byte[] lightData)
     {
         if (lightData.Length != 2048)

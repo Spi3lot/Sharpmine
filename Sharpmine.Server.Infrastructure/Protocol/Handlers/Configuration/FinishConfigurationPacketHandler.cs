@@ -20,6 +20,9 @@ public class FinishConfigurationPacketHandler(
         ClientHandler client,
         CancellationToken cancellationToken)
     {
+        var player = client.Player!;
+        var overworldId = Identifier.Minecraft("overworld");
+
         client.SendPacket(new LoginPacket(
             EntityId: 0,
             IsHardcore: false,
@@ -31,10 +34,10 @@ public class FinishConfigurationPacketHandler(
             EnableRespawnScreen: true,
             DoLimitedCrafting: false,
             DimensionType: 0,
-            DimensionName: "minecraft:overworld",
+            DimensionName: overworldId,
             HashedSeed: 0000,
-            GameMode: client.Player!.GameMode,
-            PreviousGameMode: client.Player.PreviousGameMode,
+            GameMode: player.GameMode,
+            PreviousGameMode: player.PreviousGameMode,
             IsDebug: false,
             IsFlat: true,
             HasDeathLocation: false,
@@ -58,13 +61,13 @@ public class FinishConfigurationPacketHandler(
         ));
 
         var entry = new PlayerInfoEntry(
-            Uuid: client.Player!.Profile.Uuid,
-            Name: client.Player.Profile.Username,
-            Properties: client.Player.Profile.Properties
+            Uuid: player.Profile.Uuid,
+            Name: player.Profile.Username,
+            Properties: player.Profile.Properties
             // TODO: More actions
         );
 
-        var overworld = registries.DimensionTypes[Identifier.Minecraft("overworld")];
+        var overworld = registries.DimensionTypes[overworldId];
         var chunk = new Chunk(overworld);
         chunk.SetBlock(0, 0, 0, Blocks.AcaciaLog.DefaultState.Id);
 

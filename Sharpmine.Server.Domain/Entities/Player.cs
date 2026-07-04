@@ -38,15 +38,14 @@ public class Player : ILoadableFromNbt<CompoundTag>, IConvertibleToNbt<CompoundT
     public static async Task<Player> LoadAsync(GameProfile profile, string levelName)
     {
         var player = new Player(in profile);
-        string filePath = Path.Combine(levelName, "playerdata", $"{profile.Uuid}.dat");
-        await player.LoadFromNbtFileAsync(filePath);
+        await player.LoadFromNbtFileAsync(player.GetNbtFilePath(levelName));
         return player;
     }
 
     public Task SaveAsync(string levelName)
     {
         return this.WriteToNbtFileAsync(
-            path: Path.Combine(levelName, "playerdata", $"{Profile.Uuid}.dat"),
+            path: GetNbtFilePath(levelName),
             rootName: "Player",
             initialBufferSize: 4096,
             backupExisting: true);
@@ -70,5 +69,7 @@ public class Player : ILoadableFromNbt<CompoundTag>, IConvertibleToNbt<CompoundT
             .Add(DisplayName?.ToNbt("CustomName"))
             .Build();
     }
+
+    private string GetNbtFilePath(string levelName) => Path.Combine(levelName, "playerdata", $"{Profile.Uuid}.dat");
 
 }

@@ -10,14 +10,22 @@ namespace Sharpmine.Server.Domain.Entities;
 public class Player : ILoadableFromNbt<CompoundTag>, IConvertibleToNbt<CompoundTag>
 {
 
+    private readonly GameProfile _profile;
+
+    private PlayerPosition _position;
+
+    private PlayerRotation _rotation;
+
     private Player(in GameProfile profile)
     {
-        Profile = profile;
+        _profile = profile;
     }
 
-    public GameProfile Profile { get; }
+    public ref readonly GameProfile Profile => ref _profile;
 
-    public PlayerPosition Position { get; set; }
+    public ref PlayerPosition Position => ref _position;
+
+    public ref PlayerRotation Rotation => ref _rotation;
 
     public GameMode GameMode { get; set; } = GameMode.Survival;
 
@@ -49,12 +57,14 @@ public class Player : ILoadableFromNbt<CompoundTag>, IConvertibleToNbt<CompoundT
         GameMode = (GameMode) tag.GetInteger("playerGameType")!;
         PreviousGameMode = (GameMode) tag.GetInteger("previousPlayerGameType")!;
         Position = PlayerPosition.FromNbt(tag.GetList<DoubleTag>("Pos")!);
+        Rotation = PlayerRotation.FromNbt(tag.GetList<FloatTag>("Rotation")!);
     }
 
     public CompoundTag ToNbt(string name = "")
     {
         return CompoundTagBuilder.Create(name)
             .Add(Position.ToNbt("Pos"))
+            .Add(Rotation.ToNbt("Rotation"))
             .AddInteger((int) GameMode, "playerGameType")
             .AddInteger((int) PreviousGameMode, "previousPlayerGameType")
             .Add(DisplayName?.ToNbt("CustomName"))

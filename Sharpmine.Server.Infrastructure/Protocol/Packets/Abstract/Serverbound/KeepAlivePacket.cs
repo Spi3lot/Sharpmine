@@ -11,6 +11,8 @@ public abstract partial record KeepAlivePacket
     [PacketProperty]
     private long _keepAliveId;
 
+    public bool Log => false;
+
     public bool DeserializeContent(ref SequenceReader<byte> reader)
     {
         return reader.TryReadInt64(out _keepAliveId);

@@ -23,7 +23,7 @@ public class FinishConfigurationPacketHandler(
         client.SendPacket(new LoginPacket(
             EntityId: 0,
             IsHardcore: false,
-            DimensionNames: ["minecraft:overworld"],
+            DimensionNames: [.. registries.DimensionTypes.Keys],
             MaxPlayers: properties.MaxPlayers,
             ViewDistance: 16,
             SimulationDistance: 16,

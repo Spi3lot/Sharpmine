@@ -20,6 +20,8 @@ public class DynamicRegistry<T>
 
     public bool TryGet(Identifier id, [NotNullWhen(true)] out T? value) => _entries.TryGetValue(id, out value);
 
+    public ImmutableArray<Identifier> Keys => _entries.Keys;
+
     public ImmutableArray<T> All => _entries.Values;
 
 }

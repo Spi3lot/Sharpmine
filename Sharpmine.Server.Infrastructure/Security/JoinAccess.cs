@@ -5,8 +5,6 @@ public enum JoinAccess : byte
 
     Allowed,
 
-    ServerFull,
-
     NotWhitelisted,
 
     Banned,

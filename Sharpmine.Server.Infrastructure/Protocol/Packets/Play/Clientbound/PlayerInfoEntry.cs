@@ -1,6 +1,5 @@
-﻿using System.ComponentModel;
-
-using Sharpmine.Domain.DataTypes;
+﻿using Sharpmine.Domain.DataTypes;
+using Sharpmine.Domain.DataTypes.Components;
 
 namespace Sharpmine.Server.Infrastructure.Protocol.Packets.Play.Clientbound;
 

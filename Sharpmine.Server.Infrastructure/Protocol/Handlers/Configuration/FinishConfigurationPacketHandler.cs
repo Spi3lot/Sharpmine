@@ -5,6 +5,7 @@ using Sharpmine.Domain.DataTypes;
 using Sharpmine.Domain.Registries.Static;
 using Sharpmine.Server.Domain.Registries.Dynamic;
 using Sharpmine.Server.Infrastructure.Configuration;
+using Sharpmine.Server.Infrastructure.Protocol.Packets.Abstract.Serverbound;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Configuration.Serverbound;
 using Sharpmine.Server.Infrastructure.Protocol.Packets.Play.Clientbound;
 
@@ -63,8 +64,13 @@ public class FinishConfigurationPacketHandler(
         var entry = new PlayerInfoEntry(
             Uuid: player.Profile.Uuid,
             Name: player.Profile.Username,
-            Properties: player.Profile.Properties
-            // TODO: More actions
+            Properties: player.Profile.Properties,
+            GameMode: player.GameMode,
+            Listed: true,
+            Ping: player.Ping,
+            DisplayName: player.DisplayName,
+            ListPriority: 0,
+            HatVisible: client.Information!.DisplayedSkinParts.HasFlag(SkinParts.Hat)
         );
 
         var overworld = registries.DimensionTypes[overworldId];
@@ -78,7 +84,7 @@ public class FinishConfigurationPacketHandler(
         lightData.SetBlockLight(0, lightBytes);
         lightData.SetSkyLight(0, lightBytes);
 
-        client.SendPacket(new PlayerInfoUpdatePacket(PlayerActions.AddPlayer, [entry]));
+        client.SendPacket(new PlayerInfoUpdatePacket(PlayerActions.All, [entry]));
         client.SendPacket(GameEventPacket.StartWaitingForLevelChunks);
         client.SendPacket(new SetChunkCacheCenterPacket(0, 0)); // TODO: Send on every chunk border crossing
         client.SendPacket(new LevelChunkWithLightPacket(0, 0, chunk, lightData));

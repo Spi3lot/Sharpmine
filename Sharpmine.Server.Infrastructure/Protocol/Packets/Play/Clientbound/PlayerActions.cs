@@ -18,6 +18,8 @@ public enum PlayerActions : byte
 
     UpdateListPriority = 0x40,
 
-    UpdateHat = 0x80
+    UpdateHat = 0x80,
+
+    All = 0x100 - 1,
 
 }

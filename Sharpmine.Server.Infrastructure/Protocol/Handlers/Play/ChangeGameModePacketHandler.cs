@@ -11,8 +11,10 @@ public class ChangeGameModePacketHandler : IPacketHandler<ChangeGameModePacket>
         ClientHandler client,
         CancellationToken cancellationToken)
     {
-        // TODO: Secure
-        client.SendPacket(GameEventPacket.ChangeGameMode(packet.GameMode));
+        var player = client.Player!;
+        player.PreviousGameMode = player.GameMode;
+        player.GameMode = packet.GameMode;
+        client.SendPacket(GameEventPacket.ChangeGameMode(packet.GameMode)); // TODO: Secure
         return ValueTask.CompletedTask;
     }
 

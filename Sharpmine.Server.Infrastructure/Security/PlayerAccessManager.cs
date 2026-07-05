@@ -78,7 +78,7 @@ public partial class PlayerAccessManager
             return (JoinAccess.Banned, $"You are banned from this server.\nReason: {ban.Reason}");
         }
 
-        if (_properties.WhiteList && !IsImplicitlyWhitelisted(uuid.Value))
+        if (_properties.WhiteList && !IsWhitelisted(uuid.Value))
         {
             return (JoinAccess.NotWhitelisted, "You are not white-listed on this server!");
         }
@@ -86,7 +86,7 @@ public partial class PlayerAccessManager
         return (JoinAccess.Allowed, null);
     }
 
-    public bool IsImplicitlyWhitelisted(Guid playerId) => IsExplicitlyWhitelisted(playerId) || IsOp(playerId);
+    public bool IsWhitelisted(Guid playerId) => IsExplicitlyWhitelisted(playerId) || IsOp(playerId);
 
     public bool IsExplicitlyWhitelisted(Guid playerId) => _whitelistedPlayers.ContainsKey(playerId);
 

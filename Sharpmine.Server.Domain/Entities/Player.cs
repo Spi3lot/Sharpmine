@@ -33,7 +33,7 @@ public class Player : ILoadableFromNbt<CompoundTag>, IConvertibleToNbt<CompoundT
 
     public Component? DisplayName { get; set; }
 
-    public int Ping { get; set; }
+    public int Ping { get; set; } = -1;
 
     public static async Task<Player> LoadAsync(GameProfile profile, string levelName)
     {

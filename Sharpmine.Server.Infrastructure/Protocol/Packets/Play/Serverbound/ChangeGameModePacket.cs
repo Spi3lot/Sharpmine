@@ -14,7 +14,7 @@ public partial record ChangeGameModePacket
 
     public bool DeserializeContent(ref SequenceReader<byte> reader)
     {
-        return reader.TryReadEnum(out _gameMode);
+        return reader.TryReadVarIntEnum(out _gameMode);
     }
 
 }

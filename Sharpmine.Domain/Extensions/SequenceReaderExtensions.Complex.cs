@@ -112,7 +112,7 @@ public static partial class SequenceReaderExtensions
             return true;
         }
 
-        public bool TryReadEnum<TEnum>(out TEnum value)
+        public bool TryReadVarIntEnum<TEnum>(out TEnum value)
             where TEnum : unmanaged, Enum
         {
             if (!reader.TryReadVarInt(out int rawValue))

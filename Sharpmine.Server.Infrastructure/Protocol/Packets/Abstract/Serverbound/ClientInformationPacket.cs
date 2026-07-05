@@ -39,13 +39,13 @@ public abstract partial record ClientInformationPacket
     {
         return reader.TryReadString(out _locale, 16)
                && reader.TryReadSByte(out _viewDistance)
-               && reader.TryReadEnum(out _chatMode)
+               && reader.TryReadVarIntEnum(out _chatMode)
                && reader.TryReadBoolean(out _chatColors)
-               && reader.TryReadEnum(out _displayedSkinParts)
-               && reader.TryReadEnum(out _mainHand)
+               && reader.TryReadVarIntEnum(out _displayedSkinParts)
+               && reader.TryReadVarIntEnum(out _mainHand)
                && reader.TryReadBoolean(out _enableTextFiltering)
                && reader.TryReadBoolean(out _allowServerListings)
-               && reader.TryReadEnum(out _particleStatus);
+               && reader.TryReadVarIntEnum(out _particleStatus);
     }
 
 }

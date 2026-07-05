@@ -27,7 +27,7 @@ public partial record IntentionPacket : IStateTransition, IHandlerless
         return reader.TryReadVarInt(out _protocolVersion)
                && reader.TryReadString(out _serverAddress, 255)
                && reader.TryReadUInt16(out _serverPort)
-               && reader.TryReadEnum(out _intent);
+               && reader.TryReadVarIntEnum(out _intent);
     }
 
 }

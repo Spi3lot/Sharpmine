@@ -1,7 +1,7 @@
 ﻿namespace Sharpmine.Server.Infrastructure.Protocol.Packets.Play.Serverbound;
 
 [Flags]
-public enum MovementStates : byte
+public enum MovementStates : sbyte
 {
 
     None = 0x00,

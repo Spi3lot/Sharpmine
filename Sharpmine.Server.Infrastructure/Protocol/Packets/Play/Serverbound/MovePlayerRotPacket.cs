@@ -23,7 +23,7 @@ public partial record MovePlayerRotPacket
     {
         return reader.TryReadSingle(out _yaw)
                && reader.TryReadSingle(out _pitch)
-               && reader.TryReadEnum<MovementStates, byte>(out _flags, static (ref reader, out value) => reader.TryReadByte(out value));
+               && reader.TryReadEnum<MovementStates, sbyte>(out _flags, static (ref reader, out value) => reader.TryReadSByte(out value));
     }
 
 }

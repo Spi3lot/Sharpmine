@@ -27,7 +27,7 @@ public partial record MovePlayerPosPacket
         return reader.TryReadDouble(out _x)
                && reader.TryReadDouble(out _feetY)
                && reader.TryReadDouble(out _z)
-               && reader.TryReadEnum<MovementStates, byte>(out _flags, static (ref reader, out value) => reader.TryReadByte(out value));
+               && reader.TryReadEnum<MovementStates, sbyte>(out _flags, static (ref reader, out value) => reader.TryReadSByte(out value));
     }
 
 }

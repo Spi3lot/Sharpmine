@@ -13,7 +13,7 @@ public partial record MovePlayerStatusOnlyPacket
 
     public bool DeserializeContent(ref SequenceReader<byte> reader)
     {
-        return reader.TryReadEnum<MovementStates, byte>(out _flags, static (ref reader, out value) => reader.TryReadByte(out value));
+        return reader.TryReadEnum<MovementStates, sbyte>(out _flags, static (ref reader, out value) => reader.TryReadSByte(out value));
     }
 
 }

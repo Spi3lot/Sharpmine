@@ -50,14 +50,14 @@ public class FinishConfigurationPacketHandler(
 
         client.SendPacket(new PlayerPositionPacket(
             TeleportId: 1,
-            X: 0,
-            Y: 100,
-            Z: 0,
+            X: player.Position.X,
+            Y: player.Position.FeetY,
+            Z: player.Position.Z,
             VelocityX: 0,
             VelocityY: 0,
             VelocityZ: 0,
-            Yaw: 0,
-            Pitch: 0,
+            Yaw: player.Rotation.Yaw,
+            Pitch: player.Rotation.Pitch,
             Flags: TeleportRelativeAxes.None
         ));
 

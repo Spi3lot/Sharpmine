@@ -67,6 +67,8 @@ public sealed class Chunk : IClientboundDataType
         UpdateHeightmap(in _motionBlockingNoLeavesHeightmap, x, y, z, stateId);
     }
 
+    // TODO: Add method(s) for retrieving heightmap values
+
     private void UpdateHeightmap(in Heightmap heightmap, int x, int y, int z, int stateId)
     {
         int height = y - _minY + 1;

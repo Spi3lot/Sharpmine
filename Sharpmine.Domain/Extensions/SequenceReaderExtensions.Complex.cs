@@ -125,19 +125,6 @@ public static partial class SequenceReaderExtensions
             return true;
         }
 
-        public bool TryReadEnum<TEnum>(out TEnum value, TryReadFunc<int> readFunc)
-            where TEnum : unmanaged, Enum
-        {
-            if (!readFunc(ref reader, out int rawValue))
-            {
-                value = default;
-                return false;
-            }
-
-            value = Unsafe.As<int, TEnum>(ref rawValue);
-            return true;
-        }
-
         public bool TryReadEnum<TEnum, TUnderlying>(out TEnum value, TryReadFunc<TUnderlying> readFunc)
             where TEnum : unmanaged, Enum
             where TUnderlying : unmanaged

@@ -19,7 +19,7 @@ public class KeepAlivePacketHandler : IPacketHandler<KeepAlivePacket>
         {
             client.DisconnectAsync(new TextComponent("Invalid KeepAliveId")
             {
-                Style = new ComponentStyle { Color = "red" }
+                Style = new ComponentStyle { Color = Color.Red.Name }
             });
         }
 

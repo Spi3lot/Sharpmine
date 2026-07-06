@@ -42,7 +42,7 @@ public class HelloPacketHandler(
             // TODO
             await client.DisconnectAsync(new TextComponent("Online mode is not supported yet!")
             {
-                Style = new ComponentStyle { Color = "dark_red" }
+                Style = new ComponentStyle { Color = Color.DarkRed.Name }
             });
         }
         else

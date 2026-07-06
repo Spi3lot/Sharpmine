@@ -87,7 +87,7 @@ public sealed partial class ClientHandler(
 
             await DisconnectAsync(new TextComponent("Server closed")
             {
-                Style = new ComponentStyle { Color = "gold" }
+                Style = new ComponentStyle { Color = Color.Gold.Name }
             });
         }
         catch (Exception ex) when (ex is SocketException or ObjectDisposedException or { InnerException: SocketException or ObjectDisposedException or { InnerException: SocketException or ObjectDisposedException } })
@@ -100,7 +100,7 @@ public sealed partial class ClientHandler(
 
             await DisconnectAsync(new TextComponent("Internal server error")
             {
-                Style = new ComponentStyle { Color = "dark_red" }
+                Style = new ComponentStyle { Color = Color.DarkRed.Name }
             });
         }
         finally
@@ -164,7 +164,7 @@ public sealed partial class ClientHandler(
                 {
                     await DisconnectAsync(new TextComponent("Timed out")
                     {
-                        Style = new ComponentStyle { Color = "red" }
+                        Style = new ComponentStyle { Color = Color.Red.Name }
                     });
 
                     break;

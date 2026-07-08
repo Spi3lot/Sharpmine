@@ -60,6 +60,72 @@ public static partial class BufferWriterExtensions
             }
         }
 
+        public int WritePrefixedEnumerable<T>(IEnumerable<T> value) where T : IClientboundDataType
+        {
+            using var pooledWriter = new PooledByteBufferWriter();
+            int count = pooledWriter.WriteEnumerable(value);
+            writer.WriteVarInt(count);
+            writer.Write(pooledWriter.WrittenSpan);
+            return count;
+        }
+
+        public int WritePrefixedEnumerable<T>(IEnumerable<T> value, Action<IBufferWriter<byte>, T> writeElementAction)
+        {
+            using var pooledWriter = new PooledByteBufferWriter();
+            int count = pooledWriter.WriteEnumerable(value, writeElementAction);
+            writer.WriteVarInt(count);
+            writer.Write(pooledWriter.WrittenSpan);
+            return count;
+        }
+
+        public int WritePrefixedEnumerable<T, TState>(IEnumerable<T> value, TState state, Action<IBufferWriter<byte>, T, TState> writeElementAction)
+        {
+            using var pooledWriter = new PooledByteBufferWriter();
+            int count = pooledWriter.WriteEnumerable(value, state, writeElementAction);
+            writer.WriteVarInt(count);
+            writer.Write(pooledWriter.WrittenSpan);
+            return count;
+        }
+
+        public int WriteEnumerable<T>(IEnumerable<T> value) where T : IClientboundDataType
+        {
+            int count = 0;
+
+            foreach (T element in value)
+            {
+                writer.Write(element);
+                count++;
+            }
+
+            return count;
+        }
+
+        public int WriteEnumerable<T>(IEnumerable<T> value, Action<IBufferWriter<byte>, T> writeElementAction)
+        {
+            int count = 0;
+
+            foreach (T element in value)
+            {
+                writeElementAction(writer, element);
+                count++;
+            }
+
+            return count;
+        }
+
+        public int WriteEnumerable<T, TState>(IEnumerable<T> value, TState state, Action<IBufferWriter<byte>, T, TState> writeElementAction)
+        {
+            int count = 0;
+
+            foreach (T element in value)
+            {
+                writeElementAction(writer, element, state);
+                count++;
+            }
+
+            return count;
+        }
+
         public void WritePrefixedSpan<T>(ReadOnlySpan<T> value) where T : IClientboundDataType
         {
             writer.WriteVarInt(value.Length);

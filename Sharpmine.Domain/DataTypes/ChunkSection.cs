@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 
+using Sharpmine.Domain.Blocks;
 using Sharpmine.Domain.Extensions;
 using Sharpmine.Domain.Tags;
 
@@ -16,10 +17,12 @@ public struct ChunkSection(int defaultBiomeId) : IClientboundDataType
 
     public int GetBlock(int x, int y, int z) => BlockStates.Get(x, y, z);
 
-    public int SetBlock(int x, int y, int z, int stateId)
+    public void SetBlock(int x, int y, int z, BlockState state) => SetBlock(x, y, z, state.Id);
+
+    public void SetBlock(int x, int y, int z, int stateId)
     {
-        int oldStateId = BlockStates.Get(x, y, z);
-        if (oldStateId == stateId) return oldStateId;
+        int oldStateId = GetBlock(x, y, z);
+        if (oldStateId == stateId) return;
 
         BlockStates.Set(x, y, z, stateId);
         var airStates = BlockTags.GetStates(BlockTags.Air);

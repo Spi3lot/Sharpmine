@@ -126,12 +126,12 @@ public sealed class PalettedContainer : IClientboundDataType
         }
         else if (IsDirect(_bitsPerEntry, _directBpe))
         {
-            writer.WriteArray(_data, static (writer, @long) => writer.WriteInt64(@long));
+            writer.WriteSpan(_data, static (writer, @long) => writer.WriteInt64(@long));
         }
         else
         {
             writer.WritePrefixedSpan(_palette, static (writer, @long) => writer.WriteVarInt(@long));
-            writer.WriteArray(_data, static (writer, @long) => writer.WriteInt64(@long));
+            writer.WriteSpan(_data, static (writer, @long) => writer.WriteInt64(@long));
         }
     }
 

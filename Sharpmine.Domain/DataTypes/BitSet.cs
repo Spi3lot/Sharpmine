@@ -28,7 +28,7 @@ public readonly struct BitSet(int bitCapacity) : IClientboundDataType
 
     public void Serialize(IBufferWriter<byte> writer)
     {
-        writer.WritePrefixedArray(Data, static (writer, @long) => writer.WriteInt64(@long));
+        writer.WritePrefixedSpan(Data, static (writer, @long) => writer.WriteInt64(@long));
     }
 
 }

@@ -74,7 +74,16 @@ public sealed class Chunk : IClientboundDataType
         GetSection(y).SetBiome(x, y & 15, z, biomeId);
     }
 
-    // TODO: Add method(s) for retrieving heightmap values
+    public int GetHighestBlockY(int x, int z, HeightmapType type)
+    {
+        return type switch
+        {
+            HeightmapType.WorldSurface => _worldSurfaceHeightmap[x, z] + _minY - 1,
+            HeightmapType.MotionBlocking => _motionBlockingHeightmap[x, z] + _minY - 1,
+            HeightmapType.MotionBlockingNoLeaves => _motionBlockingNoLeavesHeightmap[x, z] + _minY - 1,
+            _ => _minY
+        };
+    }
 
     private void UpdateHeightmap(in Heightmap heightmap, int x, int y, int z, int stateId)
     {

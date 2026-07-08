@@ -28,8 +28,7 @@ public static partial class BufferWriterExtensions
         {
             using var pooledWriter = new PooledByteBufferWriter(1024);
             pooledWriter.WriteJson(value);
-            writer.WriteVarInt(pooledWriter.WrittenCount);
-            writer.Write(pooledWriter.WrittenSpan);
+            writer.WritePrefixed(pooledWriter.WrittenSpan);
         }
 
         public void WriteJson<T>(T value) => writer.WriteJson(value, Options);

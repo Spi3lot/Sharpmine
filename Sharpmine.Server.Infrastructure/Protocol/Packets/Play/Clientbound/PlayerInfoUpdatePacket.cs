@@ -12,14 +12,14 @@ public partial record PlayerInfoUpdatePacket(PlayerActions Actions, PlayerInfoEn
     public void SerializeContent(IBufferWriter<byte> writer)
     {
         writer.WriteByte((byte) Actions);
-        writer.WritePrefixedArray(Entries, Actions, static (writer, entry, actions) =>
+        writer.WritePrefixedSpan(Entries, Actions, static (writer, entry, actions) =>
         {
             writer.WriteUuid(entry.Uuid);
 
             if (actions.HasFlag(PlayerActions.AddPlayer))
             {
                 writer.WriteString(entry.Name!);
-                writer.WritePrefixedArray(entry.Properties, static (writer, property) =>
+                writer.WritePrefixedSpan(entry.Properties, static (writer, property) =>
                 {
                     writer.WriteString(property.Name);
                     writer.WriteString(property.Value);

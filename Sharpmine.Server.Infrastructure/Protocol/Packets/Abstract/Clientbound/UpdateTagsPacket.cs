@@ -12,7 +12,7 @@ public abstract partial record UpdateTagsPacket
 
     public void SerializeContent(IBufferWriter<byte> writer)
     {
-        writer.WritePrefixedArray(TaggedRegistries);
+        writer.WritePrefixedSpan(TaggedRegistries);
     }
 
 }

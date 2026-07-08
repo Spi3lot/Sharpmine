@@ -36,7 +36,7 @@ public partial record LoginPacket(
     {
         writer.WriteInt32(EntityId);
         writer.WriteBoolean(IsHardcore);
-        writer.WritePrefixedArray(DimensionNames, static (writer, dimensionName) => writer.WriteString(dimensionName));
+        writer.WritePrefixedSpan(DimensionNames, static (writer, dimensionName) => writer.WriteString(dimensionName));
         writer.WriteVarInt(MaxPlayers);
         writer.WriteVarInt(ViewDistance);
         writer.WriteVarInt(SimulationDistance);

@@ -10,7 +10,7 @@ public readonly record struct RegistryTag(Identifier TagName, int[] Entries) : I
     public void Serialize(IBufferWriter<byte> writer)
     {
         writer.WriteIdentifier(TagName);
-        writer.WritePrefixedArray(Entries, static (writer, entry) => writer.WriteVarInt(entry));
+        writer.WritePrefixedSpan(Entries, static (writer, entry) => writer.WriteVarInt(entry));
     }
 
 }

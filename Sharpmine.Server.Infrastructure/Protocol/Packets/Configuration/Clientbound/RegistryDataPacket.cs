@@ -12,7 +12,7 @@ public partial record RegistryDataPacket(Identifier RegistryId, RegistryEntry[] 
     public void SerializeContent(IBufferWriter<byte> writer)
     {
         writer.WriteIdentifier(RegistryId);
-        writer.WritePrefixedArray(Entries);
+        writer.WritePrefixedSpan(Entries);
     }
 
 }

@@ -60,25 +60,25 @@ public static partial class BufferWriterExtensions
             }
         }
 
-        public void WritePrefixedArray<T>(ReadOnlySpan<T> value) where T : IClientboundDataType
+        public void WritePrefixedSpan<T>(ReadOnlySpan<T> value) where T : IClientboundDataType
         {
             writer.WriteVarInt(value.Length);
-            writer.WriteArray(value);
+            writer.WriteSpan(value);
         }
 
-        public void WritePrefixedArray<T>(ReadOnlySpan<T> value, Action<IBufferWriter<byte>, T> writeElementAction)
+        public void WritePrefixedSpan<T>(ReadOnlySpan<T> value, Action<IBufferWriter<byte>, T> writeElementAction)
         {
             writer.WriteVarInt(value.Length);
-            writer.WriteArray(value, writeElementAction);
+            writer.WriteSpan(value, writeElementAction);
         }
 
-        public void WritePrefixedArray<T, TState>(ReadOnlySpan<T> value, TState state, Action<IBufferWriter<byte>, T, TState> writeElementAction)
+        public void WritePrefixedSpan<T, TState>(ReadOnlySpan<T> value, TState state, Action<IBufferWriter<byte>, T, TState> writeElementAction)
         {
             writer.WriteVarInt(value.Length);
-            writer.WriteArray(value, state, writeElementAction);
+            writer.WriteSpan(value, state, writeElementAction);
         }
 
-        public void WriteArray<T>(ReadOnlySpan<T> value) where T : IClientboundDataType
+        public void WriteSpan<T>(ReadOnlySpan<T> value) where T : IClientboundDataType
         {
             foreach (T element in value)
             {
@@ -86,7 +86,7 @@ public static partial class BufferWriterExtensions
             }
         }
 
-        public void WriteArray<T>(ReadOnlySpan<T> value, Action<IBufferWriter<byte>, T> writeElementAction)
+        public void WriteSpan<T>(ReadOnlySpan<T> value, Action<IBufferWriter<byte>, T> writeElementAction)
         {
             foreach (T element in value)
             {
@@ -94,7 +94,7 @@ public static partial class BufferWriterExtensions
             }
         }
 
-        public void WriteArray<T, TState>(ReadOnlySpan<T> value, TState state, Action<IBufferWriter<byte>, T, TState> writeElementAction)
+        public void WriteSpan<T, TState>(ReadOnlySpan<T> value, TState state, Action<IBufferWriter<byte>, T, TState> writeElementAction)
         {
             foreach (T element in value)
             {

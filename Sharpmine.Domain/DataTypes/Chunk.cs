@@ -128,7 +128,7 @@ public sealed class Chunk : IClientboundDataType
     public void Serialize(IBufferWriter<byte> writer)
     {
         using var pooledWriter = new PooledByteBufferWriter(131_072);
-        pooledWriter.WriteArray(Sections);
+        pooledWriter.WriteSpan(Sections);
         writer.WritePrefixed(pooledWriter.WrittenSpan);
     }
 

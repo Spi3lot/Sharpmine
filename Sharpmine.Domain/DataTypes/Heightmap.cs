@@ -22,7 +22,7 @@ public readonly struct Heightmap(HeightmapType type, int dimensionHeight) : ICli
     public void Serialize(IBufferWriter<byte> writer)
     {
         writer.WriteVarInt((int) Type);
-        writer.WritePrefixedArray(_bitStorage.Data, static (writer, @long) => writer.WriteInt64(@long));
+        writer.WritePrefixedSpan(_bitStorage.Data, static (writer, @long) => writer.WriteInt64(@long));
     }
 
     public bool SatisfiesCriteria(int checkStateId) => Type switch

@@ -23,9 +23,9 @@ public partial record LevelChunkWithLightPacket(
     {
         writer.WriteInt32(ChunkX);
         writer.WriteInt32(ChunkZ);
-        writer.WritePrefixedArray(Heightmaps);
+        writer.WritePrefixedSpan(Heightmaps);
         writer.Write(Column);
-        writer.WritePrefixedArray(BlockEntities, static (writer, entity) => entity.Serialize(writer));
+        writer.WritePrefixedSpan(BlockEntities, static (writer, entity) => entity.Serialize(writer));
         writer.Write(LightData);
     }
 

@@ -130,7 +130,7 @@ public sealed class PalettedContainer : IClientboundDataType
         }
         else
         {
-            writer.WritePrefixedArray(_palette, static (writer, @long) => writer.WriteVarInt(@long));
+            writer.WritePrefixedSpan(_palette, static (writer, @long) => writer.WriteVarInt(@long));
             writer.WriteArray(_data, static (writer, @long) => writer.WriteInt64(@long));
         }
     }

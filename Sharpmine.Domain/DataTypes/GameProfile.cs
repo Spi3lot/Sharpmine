@@ -14,7 +14,7 @@ public readonly record struct GameProfile(
     {
         writer.WriteUuid(Uuid);
         writer.WriteString(Username);
-        writer.WritePrefixedArray(Properties);
+        writer.WritePrefixedSpan(Properties);
     }
 
 }

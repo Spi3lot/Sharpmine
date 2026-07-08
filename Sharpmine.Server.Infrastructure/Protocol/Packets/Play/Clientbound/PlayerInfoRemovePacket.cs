@@ -9,7 +9,7 @@ public partial record PlayerInfoRemovePacket(Guid[] Uuids)
 
     public void SerializeContent(IBufferWriter<byte> writer)
     {
-        writer.WritePrefixedArray(Uuids, static (writer, uuid) => writer.WriteUuid(uuid));
+        writer.WritePrefixedSpan(Uuids, static (writer, uuid) => writer.WriteUuid(uuid));
     }
 
 }

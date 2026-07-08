@@ -20,7 +20,7 @@ public sealed class Chunk : IClientboundDataType
 
     private readonly Dictionary<int, BlockEntity> _blockEntities = [];
 
-    public Chunk(DimensionType dimension)
+    public Chunk(DimensionType dimension, int defaultBiomeId)
     {
         _minY = dimension.MinY;
         _worldSurfaceHeightmap = new Heightmap(HeightmapType.WorldSurface, dimension.Height);
@@ -30,7 +30,7 @@ public sealed class Chunk : IClientboundDataType
 
         for (int i = 0; i < Sections.Length; i++)
         {
-            Sections[i] = new ChunkSection();
+            Sections[i] = new ChunkSection(defaultBiomeId);
         }
     }
 
@@ -65,6 +65,13 @@ public sealed class Chunk : IClientboundDataType
         UpdateHeightmap(in _worldSurfaceHeightmap, x, y, z, stateId);
         UpdateHeightmap(in _motionBlockingHeightmap, x, y, z, stateId);
         UpdateHeightmap(in _motionBlockingNoLeavesHeightmap, x, y, z, stateId);
+    }
+
+    public int GetBiome(int x, int y, int z) => GetSection(y).GetBiome(x, y & 15, z);
+
+    public void SetBiome(int x, int y, int z, int biomeId)
+    {
+        GetSection(y).SetBiome(x, y & 15, z, biomeId);
     }
 
     // TODO: Add method(s) for retrieving heightmap values

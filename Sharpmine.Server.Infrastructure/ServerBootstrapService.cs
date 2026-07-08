@@ -24,7 +24,7 @@ public class ServerBootstrapService(
         logger.LogInformation("Dynamic registries filled successfully");
 
         _ = BlockTags.Air;
-        new Chunk(registries.DimensionTypes["overworld"]).SetBlock(0, 0, 0, Blocks.Air.DefaultState.Id);
+        new Chunk(registries.DimensionTypes["overworld"], 0).SetBlock(0, 0, 0, Blocks.Air.DefaultState.Id);
         serviceProvider.GetRequiredService<NetworkRegistryCache>();
         serviceProvider.GetRequiredService<NetworkTagCache>();
         logger.LogInformation("JIT and registry caches warmed up successfully");

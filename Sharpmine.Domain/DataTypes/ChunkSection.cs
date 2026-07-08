@@ -5,14 +5,14 @@ using Sharpmine.Domain.Tags;
 
 namespace Sharpmine.Domain.DataTypes;
 
-public struct ChunkSection() : IClientboundDataType
+public struct ChunkSection(int defaultBiomeId) : IClientboundDataType
 {
 
     public short BlockCount { get; private set; }
 
-    public PalettedContainer BlockStates { get; } = new(PalettedContainerType.BlockStates);
+    public PalettedContainer BlockStates { get; } = new(PalettedContainerType.BlockStates, 0);
 
-    public PalettedContainer Biomes { get; } = new(PalettedContainerType.Biomes);
+    public PalettedContainer Biomes { get; } = new(PalettedContainerType.Biomes, defaultBiomeId);
 
     public int GetBlock(int x, int y, int z) => BlockStates.Get(x, y, z);
 
@@ -28,8 +28,15 @@ public struct ChunkSection() : IClientboundDataType
 
         if (wasAir && !isAir) BlockCount++;
         else if (!wasAir && isAir) BlockCount--;
+    }
 
-        return oldStateId;
+    public int GetBiome(int x, int y, int z) => Biomes.Get(x / 4, y / 4, z / 4);
+
+    public int SetBiome(int x, int y, int z, int biomeId)
+    {
+        int oldBiomeId = GetBiome(x, y, z);
+        Biomes.Set(x / 4, y / 4, z / 4, biomeId);
+        return oldBiomeId;
     }
 
     public void Serialize(IBufferWriter<byte> writer)

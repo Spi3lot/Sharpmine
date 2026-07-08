@@ -21,11 +21,11 @@ public sealed class PalettedContainer : IClientboundDataType
 
     private byte _bitsPerEntry;
 
-    private int[] _palette = [0];
+    private int[] _palette;
 
     private long[] _data = [];
 
-    public PalettedContainer(PalettedContainerType type)
+    public PalettedContainer(PalettedContainerType type, int defaultValue)
     {
         bool biomes = type == PalettedContainerType.Biomes;
         _capacity = (biomes) ? 64 : 4096;
@@ -34,6 +34,7 @@ public sealed class PalettedContainer : IClientboundDataType
         _minIndirectBpe = (byte) ((biomes) ? 1 : 4);
         _maxIndirectBpe = (byte) ((biomes) ? 3 : 8);
         _directBpe = (byte) ((biomes) ? 7 : 15);
+        _palette = [defaultValue];
     }
 
     public int Get(int x, int y, int z)
